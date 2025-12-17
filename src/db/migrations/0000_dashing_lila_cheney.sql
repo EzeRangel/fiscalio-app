@@ -36,7 +36,7 @@ CREATE TABLE "organizations" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"business_name" varchar(255) NOT NULL,
 	"rfc" varchar(13) NOT NULL,
-	"tax_regime" varchar(10) NOT NULL,
+	"tax_regime_id" integer NOT NULL,
 	"legal_name" varchar(255),
 	"address" jsonb,
 	"contact" jsonb,
@@ -161,8 +161,16 @@ CREATE TABLE "payment_allocations" (
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE "taxRegimes" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"code" varchar(3) NOT NULL,
+	"description" varchar(256) NOT NULL,
+	CONSTRAINT "taxRegimes_code_unique" UNIQUE("code")
+);
+--> statement-breakpoint
 ALTER TABLE "bank_accounts" ADD CONSTRAINT "bank_accounts_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "business_partners" ADD CONSTRAINT "business_partners_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "organizations" ADD CONSTRAINT "organizations_tax_regime_id_taxRegimes_id_fk" FOREIGN KEY ("tax_regime_id") REFERENCES "public"."taxRegimes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_partner_id_business_partners_id_fk" FOREIGN KEY ("partner_id") REFERENCES "public"."business_partners"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_substitute_invoice_id_invoices_id_fk" FOREIGN KEY ("substitute_invoice_id") REFERENCES "public"."invoices"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

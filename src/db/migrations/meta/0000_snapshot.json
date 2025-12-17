@@ -1,6 +1,6 @@
 {
-  "id": "ea986f2a-9f06-494b-ab9f-7afef072abc7",
-  "prevId": "b3e7f654-dc4c-4399-9c20-353422ff5a70",
+  "id": "1692d890-cf84-4b6c-a8ca-fa65ed455afc",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -304,9 +304,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "tax_regime": {
-          "name": "tax_regime",
-          "type": "varchar(10)",
+        "tax_regime_id": {
+          "name": "tax_regime_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -387,7 +387,21 @@
           "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "organizations_tax_regime_id_taxRegimes_id_fk": {
+          "name": "organizations_tax_regime_id_taxRegimes_id_fk",
+          "tableFrom": "organizations",
+          "tableTo": "taxRegimes",
+          "columnsFrom": [
+            "tax_regime_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "organizations_rfc_unique": {

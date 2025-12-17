@@ -1,12 +1,15 @@
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { PGlite } from "@electric-sql/pglite";
-import { taxRegimes } from "../src/db/schema/taxRegimes";
+import { taxRegimes } from "../db/schema/taxRegimes";
 
 async function main() {
   const data = [
     { code: "601", description: "REGIMEN GENERAL DE LEY PERSONAS MORALES" },
-    { code: "602", description: "RÉGIMEN SIMPLIFICADO DE LEY PERSONAS MORALES" },
+    {
+      code: "602",
+      description: "RÉGIMEN SIMPLIFICADO DE LEY PERSONAS MORALES",
+    },
     { code: "603", description: "PERSONAS MORALES CON FINES NO LUCRATIVOS" },
     { code: "604", description: "RÉGIMEN DE PEQUEÑOS CONTRIBUYENTES" },
     {
@@ -47,7 +50,10 @@ async function main() {
     },
     { code: "616", description: "SIN OBLIGACIONES FISCALES" },
     { code: "617", description: "PEMEX" },
-    { code: "618", description: "RÉGIMEN SIMPLIFICADO DE LEY PERSONAS FÍSICAS" },
+    {
+      code: "618",
+      description: "RÉGIMEN SIMPLIFICADO DE LEY PERSONAS FÍSICAS",
+    },
     { code: "619", description: "INGRESOS POR LA OBTENCIÓN DE PRÉSTAMOS" },
     {
       code: "620",
@@ -60,7 +66,10 @@ async function main() {
       description:
         "RÉGIMEN DE ACTIVIDADES AGRÍCOLAS, GANADERAS, SILVÍCOLAS Y PESQUERAS PM",
     },
-    { code: "623", description: "RÉGIMEN DE OPCIONAL PARA GRUPOS DE SOCIEDADES" },
+    {
+      code: "623",
+      description: "RÉGIMEN DE OPCIONAL PARA GRUPOS DE SOCIEDADES",
+    },
     { code: "624", description: "RÉGIMEN DE LOS COORDINADOS" },
     {
       code: "625",
@@ -72,10 +81,11 @@ async function main() {
 
   const pg = new PGlite(process.env.DATABASE_URL!);
   const db = drizzle(pg);
+  const migrationsFolder = "./src/db/migrations";
 
   console.log("Running migrations...");
-  await migrate(db, { migrationsFolder: "./drizzle" });
-  console.log("Migrations completed.");
+  await migrate(db, { migrationsFolder });
+  console.log("Migrations completed in:", migrationsFolder);
 
   console.log("Seeding tax regimes...");
 

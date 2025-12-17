@@ -1,12 +1,28 @@
+import "server-only";
+
 import { PGlite } from "@electric-sql/pglite";
+import { live } from "@electric-sql/pglite/live";
 import { drizzle } from "drizzle-orm/pglite";
 import * as schema from "./schema";
+import { DB_PATH } from "@/lib/db-path";
 
-const globalForDb = globalThis as unknown as {
-  pg: PGlite | undefined;
-};
+let dbPromise: ReturnType<typeof initDB> | null = null;
 
-const pg = globalForDb.pg ?? new PGlite(process.env.DATABASE_URL!);
-if (process.env.NODE_ENV !== "production") globalForDb.pg = pg;
+export async function initDB() {
+  const pg = await PGlite.create({
+    dataDir: DB_PATH,
+    extensions: { live },
+  });
 
-export const db = drizzle(pg, { schema });
+  const db = drizzle(pg, { schema });
+
+  return { pg, db };
+}
+
+export function getDB() {
+  if (!dbPromise) {
+    dbPromise = initDB();
+  }
+
+  return dbPromise;
+}

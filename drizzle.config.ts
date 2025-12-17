@@ -1,11 +1,12 @@
+import { DB_PATH } from "@/lib/db-path";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   dialect: "postgresql", // 'mysql' | 'sqlite' | 'turso'
   schema: "./src/db/schema",
-  out: "./drizzle",
+  out: "./src/db/migrations",
   driver: "pglite",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: DB_PATH,
   },
 });

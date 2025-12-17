@@ -23,7 +23,10 @@ This document provides essential context for AI models interacting with this pro
 - **Overall Architecture:** A component-based web application. The routing is managed by the app router, which uses a directory-based layout structure.
 - **Directory Structure Philosophy:**
   - `/app`: Contains all routes. Subdirectories like `(main)` define route groups with their own layouts.
-  - `/src`: Contains shared, reusable code not specific to a single route. This includes `components`, `hooks`, `services`, `utils`, `constants`, and `assets`.
+  - `/src`: Contains shared, reusable code not specific to a single route.
+    - `/db`: Drizzle client connector, and DB schemas.
+    - `/actions`: Next.js Server Actions
+    - `/lib`: Utilities code
   - `/public`: Static assets like images and fonts.
 
 ## 4. Coding Conventions & Style Guide
