@@ -5,6 +5,7 @@ import { getOrganizations } from "@/data/organizations";
 import { getTaxRegimes } from "@/data/taxRegimes";
 import { BusinessPartnersCard } from "@/components/business-partners/business-partners-card";
 import { getBusinessPartners } from "@/data/businessPartners";
+import { CFDIUploader } from "@/components/cfdi-uploader";
 
 const getData = async () => {
   const [regimes, organizations] = await Promise.all([
@@ -60,6 +61,9 @@ export default async function Home() {
               contacts={contacts}
               organization={organization}
             />
+          </div>
+          <div className="lg:col-span-3">
+            <CFDIUploader organization={organization} />
           </div>
         </div>
       </div>
