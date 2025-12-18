@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { OrganizationCard } from "@/components/organizations/organization-card";
 import { getOrganizations } from "@/data/organizations";
 import { getTaxRegimes } from "@/data/taxRegimes";
+import { BusinessPartnersCard } from "@/components/business-partners/business-partners-card";
+import { getBusinessPartners } from "@/data/businessPartners";
 
 const getData = async () => {
   const [regimes, organizations] = await Promise.all([
@@ -10,14 +12,17 @@ const getData = async () => {
     getOrganizations(),
   ]);
 
+  const contacts = await getBusinessPartners(organizations?.[0].id);
+
   return {
     regimes,
+    contacts,
     organizations,
   };
 };
 
 export default async function Home() {
-  const { regimes, organizations } = await getData();
+  const { regimes, organizations, contacts } = await getData();
   const organization = organizations?.[0] ?? undefined;
 
   return (
@@ -49,6 +54,13 @@ export default async function Home() {
       <div className="container p-4 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <OrganizationCard regimes={regimes} organization={organization} />
+          <div className="lg:col-span-2">
+            <BusinessPartnersCard
+              regimes={regimes}
+              contacts={contacts}
+              organization={organization}
+            />
+          </div>
         </div>
       </div>
     </div>

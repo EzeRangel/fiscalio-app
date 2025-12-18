@@ -1,15 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  organizationAddressSchema,
-  organizationContactSchema,
-  organizations,
-} from "@/db/schema/organizations";
+import { organizations } from "@/db/schema/organizations";
 import { actionClient } from "@/lib/safe-action";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { getDB } from "@/db";
+import {
+  organizationAddressSchema,
+  organizationContactSchema,
+} from "@/types/organizations";
 
 const insertOrganizationFormSchema = zfd.formData({
   businessName: zfd.text(),
