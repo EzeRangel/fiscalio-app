@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Building2, Search, Users } from "lucide-react";
 import {
   Card,
@@ -13,22 +14,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Regime } from "@/types/taxRegimes";
 import { Button } from "../ui/button";
 import { BusinessPartnersDialogForm } from "./business-partners-dialog-form";
-import { Organization } from "@/types/organizations";
-import { BusinessPartner } from "@/types/businessPartners";
+import { getBusinessPartnersByOrg } from "@/actions/business-partners";
 
 interface Props {
   regimes: Regime[];
-  organization?: Organization;
-  contacts: BusinessPartner[];
 }
 
-export function BusinessPartnersCard({
-  regimes,
-  contacts = [],
-  organization,
-}: Props) {
-  const clients = contacts.filter((item) => item.partnerType === "client");
-  const providers = contacts.filter((item) => item.partnerType === "provider");
+export function BusinessPartnersCard({ regimes }: Props) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: async () => {
+      const { data } = await getBusinessPartnersByOrg();
+
+      if (!data) {
+        throw new Error("Error al obtener Clientes/Proveedores");
+      }
+
+      return data;
+    },
+  });
+
+  const clients = data?.filter((item) => item.partnerType === "client") ?? [];
+  const providers =
+    data?.filter((item) => item.partnerType === "provider") ?? [];
 
   return (
     <Card>
@@ -43,12 +51,7 @@ export function BusinessPartnersCard({
               Gestiona tus contactos comerciales
             </CardDescription>
           </div>
-          {!!organization ? (
-            <BusinessPartnersDialogForm
-              regimes={regimes}
-              organizationId={organization?.id}
-            />
-          ) : null}
+          <BusinessPartnersDialogForm regimes={regimes} />
         </div>
       </CardHeader>
       <CardContent>

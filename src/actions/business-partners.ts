@@ -10,13 +10,14 @@ import {
 import { revalidateTag } from "next/cache";
 import { zfd } from "zod-form-data";
 import z from "zod/v4";
+import { getActiveOrganizationId } from "@/lib/session";
+import { fetchBusinessPartnersByOrg } from "@/data/businessPartners";
 
 const insertBusinessPartnerFormSchema = zfd.formData({
   businessName: zfd.text(z.string()),
   rfc: zfd.text(z.string()),
   partnerType: zfd.text(z.enum(["client", "partner", "both"])),
   legalName: zfd.text(z.string().optional()),
-  organizationId: zfd.text(z.coerce.number()),
   taxRegimeId: zfd.text(z.coerce.number()),
   address: zfd.formData(organizationAddressSchema.optional()),
   contact: zfd.formData(organizationContactSchema.optional()),
@@ -37,7 +38,18 @@ export const saveBusinessPartner = actionClient
   .inputSchema(insertBusinessPartnerFormSchema)
   .action(async ({ parsedInput }) => {
     const { db } = await getDB();
-    await db.insert(businessPartners).values(parsedInput);
+    const organizationId = await getActiveOrganizationId();
+
+    await db.insert(businessPartners).values({
+      ...parsedInput,
+      organizationId,
+    });
 
     revalidateTag("contacts", "max");
   });
+
+export const getBusinessPartnersByOrg = actionClient.action(async () => {
+  const organizationId = await getActiveOrganizationId();
+
+  return fetchBusinessPartnersByOrg(organizationId);
+});

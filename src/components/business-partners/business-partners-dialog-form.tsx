@@ -32,13 +32,9 @@ import { Regime } from "@/types/taxRegimes";
 
 interface Props {
   regimes: Regime[];
-  organizationId: number;
 }
 
-export function BusinessPartnersDialogForm({
-  regimes = [],
-  organizationId,
-}: Props) {
+export function BusinessPartnersDialogForm({ regimes = [] }: Props) {
   const [open, setOpen] = useState(false);
 
   const { execute } = useAction(saveBusinessPartner, {
@@ -72,7 +68,6 @@ export function BusinessPartnersDialogForm({
           </DialogDescription>
         </DialogHeader>
         <form action={execute} className="space-y-4">
-          <input type="hidden" name="organizationId" value={organizationId} />
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
