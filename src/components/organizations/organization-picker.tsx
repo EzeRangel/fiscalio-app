@@ -3,6 +3,8 @@
 import { useTransition } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 import {
   Select,
   SelectContent,
@@ -10,33 +12,52 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { setActiveOrganization } from "@/actions/session";
+import {
+  setActiveOrganization,
+  getActiveOrganization,
+} from "@/actions/session";
 import { Organization } from "@/types/organizations";
 
-type OrganizationPickerProps = {
-  organizations: Organization[];
-  activeOrganizationId: number | null;
-};
+interface Props {
+  data: Organization[];
+}
 
-export function OrganizationPicker({
-  organizations,
-  activeOrganizationId,
-}: OrganizationPickerProps) {
+export function OrganizationPicker({ data }: Props) {
   const [isPending, startTransition] = useTransition();
-  const { execute } = useAction(setActiveOrganization, {
+  const queryClient = useQueryClient();
+
+  // Query to get the currently active organization
+  const { data: activeOrganization, isLoading } = useQuery({
+    queryKey: ["activeOrganization"],
+    queryFn: async () => {
+      const { data } = await getActiveOrganization();
+
+      if (!data) {
+        throw new Error("No se obtuvo la organización activa");
+      }
+
+      return data;
+    },
+  });
+
+  const { execute: executeSetActive } = useAction(setActiveOrganization, {
     onSuccess: () => {
-      toast.success("Organización cambiada", {
-        description: "Recargaremos la página para aplicar los cambios.",
+      toast.success("Organización cambiada.", {
+        description: "La página se va recargar para aplicar los cambios.",
       });
-      // Delay reload slightly to allow toast to be seen
+
+      // Invalidate the query to refetch the active organization
+      queryClient.invalidateQueries({ queryKey: ["activeOrganization"] });
+
+      // Delay reload slightly to allow toast to be seen and query to refetch
       setTimeout(() => {
         window.location.reload();
       }, 1000);
     },
-    onError: ({ error: { serverError, validationErrors } }) => {
-      const message = serverError ?? validationErrors?._errors?.[0];
+    onError: ({ error: { serverError } }) => {
+      const message = serverError || "Error desconocido";
 
-      toast.error("Error al cambiar de organización", {
+      toast.error("Ocurrió un error al cambiar la organización.", {
         description: message,
       });
     },
@@ -44,39 +65,35 @@ export function OrganizationPicker({
 
   const handleValueChange = (orgId: string) => {
     startTransition(() => {
-      execute({ organizationId: parseInt(orgId, 10) });
+      executeSetActive({ organizationId: parseInt(orgId, 10) });
     });
   };
 
-  if (organizations.length === 0) {
-    return null; // Or render a placeholder/creation form
-  }
+  const orgList = data || [];
+  const activeOrgId = activeOrganization?.id;
 
-  if (organizations.length === 1 && activeOrganizationId) {
+  if (isLoading) {
     return (
-      <div className="flex items-center space-x-2">
-        <span className="text-sm font-medium text-muted-foreground">
-          Organization:
-        </span>
-        <span className="text-sm font-semibold">
-          {organizations[0].businessName}
-        </span>
-      </div>
+      <div className="w-full max-w-50 h-10 bg-muted rounded-md animate-pulse" />
     );
   }
 
+  if (orgList.length === 0) {
+    return null; // Or a "Create Organization" button
+  }
+
   return (
-    <div className="w-full max-w-[200px]">
+    <div className="w-full max-w-50">
       <Select
-        onValueChange={handleValueChange}
-        defaultValue={activeOrganizationId?.toString()}
         disabled={isPending}
+        onValueChange={handleValueChange}
+        defaultValue={activeOrgId?.toString()}
       >
         <SelectTrigger>
-          <SelectValue placeholder="Selecciona una organización" />
+          <SelectValue placeholder="Elige una organización" />
         </SelectTrigger>
         <SelectContent>
-          {organizations.map((org) => (
+          {orgList.map((org) => (
             <SelectItem key={org.id} value={org.id.toString()}>
               {org.businessName}
             </SelectItem>
