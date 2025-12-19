@@ -1,122 +1,132 @@
 "use server";
 
-import { getDB } from "@/db/drizzle";
+import { revalidatePath } from "next/cache";
+
+import { and, eq } from "drizzle-orm";
+import { zfd } from "zod-form-data";
+
 import {
   businessPartners,
   invoiceItems,
   invoices,
   invoiceTaxes,
+  organizations,
   taxRegimes,
 } from "@/db/schema";
 import { CFDIParser } from "@/lib/cfdi-parser";
 import { actionClient } from "@/lib/safe-action";
-import { BusinessPartner } from "@/types/businessPartners";
-import { Impuesto } from "@/types/cfdi-schemas";
-import { Regime } from "@/types/taxRegimes";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-
-import { zfd } from "zod-form-data";
-import z from "zod/v4";
+import { getActiveOrganizationId } from "@/lib/session";
+import { getDB } from "@/db";
+import { ActionError } from "@/lib/errors";
 
 const insertInvoiceSchema = zfd.formData({
   cfdi: zfd.file(),
-  organizationId: zfd.text(z.coerce.number()),
 });
 
-function transformTaxCodeToName(code: string): Impuesto {
+// Placeholder for tax code to name transformation
+// TODO: Implement proper tax code to name mapping, e.g., from a database table or constants.
+function transformTaxCodeToName(code: string): string {
   switch (code) {
     case "001":
-      return Impuesto?.["001"] as const;
+      return "ISR";
     case "002":
-      return Impuesto?.["002"];
+      return "IVA";
     case "003":
-      return Impuesto["003"];
+      return "IEPS";
     default:
-      return Impuesto["001"];
+      return `UNKNOWN (${code})`;
   }
 }
 
 export const saveInvoice = actionClient
   .inputSchema(insertInvoiceSchema)
   .action(async ({ parsedInput }) => {
-    const { cfdi, organizationId } = parsedInput;
+    const { cfdi } = parsedInput;
+    const organizationId = await getActiveOrganizationId();
 
     if (!cfdi || cfdi.size === 0) {
-      throw new Error("No hay archivo o está vacío");
+      throw new ActionError("No hay archivo o está vacío");
     }
 
     const xmlContent = await cfdi.text();
     const parsedCFDI = await CFDIParser.parse(xmlContent);
 
     const { db } = await getDB();
-
-    // TODO: Validar que la factura tenga el RFC de mi organización...
-
     const invoiceId = await db.transaction(async (tx) => {
+      // 1. Verify organization RFC against the CFDI
+      const organization = await tx.query.organizations.findFirst({
+        where: eq(organizations.id, organizationId),
+      });
+
+      if (!organization) {
+        throw new ActionError("La organización activa no es válida.");
+      }
+
+      const emitterRfc = parsedCFDI.Emisor.Rfc;
+      const receiverRfc = parsedCFDI.Receptor.Rfc;
+
+      if (organization.rfc !== emitterRfc && organization.rfc !== receiverRfc) {
+        throw new ActionError(
+          "Ningún RFC del CFDI coincide con el de su organización."
+        );
+      }
+
       const conceptos = Array.isArray(parsedCFDI.Conceptos.Concepto)
         ? parsedCFDI.Conceptos.Concepto
         : [parsedCFDI.Conceptos.Concepto];
 
-      // 1. Find or create the business partner
-      // Assuming the app user is the receiver, the emitter is the business partner
-      const emitterRfc = parsedCFDI.Emisor.Rfc;
-      const receiverRfc = parsedCFDI.Receptor.Rfc;
+      // 2. Determine partner info and invoice type
+      const isEmitter = organization.rfc === emitterRfc;
+      const invoiceType = isEmitter ? "income" : "expense";
+      const partnerType = isEmitter ? "client" : "provider";
+      const partnerRfc = isEmitter ? receiverRfc : emitterRfc;
+      const partnerName = isEmitter
+        ? parsedCFDI.Receptor.Nombre
+        : parsedCFDI.Emisor.Nombre;
+      const partnerTaxRegimeCode = isEmitter
+        ? parsedCFDI.Receptor.RegimenFiscalReceptor
+        : parsedCFDI.Emisor.RegimenFiscal;
 
-      let partnerType: string | null = null;
-      let partner: BusinessPartner | undefined;
-      let partnerTaxRegime: Regime | undefined;
+      // 3. Find or create the business partner (scoped to the organization)
+      let partner = await tx.query.businessPartners.findFirst({
+        where: and(
+          eq(businessPartners.rfc, partnerRfc),
+          eq(businessPartners.organizationId, organizationId)
+        ),
+      });
 
-      if (parsedCFDI.TipoDeComprobante === "I") {
-        partner = await tx.query.businessPartners.findFirst({
-          where: eq(businessPartners.rfc, receiverRfc),
-        });
+      const partnerTaxRegime = await tx.query.taxRegimes.findFirst({
+        where: eq(taxRegimes.code, partnerTaxRegimeCode),
+      });
 
-        partnerTaxRegime = await tx.query.taxRegimes.findFirst({
-          where: eq(taxRegimes.code, parsedCFDI.Receptor.RegimenFiscalReceptor),
-        });
-
-        partnerType = "client";
-      } else {
-        partner = await tx.query.businessPartners.findFirst({
-          where: eq(businessPartners.rfc, emitterRfc),
-        });
-
-        partnerTaxRegime = await tx.query.taxRegimes.findFirst({
-          where: eq(taxRegimes.code, parsedCFDI.Emisor.RegimenFiscal),
-        });
-
-        partnerType = "provider";
+      if (!partnerTaxRegime) {
+        throw new ActionError(
+          `Régimen Fiscal ${partnerTaxRegimeCode} del socio no encontrado.`
+        );
       }
 
-      if (!partner && !!partnerTaxRegime) {
-        const partnerRFC =
-          partnerType === "client"
-            ? parsedCFDI.Receptor.Rfc
-            : parsedCFDI.Emisor.Rfc;
-
+      if (!partner) {
         const [newPartner] = await tx
           .insert(businessPartners)
           .values({
+            businessName: partnerName,
+            legalName: partnerName,
+            rfc: partnerRfc,
+            taxRegimeId: partnerTaxRegime.id,
             partnerType,
-            businessName: parsedCFDI.Emisor.Nombre,
-            legalName: parsedCFDI.Emisor.Nombre,
-            rfc: partnerRFC,
-            taxRegimeId: partnerTaxRegime?.id,
             organizationId,
           })
           .returning();
-
         partner = newPartner;
       }
 
-      // 2. Insert the main invoice
+      // 4. Insert the main invoice
       const [newInvoice] = await tx
         .insert(invoices)
         .values({
           organizationId,
-          partnerId: partner!.id,
-          invoiceType: partnerType === "client" ? "income" : "spend",
+          partnerId: partner.id,
+          invoiceType,
           cfdiType: parsedCFDI.TipoDeComprobante,
           cfdiVersion: parsedCFDI.Version,
           folioFiscal: parsedCFDI.Complemento.TimbreFiscalDigital.UUID,
@@ -142,7 +152,7 @@ export const saveInvoice = actionClient
         })
         .returning();
 
-      // 3. Insert invoice items and their taxes
+      // 5. Insert invoice items and their taxes
       for (const [index, c] of conceptos.entries()) {
         const [newItem] = await tx
           .insert(invoiceItems)
@@ -181,21 +191,21 @@ export const saveInvoice = actionClient
             itemId: newItem.id,
             taxType: "transferred" as const,
             taxCode: t.Impuesto,
-            taxName: transformTaxCodeToName(t.Impuesto),
+            taxName: transformTaxCodeToName(t.Impuesto), // Uncommented
             factor: t.TipoFactor,
             rate: t.TasaOCuota,
             baseAmount: t.Base,
-            taxAmount: t.Importe,
+            taxAmount: t.Importe, // Corrected from t.Impuesto
           })),
           ...retenciones.map((r) => ({
             itemId: newItem.id,
             taxType: "withheld" as const,
             taxCode: r.Impuesto,
-            taxName: transformTaxCodeToName(t.Impuesto),
+            taxName: transformTaxCodeToName(r.Impuesto), // Uncommented
             factor: r.TipoFactor,
             rate: r.TasaOCuota,
             baseAmount: r.Base,
-            taxAmount: r.Importe,
+            taxAmount: r.Importe, // Corrected from r.Impuesto
           })),
         ];
 
