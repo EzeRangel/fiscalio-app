@@ -24,10 +24,10 @@ export function CFDIUploader({ organization }: Props) {
     onSuccess: () => {
       toast.success("CFDI procesado correctamente");
     },
-    onError: (error) => {
-      console.log(error);
+    onError: ({ error: { serverError } }) => {
+      const message = serverError || "Error desconocido.";
 
-      toast.error("Error al procesar CFDI");
+      toast.error("Error al procesar CFDI", { description: message });
     },
   });
 
