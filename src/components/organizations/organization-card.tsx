@@ -3,15 +3,13 @@
 import { Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import OrganizationDialog from "./organization-dialog";
-import { organizations, taxRegimes } from "@/db";
 import { Button } from "../ui/button";
-
-type Organization = typeof organizations.$inferSelect;
-type TaxRegime = typeof taxRegimes.$inferSelect;
+import { Organization } from "@/types/organizations";
+import { Regime } from "@/types/taxRegimes";
 
 interface Props {
   organization?: Organization;
-  regimes: TaxRegime[];
+  regimes: Regime[];
 }
 
 export function OrganizationCard({ organization: data, regimes }: Props) {
@@ -38,12 +36,7 @@ export function OrganizationCard({ organization: data, regimes }: Props) {
             {data.contact?.phone && (
               <p className="text-xs text-gray-600">{data.contact.phone}</p>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              //onClick={() => setShowOrgDialog(true)}
-            >
+            <Button variant="outline" size="sm" className="w-full">
               Editar
             </Button>
           </div>
