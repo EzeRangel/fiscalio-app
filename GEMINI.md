@@ -53,7 +53,7 @@ This document provides essential context for AI models interacting with this pro
 - **Contribution Guidelines:** No `CONTRIBUTING.md` file was found. Follow the existing code patterns and conventions.
 - **Infrastructure (IaC):** No Infrastructure as Code directory was found. This is expected for a mobile client.
 - **Security:** Be cautious when modifying authentication logic or any code that handles sensitive user data. Do not hardcode API keys or secrets.
-- **Dependencies:** Add new dependencies using `npm install <package-name>`. For native modules, ensure they are compatible with Next.js and follow their specific installation instructions.
+- **Dependencies:** Add new dependencies using `pnpm add <package-name>`. For native modules, ensure they are compatible with Next.js and follow their specific installation instructions.
 - **Commit Messages:** The commit history shows descriptive, present-tense messages (e.g., "Adds feature X", "Refactors component Y"). While not strictly following the Conventional Commits specification, messages should be clear and explain the "what" and "why" of the change.
 
 ## 7. Guiding Principles & Patterns
@@ -75,11 +75,12 @@ The following principles have been established during development sessions and s
 - **Align Zod Schemas with Database Schemas:** Zod schemas used in server actions for data validation must precisely mirror the database schema's types and nullability. For example, a nullable `DECIMAL` column in the database, which Drizzle represents as a string, should correspond to `z.string().optional()` in the Zod schema. Similarly, nullable columns should have corresponding `.optional()` or `.nullable()` validators to prevent type errors when passing data to the ORM.
 
 - **Use Transformations for Data Mismatches:** When form data structure or format doesn't align with the database schema, use the server action as a translation layer.
-    - **Formatting:** For simple format differences (e.g., a comma-separated string for a database array), use Zod's `.transform()` method within the action's input schema. This centralizes data-shaping logic.
-    - **Field Names:** For mismatched names (e.g., form field `taxRegime` vs. database column `taxRegimeId`), perform the renaming inside the action handler *after* validation. Destructure the `parsedInput` and construct a new object for the ORM.
+
+  - **Formatting:** For simple format differences (e.g., a comma-separated string for a database array), use Zod's `.transform()` method within the action's input schema. This centralizes data-shaping logic.
+  - **Field Names:** For mismatched names (e.g., form field `taxRegime` vs. database column `taxRegimeId`), perform the renaming inside the action handler _after_ validation. Destructure the `parsedInput` and construct a new object for the ORM.
 
 - **Structure Forms for `next-safe-action`:** When building a client-side form for a server action:
-    1. Bind the `execute` function from the `useAction` hook to the `<form>`'s `action` prop.
-    2. Name each input element (`<Input name=...>`, `<Select name=...>`) to match the keys in the action's Zod schema.
-    3. Use dot notation for nested objects (e.g., `name="address.street"`). This allows `zod-form-data` to correctly construct the nested object structure.
-    4. Use the `onSuccess` and `onError` callbacks in the `useAction` hook to provide clear user feedback (e.g., via toasts).
+  1. Bind the `execute` function from the `useAction` hook to the `<form>`'s `action` prop.
+  2. Name each input element (`<Input name=...>`, `<Select name=...>`) to match the keys in the action's Zod schema.
+  3. Use dot notation for nested objects (e.g., `name="address.street"`). This allows `zod-form-data` to correctly construct the nested object structure.
+  4. Use the `onSuccess` and `onError` callbacks in the `useAction` hook to provide clear user feedback (e.g., via toasts).
