@@ -50,9 +50,7 @@ export default async function RootLayout({
               <OrganizationPicker data={organizations} />
             </div>
           </header>
-          <main className="flex-1 max-w-7xl m-auto w-full py-6">
-            {children}
-          </main>
+          <main className="flex-1 py-6">{children}</main>
           <Toaster />
         </App>
       </body>

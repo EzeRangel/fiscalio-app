@@ -18,25 +18,11 @@ import { actionClient } from "@/lib/safe-action";
 import { getActiveOrganizationId } from "@/lib/session";
 import { getDB } from "@/db";
 import { ActionError } from "@/lib/errors";
+import { getTaxName } from "@/lib/utils";
 
 const insertInvoiceSchema = zfd.formData({
   cfdi: zfd.file(),
 });
-
-// Placeholder for tax code to name transformation
-// TODO: Implement proper tax code to name mapping, e.g., from a database table or constants.
-function transformTaxCodeToName(code: string): string {
-  switch (code) {
-    case "001":
-      return "ISR";
-    case "002":
-      return "IVA";
-    case "003":
-      return "IEPS";
-    default:
-      return `UNKNOWN (${code})`;
-  }
-}
 
 export const saveInvoice = actionClient
   .inputSchema(insertInvoiceSchema)
@@ -191,7 +177,7 @@ export const saveInvoice = actionClient
             itemId: newItem.id,
             taxType: "transferred" as const,
             taxCode: t.Impuesto,
-            taxName: transformTaxCodeToName(t.Impuesto), // Uncommented
+            taxName: getTaxName(t.Impuesto),
             factor: t.TipoFactor,
             rate: t.TasaOCuota,
             baseAmount: t.Base,
@@ -201,7 +187,7 @@ export const saveInvoice = actionClient
             itemId: newItem.id,
             taxType: "withheld" as const,
             taxCode: r.Impuesto,
-            taxName: transformTaxCodeToName(r.Impuesto), // Uncommented
+            taxName: getTaxName(r.Impuesto),
             factor: r.TipoFactor,
             rate: r.TasaOCuota,
             baseAmount: r.Base,
