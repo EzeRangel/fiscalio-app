@@ -5,6 +5,8 @@ import { BusinessPartnersCard } from "@/components/business-partners/business-pa
 import { CFDIUploader } from "@/components/cfdi-uploader";
 import { InvoicesList } from "@/components/invoices/invoices-list";
 import { Calendar } from "lucide-react";
+import SummaryCards from "@/components/dashboard/summary-cards";
+import Dashboard from "@/components/dashboard";
 
 const getData = async () => {
   const [regimes, organizations] = await Promise.all([
@@ -65,7 +67,7 @@ export default async function Home() {
             <CFDIUploader organization={organization} />
           </div>
         </div>
-        <InvoicesList />
+        <Dashboard monthName={monthName} />
       </div>
     </div>
   );

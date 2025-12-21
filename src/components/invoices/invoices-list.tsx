@@ -1,43 +1,55 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getLatestInvoicesAction } from "@/actions/get-latest-invoices";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FileText } from "lucide-react";
 import { formatPrice } from "@/hooks/usePrice";
 import { getCFDIType } from "@/lib/utils";
 import { Button } from "../ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "../ui/empty";
+import { InferResultType } from "@/types/orm";
 
-export function InvoicesList() {
-  const {
-    data: invoices,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["latest-invoices"],
-    queryFn: () => getLatestInvoicesAction(),
-  });
+type InvoiceWithBusinessPartner = InferResultType<
+  "invoices",
+  { businessPartner: true }
+>;
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+interface Props {
+  invoices?: InvoiceWithBusinessPartner[];
+}
 
-  if (isError || !invoices) {
+export function InvoicesList({ invoices }: Props) {
+  if (!invoices || invoices.length < 1) {
     return (
-      <section className="space-y-6">
-        <div className="flex items-baseline justify-between">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-light tracking-tight">
-              Facturas Recientes
-            </h2>
-            <p className="text-sm text-muted-foreground font-mono">
-              No hay facturas. Inicia subiendo tus primeros CFDIs
-            </p>
-          </div>
-        </div>
-      </section>
+      <Empty className="border border-dashed">
+        <EmptyContent>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <FileText className="h-5 w-5" />
+            </EmptyMedia>
+            <EmptyTitle>No hay facturas este mes</EmptyTitle>
+            <EmptyDescription>
+              Comienza a emitir documentos fiscales para ver tu actividad aquí.
+              Los comprobantes emitidos aparecerán en esta sección
+              automáticamente.
+            </EmptyDescription>
+          </EmptyHeader>
+          <Button asChild variant="default" className="gap-2">
+            <Link href="/invoices">
+              Explorar histórico
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </EmptyContent>
+      </Empty>
     );
   }
 

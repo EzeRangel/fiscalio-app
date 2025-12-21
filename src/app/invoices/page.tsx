@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { getLatestInvoices } from "@/data/invoices";
+import { getInvoicesByOrganization } from "@/data/invoices";
 import { Download } from "lucide-react";
 import Filters from "./_components/filters";
 import List from "./_components/list";
@@ -7,7 +7,9 @@ import { getActiveOrganizationId } from "@/lib/session";
 
 const getData = async () => {
   const organizationId = await getActiveOrganizationId();
-  const [invoices] = await Promise.all([getLatestInvoices(organizationId)]);
+  const [invoices] = await Promise.all([
+    getInvoicesByOrganization(organizationId),
+  ]);
 
   return {
     invoices,
