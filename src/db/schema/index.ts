@@ -7,3 +7,6 @@ export * from './bankAccounts';
 export * from './payments';
 export * from './paymentAllocations';
 export * from './taxRegimes';
+export * from './chartOfAccounts';
+export * from './classificationRules';
+export * from './validationIssues';

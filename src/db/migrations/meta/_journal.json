@@ -15,6 +15,27 @@
       "when": 1766001352361,
       "tag": "0001_update-field_tax_regime",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766416570999,
+      "tag": "0002_create_chart_of_accounts_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1766417494445,
+      "tag": "0003_create_schema_classification_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1766417776749,
+      "tag": "0004_create_schema_validation_issues",
+      "breakpoints": true
     }
   ]
 }
