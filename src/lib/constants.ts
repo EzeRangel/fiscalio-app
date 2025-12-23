@@ -33,3 +33,11 @@ export const PAYMENT_METHODS = {
   PUE: "Pago en una sola exhibición",
   PPD: "Pago en parcialidades o diferido",
 };
+
+export const ACCOUNT_TYPE_LABELS: Record<string, string> = {
+  asset: "Activo",
+  liability: "Pasivo",
+  equity: "Capital",
+  income: "Ingreso",
+  expense: "Gasto",
+};
