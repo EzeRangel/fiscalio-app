@@ -70,6 +70,14 @@ The following principles have been established during development sessions and s
 
 - **Practice Continuous Code Cleanup:** With each refactoring step, we removed the code that became obsolete (e.g., unused `refs`, `forwardRef`, and custom hooks). This discipline is critical for preventing technical debt and keeping the codebase clean and maintainable for future developers.
 
+- **Adhering to Existing Project Conventions:**
+
+  - Use the designated actionClient for server actions.
+  - Fetch data on the client with useQuery instead of useEffect.
+  - Standardize error handling and database access.
+
+  Following a project's conventions makes the codebase predictable and easier for any developer to work on.
+
 ### Server Actions and Data Validation
 
 - **Align Zod Schemas with Database Schemas:** Zod schemas used in server actions for data validation must precisely mirror the database schema's types and nullability. For example, a nullable `DECIMAL` column in the database, which Drizzle represents as a string, should correspond to `z.string().optional()` in the Zod schema. Similarly, nullable columns should have corresponding `.optional()` or `.nullable()` validators to prevent type errors when passing data to the ORM.
