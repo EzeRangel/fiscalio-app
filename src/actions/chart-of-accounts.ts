@@ -9,15 +9,10 @@ import { actionClient } from "@/lib/safe-action";
 import { AccountFormSchema } from "@/types/chart-of-accounts";
 import { revalidatePath } from "next/cache";
 import { ActionError } from "@/lib/errors";
+import { getChartOfAccountsByOrg } from "@/data/chart-of-accounts";
 
-export async function getChartOfAccountsByOrg() {
-  const organizationId = await getActiveOrganizationId();
-  const { db } = await getDB();
-
-  return await db.query.chartOfAccounts.findMany({
-    where: eq(chartOfAccounts.organizationId, organizationId),
-    orderBy: (chartOfAccounts, { asc }) => [asc(chartOfAccounts.accountCode)],
-  });
+export async function fetchChartOfAccounts() {
+  return getChartOfAccountsByOrg();
 }
 
 export const createAccount = actionClient

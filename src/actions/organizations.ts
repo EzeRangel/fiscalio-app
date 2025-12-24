@@ -10,6 +10,7 @@ import {
   organizationAddressSchema,
   organizationContactSchema,
 } from "@/types/organizations";
+import { seedDefaultChartOfAccounts } from "@/data/chart-of-accounts";
 
 const insertOrganizationFormSchema = zfd.formData({
   businessName: zfd.text(),
@@ -24,7 +25,14 @@ export const saveOrganization = actionClient
   .inputSchema(insertOrganizationFormSchema)
   .action(async ({ parsedInput }) => {
     const { db } = await getDB();
-    await db.insert(organizations).values(parsedInput);
+    const newOrgId = await db
+      .insert(organizations)
+      .values(parsedInput)
+      .returning({ id: organizations.id });
+
+    if (newOrgId.length > 0) {
+      await seedDefaultChartOfAccounts(newOrgId[0].id);
+    }
 
     revalidatePath("/");
   });
