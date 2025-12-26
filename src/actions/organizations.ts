@@ -11,6 +11,7 @@ import {
 } from "@/types/organizations";
 import { seedDefaultChartOfAccounts } from "@/data/chart-of-accounts";
 import { setActiveOrganization } from "./session";
+import { seedDefaultRulesForOrg } from "@/data/classification-rules";
 
 export const createOnboardingOrganization = actionClient
   .inputSchema(baseOrganizationSchema) // Use the base schema
@@ -21,10 +22,9 @@ export const createOnboardingOrganization = actionClient
       .values(parsedInput)
       .returning({ id: organizations.id });
 
-    console.log(newOrg);
-
     if (newOrg) {
       await seedDefaultChartOfAccounts(newOrg.id);
+      await seedDefaultRulesForOrg(newOrg.id);
       await setActiveOrganization({ organizationId: newOrg.id });
     }
 
