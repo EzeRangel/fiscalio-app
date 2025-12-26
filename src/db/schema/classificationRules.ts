@@ -13,25 +13,7 @@ import {
 import { relations } from "drizzle-orm";
 import { organizations } from "./organizations";
 import { z } from "zod";
-
-// Define Zod schema for match-criteria for better type inference
-const matchCriteriaSchema = z.union([
-  z.object({
-    keywords: z.array(z.string()),
-    field: z.string(),
-  }),
-  z.object({
-    regex: z.string(),
-    field: z.string(),
-  }),
-  z.object({
-    min: z.number().optional(),
-    max: z.number().optional(),
-  }),
-  z.object({
-    partnerIds: z.array(z.number()),
-  }),
-]);
+import { matchCriteriaSchema } from "@/types/classification-rules";
 
 export const classificationRules = pgTable(
   "classification_rules",
@@ -42,7 +24,7 @@ export const classificationRules = pgTable(
       .references(() => organizations.id, { onDelete: "cascade" }),
 
     ruleName: varchar("rule_name", { length: 100 }).notNull(),
-    ruleType: varchar("rule_type", { length: 20 }).notNull(), // 'keyword', 'pattern', 'amount-range', 'partner', 'product-key'
+    ruleType: varchar("rule_type", { length: 25 }).notNull(), // See @/types/classification-rules.ts for values
 
     matchCriteria: jsonb("match_criteria")
       .$type<z.infer<typeof matchCriteriaSchema>>()

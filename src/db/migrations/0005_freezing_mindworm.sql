@@ -1,0 +1,1 @@
+ALTER TABLE "classification_rules" ALTER COLUMN "rule_type" SET DATA TYPE varchar(25);
