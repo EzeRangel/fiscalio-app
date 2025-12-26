@@ -30,7 +30,7 @@ export const classificationRules = pgTable(
       .$type<z.infer<typeof matchCriteriaSchema>>()
       .notNull(),
 
-    accountCode: varchar("account_code", { length: 20 }).notNull(),
+    accountCode: varchar("account_code", { length: 20 }),
     costCenter: varchar("cost_center", { length: 50 }),
     department: varchar("department", { length: 50 }),
     tags: text("tags").array(),

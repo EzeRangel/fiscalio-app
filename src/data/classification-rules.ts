@@ -47,23 +47,23 @@ export const BASE_RULES: NewRule[] = [
     ruleName: "CFDI de Ingreso",
     ruleType: "cfdi-type",
     matchCriteria: { ruleType: "cfdi-type", cfdiType: "I" },
-    accountCode: "4000", // Ingresos
-    priority: 50,
-    confidenceBoost: "0.60",
+    accountCode: null,
+    priority: 40,
+    confidenceBoost: "0.30",
   },
   {
     ruleName: "CFDI de Egreso",
     ruleType: "cfdi-type",
     matchCriteria: { ruleType: "cfdi-type", cfdiType: "E" },
-    accountCode: "5000", // Gastos
-    priority: 50,
-    confidenceBoost: "0.60",
+    accountCode: null,
+    priority: 70,
+    confidenceBoost: "0.50",
   },
   {
     ruleName: "Transacción con RFC Extranjero",
     ruleType: "rfc",
     matchCriteria: { ruleType: "rfc", rfc: "XEXX010101000" },
-    accountCode: "5000", // Gastos
+    accountCode: null,
     priority: 50,
     confidenceBoost: "0.4",
   },
@@ -71,7 +71,7 @@ export const BASE_RULES: NewRule[] = [
     ruleName: "Factura con IVA 0%",
     ruleType: "tax",
     matchCriteria: { ruleType: "tax", taxRate: 0 },
-    accountCode: "5000", // Gastos
+    accountCode: null,
     priority: 40,
     confidenceBoost: "0.4",
   },
@@ -79,7 +79,7 @@ export const BASE_RULES: NewRule[] = [
     ruleName: "Moneda Extranjera (USD)",
     ruleType: "currency",
     matchCriteria: { ruleType: "currency", currency: ["USD", "EUR"] },
-    accountCode: "5000", // Gastos
+    accountCode: null,
     priority: 45,
     confidenceBoost: "0.30",
   },
@@ -87,7 +87,7 @@ export const BASE_RULES: NewRule[] = [
     ruleName: "Pago con Transferencia",
     ruleType: "payment-form",
     matchCriteria: { ruleType: "payment-form", paymentForms: ["03"] },
-    accountCode: "5000", // Gastos
+    accountCode: null,
     priority: 30,
     confidenceBoost: "0.15",
   },

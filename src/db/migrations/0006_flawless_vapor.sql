@@ -1,0 +1,1 @@
+ALTER TABLE "classification_rules" ALTER COLUMN "account_code" DROP NOT NULL;
