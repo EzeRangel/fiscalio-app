@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { PGlite } from "@electric-sql/pglite";
 import { taxRegimes } from "../db/schema/taxRegimes";
+import { DB_PATH } from "@/lib/db-path";
 
 async function main() {
   const data = [
@@ -79,7 +80,7 @@ async function main() {
     { code: "626", description: "RÉGIMEN SIMPLIFICADO DE CONFIANZA" },
   ];
 
-  const pg = new PGlite(process.env.DATABASE_URL!);
+  const pg = new PGlite(DB_PATH);
   const db = drizzle(pg);
   const migrationsFolder = "./src/db/migrations";
 

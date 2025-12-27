@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "db:generate": "npx drizzle-kit generate && tsx src/scripts/seed.ts"
+    "db:generate": "npx drizzle-kit generate && tsx src/scripts/seed.ts",
+    "db:seed:rules": "npx drizzle-kit generate && tsx src/scripts/seed-classification-rules.ts",
+    "db:seed:accounts": "tsx src/scripts/backfill-chart-of-accounts.ts",
+    "db:seed:test-data": "tsx src/scripts/seed-test-data.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.3.14",
@@ -47,6 +50,7 @@
     "zod-form-data": "^3.0.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

@@ -41,3 +41,127 @@ export const ACCOUNT_TYPE_LABELS: Record<string, string> = {
   income: "Ingreso",
   expense: "Gasto",
 };
+
+export const CHART_OF_ACCOUNTS_TEMPLATE = [
+  {
+    accountCode: "1000",
+    accountName: "Activos",
+    accountType: "asset" as const,
+    level: 0,
+  },
+  {
+    accountCode: "2000",
+    accountName: "Pasivos",
+    accountType: "liability" as const,
+    level: 0,
+  },
+  {
+    accountCode: "3000",
+    accountName: "Capital",
+    accountType: "equity" as const,
+    level: 0,
+  },
+  {
+    accountCode: "4000",
+    accountName: "Ingresos",
+    accountType: "income" as const,
+    level: 0,
+  },
+  {
+    accountCode: "5000",
+    accountName: "Gastos",
+    accountType: "expense" as const,
+    level: 0,
+  },
+];
+
+export const BASE_RULES = [
+  {
+    ruleName: "CFDI Nómina",
+    ruleType: "cfdi-type",
+    matchCriteria: { ruleType: "cfdi-type", cfdiType: "N" },
+    accountCode: "5000", // Gastos
+    priority: 70,
+    confidenceBoost: "0.50",
+  },
+  {
+    ruleName: "Combustibles y Lubricantes",
+    ruleType: "product-service",
+    matchCriteria: {
+      ruleType: "product-service",
+      productServiceKeys: ["15101500", "15101505", "15101514", "15101515"],
+    },
+    accountCode: "5000", // Gastos
+    priority: 75,
+    confidenceBoost: "0.45",
+  },
+  {
+    ruleName: "Servicios Profesionales",
+    ruleType: "product-service",
+    matchCriteria: {
+      ruleType: "product-service",
+      productServiceKeys: ["80101500", "80111600"],
+    },
+    accountCode: "5000", // Gastos
+    priority: 65,
+    confidenceBoost: "0.40",
+  },
+
+  // --- Foundational / Signal Rules (with generic accounts) ---
+  {
+    ruleName: "CFDI de Ingreso",
+    ruleType: "cfdi-type",
+    matchCriteria: { ruleType: "cfdi-type", cfdiType: "I" },
+    accountCode: null,
+    priority: 40,
+    confidenceBoost: "0.30",
+  },
+  {
+    ruleName: "CFDI de Egreso",
+    ruleType: "cfdi-type",
+    matchCriteria: { ruleType: "cfdi-type", cfdiType: "E" },
+    accountCode: null,
+    priority: 70,
+    confidenceBoost: "0.50",
+  },
+  {
+    ruleName: "Transacción con RFC Extranjero",
+    ruleType: "rfc",
+    matchCriteria: { ruleType: "rfc", rfc: "XEXX010101000" },
+    accountCode: null,
+    priority: 50,
+    confidenceBoost: "0.4",
+  },
+  {
+    ruleName: "Factura con IVA 0%",
+    ruleType: "tax",
+    matchCriteria: { ruleType: "tax", taxRate: 0 },
+    accountCode: null,
+    priority: 40,
+    confidenceBoost: "0.4",
+  },
+  {
+    ruleName: "Moneda Extranjera (USD)",
+    ruleType: "currency",
+    matchCriteria: { ruleType: "currency", currency: ["USD", "EUR"] },
+    accountCode: null,
+    priority: 45,
+    confidenceBoost: "0.30",
+  },
+  {
+    ruleName: "Pago con Transferencia",
+    ruleType: "payment-form",
+    matchCriteria: { ruleType: "payment-form", paymentForms: ["03"] },
+    accountCode: null,
+    priority: 30,
+    confidenceBoost: "0.15",
+  },
+  {
+    ruleName: "Plantilla de Contacto/Proveedor",
+    ruleType: "partner",
+    matchCriteria: { ruleType: "partner", partnerIds: [] },
+    accountCode: "5000", // Gastos
+    priority: 50,
+    confidenceBoost: "0.20",
+  },
+];

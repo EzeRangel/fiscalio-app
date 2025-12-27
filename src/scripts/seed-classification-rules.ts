@@ -4,7 +4,8 @@ import { eq, isNull } from "drizzle-orm";
 import { organizations } from "../db/schema/organizations";
 import { classificationRules } from "../db/schema/classificationRules";
 import { DB_PATH } from "@/lib/db-path";
-import { seedDefaultRulesForOrg } from "@/data/classification-rules";
+import { BASE_RULES } from "@/lib/constants";
+import { MatchCriteria } from "@/types/classification-rules";
 
 async function main() {
   const pg = new PGlite(DB_PATH);
@@ -37,7 +38,13 @@ async function main() {
   );
 
   for (const org of orgsWithoutRules) {
-    await seedDefaultRulesForOrg(org.id);
+    const rulesForOrg = BASE_RULES.map((rule) => ({
+      ...rule,
+      organizationId: org.id,
+      matchCriteria: rule.matchCriteria as MatchCriteria,
+    }));
+
+    await db.insert(classificationRules).values(rulesForOrg);
   }
 
   console.log("Se ha completado el seeding para las reglas de clasificación.");

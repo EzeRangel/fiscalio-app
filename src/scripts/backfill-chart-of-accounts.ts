@@ -3,10 +3,11 @@ import { PGlite } from "@electric-sql/pglite";
 import { organizations } from "../db/schema/organizations";
 import { chartOfAccounts } from "../db/schema/chartOfAccounts";
 import { eq, isNull } from "drizzle-orm";
-import { seedDefaultChartOfAccounts } from "../data/chart-of-accounts";
+import { DB_PATH } from "@/lib/db-path";
+import { CHART_OF_ACCOUNTS_TEMPLATE } from "@/lib/constants";
 
 async function main() {
-  const pg = new PGlite(process.env.DATABASE_URL!);
+  const pg = new PGlite(DB_PATH);
   const db = drizzle(pg);
 
   console.log(
@@ -39,7 +40,13 @@ async function main() {
     console.log(
       `- Seeding accounts for ${org.businessName} (ID: ${org.id})...`
     );
-    await seedDefaultChartOfAccounts(org.id);
+
+    const dataToInsert = CHART_OF_ACCOUNTS_TEMPLATE.map((account) => ({
+      ...account,
+      organizationId: org.id,
+    }));
+
+    await db.insert(chartOfAccounts).values(dataToInsert).onConflictDoNothing();
   }
 
   console.log("Backfill completed successfully.");
