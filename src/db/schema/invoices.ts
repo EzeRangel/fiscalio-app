@@ -16,8 +16,9 @@ import {
 import { organizations } from "./organizations";
 import { businessPartners } from "./businessPartners";
 import { relations } from "drizzle-orm";
-import { invoiceItems } from './invoiceItems';
+import { invoiceItems } from "./invoiceItems";
 import { paymentAllocations } from "./paymentAllocations";
+import { chartOfAccounts } from "./chartOfAccounts";
 
 export const invoices = pgTable(
   "invoices",
@@ -88,6 +89,19 @@ export const invoices = pgTable(
     aiClassification: jsonb("ai_classification"),
     validationErrors: jsonb("validation_errors").array(),
 
+    accountId: integer("account_id").references(() => chartOfAccounts.id),
+    costCenter: varchar("cost_center", { length: 50 }),
+    department: varchar("department", { length: 50 }),
+
+    // 'ai' | 'manual' | 'inherited'
+    classificationSource: varchar("classification_source", {
+      length: 20,
+    }).default("ai"),
+    classificationConfindence: decimal("classification_confidence", {
+      precision: 5,
+      scale: 4,
+    }),
+
     // Accounting
     accountingPeriod: varchar("accounting_period", { length: 7 }),
     isReconciled: boolean("is_reconciled").default(false),
@@ -132,4 +146,8 @@ export const invoiceRelations = relations(invoices, ({ one, many }) => ({
   }),
   items: many(invoiceItems),
   allocations: many(paymentAllocations),
+  account: one(chartOfAccounts, {
+    fields: [invoices.accountId],
+    references: [chartOfAccounts.id],
+  }),
 }));
