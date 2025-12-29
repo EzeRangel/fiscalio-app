@@ -6,8 +6,8 @@ import {
   serial,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { invoices } from "./invoices";
 import { relations } from "drizzle-orm";
+import { invoices } from "./invoices";
 
 export const classificationSnapshots = pgTable(
   "classification_snapshots",

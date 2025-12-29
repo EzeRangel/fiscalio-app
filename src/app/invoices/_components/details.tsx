@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceDetails as CFDI } from "@/types/invoices";
+import { Separator } from "@/components/ui/separator";
+import { ClassificationFeedback } from "./classification-feedback";
+import ClassificationAssigned from "./classification-assigned";
 
 interface Props {
   data: CFDI;
@@ -119,7 +122,7 @@ export function InvoiceDetails({ data: invoice }: Props) {
                 </div>
               )}
 
-              {/* <Separator /> */}
+              <Separator />
 
               <div className="flex justify-between items-baseline pt-2">
                 <span className="text-sm font-medium">Total</span>
@@ -219,6 +222,14 @@ export function InvoiceDetails({ data: invoice }: Props) {
         </div>
       </div>
 
+      <div className="mb-16">
+        {invoice.accountId ? (
+          <ClassificationAssigned account={invoice.account!} />
+        ) : (
+          <ClassificationFeedback invoice={invoice} />
+        )}
+      </div>
+
       {/* Line Items - Editorial Table */}
       <div className="space-y-8">
         <div>
@@ -260,7 +271,15 @@ export function InvoiceDetails({ data: invoice }: Props) {
               </div>
 
               {/* Item Details Grid */}
-              <div className="grid grid-cols-3 gap-6 pt-4 border-t border-border/50">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4 border-t border-border/50">
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Clave Prod. Serv.
+                  </div>
+                  <div className="font-mono text-sm">
+                    {item.productServiceKey}
+                  </div>
+                </div>
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">
                     Cantidad

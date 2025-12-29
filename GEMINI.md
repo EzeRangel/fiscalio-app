@@ -92,3 +92,29 @@ The following principles have been established during development sessions and s
   2. Name each input element (`<Input name=...>`, `<Select name=...>`) to match the keys in the action's Zod schema.
   3. Use dot notation for nested objects (e.g., `name="address.street"`). This allows `zod-form-data` to correctly construct the nested object structure.
   4. Use the `onSuccess` and `onError` callbacks in the `useAction` hook to provide clear user feedback (e.g., via toasts).
+
+## 8. Invoice Classification Engine
+
+The project features an adaptive system for automatically suggesting account classifications for new invoices. Understanding this system is crucial when working with invoice-related features.
+
+**Core Components:**
+
+*   **`ClassificationEngine` (`src/lib/classification-engine.ts`):** The central class that takes an invoice and a set of rules and produces a ranked list of `ClassificationCandidate`s.
+*   **`ClassificationRule`:** A rule defines a set of `matchCriteria` (e.g., specific RFC, product codes) that, if met, suggest a specific `accountCode`.
+*   **`Evidence`:** When a rule matches an invoice, it generates a piece of `Evidence`. The strength of this evidence (`matchStrength`) varies depending on the rule type.
+*   **`ClassificationCandidate`:** A potential classification outcome (`accountCode`) supported by one or more pieces of `Evidence`. Its final `score` is a weighted calculation based on the `priority`, `matchStrength`, and learned `confidenceBoost` of its evidence.
+
+**Adaptive Learning via Feedback Loop:**
+
+The engine's key feature is its ability to learn from user feedback, handled by the `applyClassification` server action (`src/actions/classification-rules.ts`).
+
+*   **Positive Reinforcement:** When a user accepts a candidate, the system calls `reinforceRuleConfidence`. This increases the `confidenceBoost` of the rules that contributed to the correct suggestion, making them more influential in the future.
+*   **Negative Reinforcement (Penalization):** When a user ignores all candidates and manually chooses a different account, the system calls `penalizeRuleConfidence`. This decreases the `confidenceBoost` of the dominant rules that led to the incorrect suggestions, making them less influential.
+*   **Feedback Records:** All user feedback is recorded in the `classificationFeedback` table for auditing and analysis.
+
+**Key Tuning Parameters:**
+
+When working on this system, be aware of two critical constants in `src/actions/classification-rules.ts`:
+
+*   `LEARNING_RATE`: Controls how much the `confidenceBoost` changes with each piece of feedback.
+*   `DOMINANT_EVIDENCE_THRESHOLD`: The minimum `matchStrength` a rule must have to be considered for penalization during negative feedback. This prevents the system from punishing rules for weak, incidental matches.

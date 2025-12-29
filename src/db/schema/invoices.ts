@@ -78,7 +78,7 @@ export const invoices = pgTable(
     originalFileName: varchar("original_file_name", { length: 255 }),
     fileHash: varchar("file_hash", { length: 64 }),
 
-    // AI Processing status
+    // ! DEPRECATED
     processingStatus: varchar("processing_status", { length: 20 }).default(
       "pending"
     ),
@@ -87,8 +87,8 @@ export const invoices = pgTable(
       scale: 4,
     }),
     aiClassification: jsonb("ai_classification"),
+    // ---
     validationErrors: jsonb("validation_errors").array(),
-
     accountId: integer("account_id").references(() => chartOfAccounts.id),
     costCenter: varchar("cost_center", { length: 50 }),
     department: varchar("department", { length: 50 }),
