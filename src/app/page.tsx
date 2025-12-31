@@ -1,11 +1,8 @@
+import { Calendar } from "lucide-react";
 import { OrganizationCard } from "@/components/organizations/organization-card";
 import { getOrganizations } from "@/data/organizations";
 import { getTaxRegimes } from "@/data/taxRegimes";
 import { BusinessPartnersCard } from "@/components/business-partners/business-partners-card";
-import { CFDIUploader } from "@/components/cfdi-uploader";
-import { InvoicesList } from "@/components/invoices/invoices-list";
-import { Calendar } from "lucide-react";
-import SummaryCards from "@/components/dashboard/summary-cards";
 import Dashboard from "@/components/dashboard";
 
 const getData = async () => {
@@ -62,9 +59,6 @@ export default async function Home() {
           <OrganizationCard regimes={regimes} organization={organization} />
           <div className="lg:col-span-2">
             <BusinessPartnersCard regimes={regimes} />
-          </div>
-          <div className="lg:col-span-3">
-            <CFDIUploader organization={organization} />
           </div>
         </div>
         <Dashboard monthName={monthName} />

@@ -18,7 +18,9 @@ export class CFDIParser {
         throw new Error(`CFDI inválido: ${this.formatZodErrors(error)}`);
       }
 
-      throw new Error(`Error al procesar XML: ${(error as Error).message}`);
+      throw new Error(
+        `Error al procesar XML, el documento está mal formado o tiene errores.`
+      );
     }
   }
 
