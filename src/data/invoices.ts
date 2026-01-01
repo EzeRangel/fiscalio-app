@@ -72,6 +72,7 @@ export const getInvoiceById = async (id: number) => {
       eq(invoices.organizationId, organizationId)
     ),
     with: {
+      account: true,
       businessPartner: true,
       items: {
         with: {

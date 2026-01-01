@@ -39,7 +39,7 @@ export function ClassificationFeedback({ invoice }: Props) {
 
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [manualAccountCode, setManualAccountCode] = useState("");
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [candidateIdx, setCandidateIdx] = useState<number | null>(null);
   const [suggestion, pickSuggestion] = useState<FeedbackInput | null>(null);
 
   const currentClassification = invoice.accountId;
@@ -302,12 +302,16 @@ export function ClassificationFeedback({ invoice }: Props) {
                 {candidates?.map((candidate, index) => {
                   const confidence = getConfidenceLevel(candidate.score);
                   const isTop = index === 0;
-                  const isHovered = hoveredIndex === index;
+                  const isPicked = candidateIdx === index;
+                  const accountName = accounts?.find(
+                    (acc) => acc.accountCode === candidate.accountCode
+                  )?.accountName;
 
                   return (
                     <button
                       key={index}
                       onClick={() => {
+                        setCandidateIdx(index);
                         handlePick(candidate);
                       }}
                       className={`
@@ -331,8 +335,12 @@ export function ClassificationFeedback({ invoice }: Props) {
                       <div className="p-6 space-y-4">
                         {/* Account code - large and prominent */}
                         <div className="space-y-2">
-                          <div className="text-3xl font-mono font-light tracking-tight">
+                          <div className="text-sm text-muted-foreground">
                             {candidate.accountCode}
+                          </div>
+
+                          <div className="text-3xl font-mono font-light tracking-tight">
+                            {accountName}
                           </div>
 
                           {/* Department */}
@@ -377,7 +385,7 @@ export function ClassificationFeedback({ invoice }: Props) {
                       </div>
 
                       {/* Hover state: show checkmark */}
-                      {isHovered && (
+                      {isPicked && (
                         <div className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md animate-in zoom-in duration-150">
                           <Check className="h-5 w-5" />
                         </div>
@@ -392,6 +400,8 @@ export function ClassificationFeedback({ invoice }: Props) {
                   variant="outline"
                   size="lg"
                   onClick={() => {
+                    pickSuggestion(null);
+                    setCandidateIdx(null);
                     setShowManualEntry(false);
                     setManualAccountCode("");
                   }}

@@ -14,10 +14,17 @@ import { InvoiceDetails as CFDI } from "@/types/invoices";
 import { Separator } from "@/components/ui/separator";
 import { ClassificationFeedback } from "./classification-feedback";
 import ClassificationAssigned from "./classification-assigned";
+import { cn, getCFDIType } from "@/lib/utils";
 
 interface Props {
   data: CFDI;
 }
+
+const CFDI_TYPE_COLOR = {
+  I: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  E: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  T: "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
+};
 
 export function InvoiceDetails({ data: invoice }: Props) {
   return (
@@ -28,12 +35,14 @@ export function InvoiceDetails({ data: invoice }: Props) {
             <div className="flex items-center gap-3 mb-4">
               <Badge
                 variant="outline"
-                className="font-mono text-xs tracking-wider"
+                className={cn(
+                  "font-mono text-xs tracking-wider",
+                  // @ts-expect-error Incorrect type
+                  CFDI_TYPE_COLOR[invoice.cfdiType]
+                )}
               >
-                {invoice.cfdiType}
-              </Badge>
-              <Badge className="font-mono text-xs tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">
-                {invoice.status}
+                {/* @ts-expect-error No se puede asignar un argumento de tipo "string" al parámetro de tipo ""I" | "E" | "T" */}
+                {getCFDIType(invoice.cfdiType)}
               </Badge>
             </div>
 
