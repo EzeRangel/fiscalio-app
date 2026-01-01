@@ -121,37 +121,18 @@ export const getInvoiceClassificationSuggestion = actionClient
       throw new ActionError("La factura no fue encontrada.");
     }
 
-    const rules = await getClassificationRules();
-    const classificationEngine = new ClassificationEngine();
+    const snapshot = await db
+      .select()
+      .from(classificationSnapshots)
+      .where(eq(classificationSnapshots.invoiceId, invoice.id));
 
-    const engineInvoice: EngineInvoice = {
-      cfdiType: invoice.cfdiType,
-      currency: invoice.currency,
-      paymentForm: invoice.paymentForm,
-      partnerId: invoice.partnerId,
-      partnerRfc: invoice.businessPartner?.rfc || null,
-      items: invoice.items.map((item) => ({
-        productServiceKey: item.productServiceKey,
-      })),
-      taxes: invoice.items.flatMap((item) =>
-        item.taxes
-          .filter((t) => t.rate !== null)
-          .map((tax) => ({ rate: parseFloat(tax.rate) }))
-      ),
-    };
-
-    const candidates = classificationEngine.run(engineInvoice, rules);
-
-    if (!candidates || candidates.length < 1) {
+    if (snapshot?.length < 1) {
       return [];
     }
 
-    await db.insert(classificationSnapshots).values({
-      invoiceId: parsedInput.invoiceId,
-      candidates: candidates,
-    });
+    const { candidates } = snapshot[0];
 
-    return candidates;
+    return candidates as ClassificationCandidate[];
   });
 
 const ACTIONS = ["select", "non-correct"] as const;
