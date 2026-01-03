@@ -63,8 +63,6 @@ export default async function ChartOfAccountsPage() {
     (account) => account.parentAccountId === null
   ).length;
 
-  console.log(groupedAccounts);
-
   return (
     <section className="bg-background">
       <header className="border-b border-border bg-linear-to-br from-[hsl(var(--chart-5))]/5 via-background to-background">

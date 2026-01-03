@@ -9,13 +9,16 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
-  Clock,
   DollarSign,
   Eye,
   FileText,
   TrendingDown,
   TrendingUp,
   HandCoins,
+  CircleDashed,
+  CircleDotDashed,
+  CircleCheck,
+  ClockFading,
 } from "lucide-react";
 import { getTaxDeclarationsDashboardData } from "@/data/tax-declarations";
 import { getActiveOrganizationId } from "@/lib/session";
@@ -46,25 +49,25 @@ function getStatusInfo(status: string): {
     case "filed":
       return {
         text: "Presentada",
-        icon: <CheckCircle2 className="h-4 w-4" />,
+        icon: <CircleCheck className="h-4 w-4" />,
         className: "text-chart-4 bg-chart-4/10 border-chart-4/20",
       };
     case "validated":
       return {
         text: "Validada",
-        icon: <CheckCircle2 className="h-4 w-4" />,
+        icon: <CircleDotDashed className="h-4 w-4" />,
         className: "text-chart-1 bg-chart-1/10 border-chart-1/20",
       };
     case "draft":
       return {
         text: "Borrador",
-        icon: <FileText className="h-4 w-4" />,
+        icon: <CircleDashed className="h-4 w-4" />,
         className: "text-muted-foreground bg-muted/50 border-muted",
       };
     default:
       return {
         text: "Pendiente",
-        icon: <Clock className="h-4 w-4" />,
+        icon: <ClockFading className="h-4 w-4" />,
         className: "text-chart-2 bg-chart-2/10 border-chart-2/20",
       };
   }
@@ -104,20 +107,14 @@ export default async function TaxDeclarationsPage() {
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-start justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-light tracking-tight text-foreground">
-                    Declaraciones Fiscales
-                  </h1>
-                  <p className="text-sm text-muted-foreground font-mono mt-0.5">
-                    Tax Declarations / Overview
-                  </p>
-                </div>
-              </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-light tracking-tight text-foreground">
+                Declaraciones Fiscales
+              </h1>
+              <p className="text-muted-foreground font-mono text-sm">
+                Crea borradores, encuentra inconsistencias y revisa que todo
+                vaya bien para tus declaraciones
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
