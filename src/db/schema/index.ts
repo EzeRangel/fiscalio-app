@@ -12,3 +12,6 @@ export * from "./classificationRules";
 export * from "./validationIssues";
 export * from "./classificationSnapshot";
 export * from "./classificationFeedback";
+export * from "./taxDeclarations";
+export * from "./declarationInvoices";
+export * from "./fiscalPeriods";

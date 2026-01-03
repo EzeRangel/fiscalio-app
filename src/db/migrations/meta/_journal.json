@@ -71,6 +71,13 @@
       "when": 1766873035305,
       "tag": "0009_classification-feedback-table",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1767410333657,
+      "tag": "0010_tables-for-declarations",
+      "breakpoints": true
     }
   ]
 }
