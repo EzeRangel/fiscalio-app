@@ -12,6 +12,11 @@ export async function suggestInvoiceClassification(invoiceId: number) {
     throw new Error("La factura no fue encontrada para clasificar");
   }
 
+  // Payment Complements do not require classification
+  if (invoice.cfdiType === "P") {
+    return [];
+  }
+
   const { db } = await getDB();
   const rules = await getClassificationRules();
   const classificationEngine = new ClassificationEngine();

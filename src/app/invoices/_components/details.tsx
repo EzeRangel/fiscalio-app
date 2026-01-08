@@ -248,13 +248,15 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
         </div>
       </div>
 
-      <div className="mb-16">
-        {invoice.accountId ? (
-          <ClassificationAssigned account={invoice.account!} />
-        ) : (
-          <ClassificationFeedback invoice={invoice} />
-        )}
-      </div>
+      {!isPaymentComplement ? (
+        <div className="mb-16">
+          {invoice.accountId ? (
+            <ClassificationAssigned account={invoice.account!} />
+          ) : (
+            <ClassificationFeedback invoice={invoice} />
+          )}
+        </div>
+      ) : null}
 
       {/* Pagos Relacionados (Only for Payment Complements) */}
       {isPaymentComplement && relatedPayments.length > 0 && (
