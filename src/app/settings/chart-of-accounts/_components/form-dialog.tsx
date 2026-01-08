@@ -29,6 +29,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Account,
   AccountFormSchema,
   AccountFormValues,
@@ -124,7 +130,30 @@ export function AccountFormDialog({ accounts = [] }: Props) {
                 name="satCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Código SAT</FormLabel>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            Código SAT{" "}
+                            <span className="text-muted-foreground">(?)</span>
+                          </FormLabel>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            Encuentra la referencia en este{" "}
+                            <a
+                              href="http://omawww.sat.gob.mx/fichas_tematicas/buzon_tributario/Documents/codigo_agrupador.pdf"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:underline"
+                            >
+                              documento
+                            </a>
+                            .
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <FormControl>
                       <Input
                         placeholder="101.01"

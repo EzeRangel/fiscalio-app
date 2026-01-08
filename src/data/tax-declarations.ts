@@ -1,6 +1,6 @@
 import "server-only";
 import { getDB } from "@/db";
-import { and, eq, gte, isNotNull, lt, desc } from "drizzle-orm";
+import { and, eq, gte, lt, desc } from "drizzle-orm";
 import { invoices, taxDeclarations } from "@/db/schema";
 
 export async function getTaxDeclarationsDashboardData(organizationId: number) {
@@ -97,7 +97,11 @@ export async function getTaxDeclarationById(
     with: {
       declarationInvoices: {
         with: {
-          invoice: true, // Also fetch the original invoice for more details if needed
+          invoice: {
+            with: {
+              businessPartner: true,
+            },
+          },
         },
       },
     },
@@ -108,14 +112,14 @@ export async function getTaxDeclarationById(
   }
 
   // AI Validations placeholder
-  const aiValidations = [
-    { severity: "warning", message: "12 facturas sin clasificar" },
-    { severity: "warning", message: "IVA difiere 3% del esperado" },
-    { severity: "error", message: "Gastos de comida exceden límite" },
-  ];
+  // const aiValidations = [
+  //   { severity: "warning", message: "12 facturas sin clasificar" },
+  //   { severity: "warning", message: "IVA difiere 3% del esperado" },
+  //   { severity: "error", message: "Gastos de comida exceden límite" },
+  // ];
 
   return {
     ...declaration,
-    aiValidations, // Add the placeholder validations
+    aiValidations: [], // Add the placeholder validations
   };
 }

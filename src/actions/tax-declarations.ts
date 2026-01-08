@@ -1,11 +1,11 @@
 "use server";
 
 import {
-  fiscalPeriods,
   invoices,
   taxDeclarations,
   declarationInvoices,
   organizations,
+  payments,
 } from "@/db";
 import { getDB } from "@/db";
 import { and, eq, gte, isNotNull, lt } from "drizzle-orm";
@@ -13,6 +13,7 @@ import { actionClient } from "@/lib/safe-action";
 import { z } from "zod";
 import { calculateISR_RESICO } from "@/lib/tax-calculations";
 import { getActiveOrganizationId } from "@/lib/session";
+import { zfd } from "zod-form-data";
 
 const createTaxDeclarationDraftSchema = z.object({
   fiscalPeriod: z
@@ -23,123 +24,181 @@ const createTaxDeclarationDraftSchema = z.object({
 
 export const createTaxDeclarationDraft = actionClient
   .inputSchema(createTaxDeclarationDraftSchema)
-  .action(
-    async ({
-      parsedInput: { fiscalPeriod, declarationType },
-    }) => {
-      const { db } = await getDB();
-      const organizationId = await getActiveOrganizationId();
+  .action(async ({ parsedInput: { fiscalPeriod, declarationType } }) => {
+    const { db } = await getDB();
+    const organizationId = await getActiveOrganizationId();
 
-      // Get organization's tax regime
-      const organization = await db.query.organizations.findFirst({
-        where: eq(organizations.id, organizationId),
-        with: {
-          taxRegime: true,
-        },
-      });
+    // Get organization's tax regime
+    const organization = await db.query.organizations.findFirst({
+      where: eq(organizations.id, organizationId),
+      with: {
+        taxRegime: true,
+      },
+    });
 
-      if (!organization || !organization.taxRegime) {
-        throw new Error("Organization or its tax regime not found.");
+    if (!organization || !organization.taxRegime) {
+      throw new Error("Organization or its tax regime not found.");
+    }
+
+    // 1. Check for existing declaration draft
+    const existingDeclaration = await db.query.taxDeclarations.findFirst({
+      where: and(
+        eq(taxDeclarations.organizationId, organizationId),
+        eq(taxDeclarations.fiscalPeriod, fiscalPeriod),
+        eq(taxDeclarations.declarationType, declarationType)
+      ),
+    });
+
+    if (existingDeclaration) {
+      if (existingDeclaration.status === "draft") {
+        throw new Error(
+          "Ya existe un borrador de declaración para este período y tipo."
+        );
       }
+      throw new Error("Ya existe una declaración para este período y tipo.");
+    }
 
-      // 1. Check for existing declaration draft
-      const existingDeclaration = await db.query.taxDeclarations.findFirst({
-        where: and(
-          eq(taxDeclarations.organizationId, organizationId),
-          eq(taxDeclarations.fiscalPeriod, fiscalPeriod),
-          eq(taxDeclarations.declarationType, declarationType)
-        ),
-      });
+    const [year, month] = fiscalPeriod.split("-").map(Number);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
 
-      if (existingDeclaration) {
-        if (existingDeclaration.status === "draft") {
-          throw new Error(
-            "Ya existe un borrador de declaración para este período y tipo."
-          );
+    // 2. Fetch relevant data for the period (Cash Flow based)
+    
+    // 2a. Fetch PUE invoices (Paid in full at issuance)
+    const pueInvoices = await db.query.invoices.findMany({
+      where: and(
+        eq(invoices.organizationId, organizationId),
+        gte(invoices.invoiceDate, startDate),
+        lt(invoices.invoiceDate, endDate),
+        eq(invoices.paymentMethod, "PUE"),
+        isNotNull(invoices.accountId)
+      ),
+      with: {
+        account: true,
+      },
+    });
+
+    // 2b. Fetch Payments in the period (for PPD invoices)
+    const periodPayments = await db.query.payments.findMany({
+      where: and(
+        eq(payments.organizationId, organizationId),
+        gte(payments.paymentDate, startDate),
+        lt(payments.paymentDate, endDate)
+      ),
+      with: {
+        allocations: {
+          with: {
+            invoice: {
+              with: {
+                account: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // 3. Create initial taxDeclaration entry
+    const [newDeclaration] = await db
+      .insert(taxDeclarations)
+      .values({
+        organizationId,
+        fiscalPeriod,
+        declarationType,
+        taxRegime: organization.taxRegime.code,
+        totalIncome: "0",
+        totalExpenses: "0",
+        deductibleExpenses: "0",
+        ivaCharged: "0",
+        ivaCreditable: "0",
+        ivaBalance: "0",
+        isrBase: "0",
+        isrCalculated: "0",
+        isrWithheld: "0",
+        isrProvisional: "0",
+        isrBalance: "0",
+        status: "draft",
+      })
+      .returning();
+
+    if (!newDeclaration) {
+      throw new Error("Error al crear la declaración de impuestos.");
+    }
+
+    // 4. Aggregate data and create snapshot entries
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    let deductibleExpenses = 0;
+    let ivaCharged = 0;
+    let ivaCreditable = 0;
+    const isrWithheld = 0;
+
+    const declarationInvoicesBatch: any[] = [];
+
+    // Process PUE Invoices
+    for (const invoice of pueInvoices) {
+      const isDeductible = invoice.account?.isDeductible || false;
+      const deductionPercentage = parseFloat(
+        invoice.account?.deductionPercentage || "100.00"
+      );
+      const includedAmount = parseFloat(invoice.total);
+      const deductibleAmount = isDeductible
+        ? includedAmount * (deductionPercentage / 100)
+        : 0;
+
+      if (invoice.invoiceType === "income") {
+        totalIncome += includedAmount;
+      } else if (invoice.invoiceType === "expense") {
+        totalExpenses += includedAmount;
+        if (isDeductible) {
+          deductibleExpenses += deductibleAmount;
         }
-        throw new Error("Ya existe una declaración para este período y tipo.");
       }
 
-      const [year, month] = fiscalPeriod.split("-").map(Number);
-      const startDate = new Date(year, month - 1, 1); // Month is 0-indexed in JS Date
-      const endDate = new Date(year, month, 1); // First day of next month, exclusive
+      const invoiceIvaAmount = parseFloat(invoice.totalTaxes || "0");
+      let ivaType: string | null = null;
+      if (invoiceIvaAmount > 0) {
+        if (invoice.invoiceType === "income") {
+          ivaCharged += invoiceIvaAmount;
+          ivaType = "charged";
+        } else if (invoice.invoiceType === "expense" && isDeductible) {
+          ivaCreditable += invoiceIvaAmount;
+          ivaType = "creditable";
+        }
+      }
 
-      // 2. Fetch relevant invoices for the period that have been classified
-      const allInvoices = await db.query.invoices.findMany({
-        where: and(
-          eq(invoices.organizationId, organizationId),
-          gte(invoices.invoiceDate, startDate),
-          lt(invoices.invoiceDate, endDate),
-          isNotNull(invoices.accountId)
-        ),
-        with: {
-          account: true,
-        },
+      declarationInvoicesBatch.push({
+        declarationId: newDeclaration.id,
+        invoiceId: invoice.id,
+        appliedAccountCode: invoice.account?.accountCode || null,
+        appliedAccountName: invoice.account?.accountName || null,
+        isDeductible: isDeductible,
+        deductionPercentage: deductionPercentage.toString(),
+        includedAmount: includedAmount.toString(),
+        deductibleAmount: deductibleAmount.toString(),
+        ivaAmount: invoiceIvaAmount.toString(),
+        ivaType: ivaType,
+        wasManuallyAdjusted: false,
       });
+    }
 
-      const incomeInvoices = allInvoices.filter(
-        (i) => i.invoiceType === "income"
-      );
-      const expenseInvoices = allInvoices.filter(
-        (i) => i.invoiceType === "expense"
-      );
+    // Process Payments (PPD Allocations)
+    for (const payment of periodPayments) {
+      for (const allocation of payment.allocations) {
+        const invoice = allocation.invoice;
+        if (!invoice || !invoice.accountId) continue;
 
-      // 3. Create initial taxDeclaration entry (totals will be updated later)
-      const [newDeclaration] = await db
-        .insert(taxDeclarations)
-        .values({
-          organizationId,
-          fiscalPeriod,
-          declarationType,
-          taxRegime: organization.taxRegime.code,
-          totalIncome: "0",
-          totalExpenses: "0",
-          deductibleExpenses: "0",
-          // Initialize other decimal fields to "0"
-          ivaCharged: "0",
-          ivaCreditable: "0",
-          ivaBalance: "0",
-          isrBase: "0",
-          isrCalculated: "0",
-          isrWithheld: "0",
-          isrProvisional: "0",
-          isrBalance: "0",
-          status: "draft",
-        })
-        .returning();
-
-      if (!newDeclaration) {
-        throw new Error("Error al crear la declaración de impuestos.");
-      }
-
-      // 4. Create declarationInvoices entries (snapshot) and calculate totals
-      let totalIncome = 0;
-      let totalExpenses = 0;
-      let deductibleExpenses = 0;
-      let ivaCharged = 0;
-      let ivaCreditable = 0;
-      const isrWithheld = 0; // Assuming this is collected from income invoices
-
-      const allRelevantInvoices = [...incomeInvoices, ...expenseInvoices]; // Combined invoices
-
-      const declarationInvoicesBatch = allRelevantInvoices.map((invoice) => {
-        // Used allRelevantInvoices
-        // Calculate amounts for snapshot
         const isDeductible = invoice.account?.isDeductible || false;
         const deductionPercentage = parseFloat(
           invoice.account?.deductionPercentage || "100.00"
         );
-        const includedAmount = parseFloat(invoice.total); // Total of the invoice
+        const includedAmount = parseFloat(allocation.amountAllocated);
         const deductibleAmount = isDeductible
           ? includedAmount * (deductionPercentage / 100)
           : 0;
 
-        // Aggregate totals for the declaration
         if (invoice.invoiceType === "income") {
           totalIncome += includedAmount;
-          // ISR Withheld might be part of income invoices, need to parse invoice taxes for this
-          // For simplicity, let's assume it's directly available or calculable here.
-          // This part needs real CFDI tax parsing logic.
         } else if (invoice.invoiceType === "expense") {
           totalExpenses += includedAmount;
           if (isDeductible) {
@@ -147,21 +206,25 @@ export const createTaxDeclarationDraft = actionClient
           }
         }
 
-        // IVA calculation (simplified, needs real tax breakdown from invoiceItems.taxes)
-        // For now, assuming invoice.totalTaxes is primarily IVA and based on invoiceType
-        const invoiceIvaAmount = parseFloat(invoice.totalTaxes);
+        // Calculate proportional IVA
+        const invoiceTotal = parseFloat(invoice.total);
+        const invoiceTotalTaxes = parseFloat(invoice.totalTaxes || "0");
+        const proportionalIva = invoiceTotal > 0 
+          ? (includedAmount / invoiceTotal) * invoiceTotalTaxes
+          : 0;
+
         let ivaType: string | null = null;
-        if (invoiceIvaAmount > 0) {
+        if (proportionalIva > 0) {
           if (invoice.invoiceType === "income") {
-            ivaCharged += invoiceIvaAmount;
+            ivaCharged += proportionalIva;
             ivaType = "charged";
           } else if (invoice.invoiceType === "expense" && isDeductible) {
-            ivaCreditable += invoiceIvaAmount;
+            ivaCreditable += proportionalIva;
             ivaType = "creditable";
           }
         }
 
-        return {
+        declarationInvoicesBatch.push({
           declarationId: newDeclaration.id,
           invoiceId: invoice.id,
           appliedAccountCode: invoice.account?.accountCode || null,
@@ -170,47 +233,46 @@ export const createTaxDeclarationDraft = actionClient
           deductionPercentage: deductionPercentage.toString(),
           includedAmount: includedAmount.toString(),
           deductibleAmount: deductibleAmount.toString(),
-          ivaAmount: invoiceIvaAmount.toString(),
+          ivaAmount: proportionalIva.toFixed(2),
           ivaType: ivaType,
-          wasManuallyAdjusted: false, // Initial state
-        };
-      });
-
-      if (declarationInvoicesBatch.length > 0) {
-        await db.insert(declarationInvoices).values(declarationInvoicesBatch); // Bulk insert
+          wasManuallyAdjusted: false,
+        });
       }
-
-      // 5. Calculate ISR base and other final totals
-      const isrBase = totalIncome - deductibleExpenses;
-      const ivaBalance = ivaCharged - ivaCreditable;
-
-      const isrCalculatedValue = calculateISR_RESICO(isrBase, declarationType);
-      const isrRateValue = isrBase > 0 ? (isrCalculatedValue / isrBase) : 0;
-      const isrBalance = isrCalculatedValue - isrWithheld;
-
-      // 6. Update the taxDeclaration with calculated totals
-      await db
-        .update(taxDeclarations)
-        .set({
-          totalIncome: totalIncome.toString(),
-          totalExpenses: totalExpenses.toString(),
-          deductibleExpenses: deductibleExpenses.toString(),
-          ivaCharged: ivaCharged.toString(),
-          ivaCreditable: ivaCreditable.toString(),
-          ivaBalance: ivaBalance.toString(),
-          isrBase: isrBase.toString(),
-          isrRate: isrRateValue.toFixed(4).toString(),
-          isrCalculated: isrCalculatedValue.toString(),
-          isrWithheld: isrWithheld.toString(),
-          isrProvisional: "0", // Placeholder
-          isrBalance: isrBalance.toString(),
-          updatedAt: new Date(),
-        })
-        .where(eq(taxDeclarations.id, newDeclaration.id));
-
-      return newDeclaration;
     }
-  );
+
+    if (declarationInvoicesBatch.length > 0) {
+      await db.insert(declarationInvoices).values(declarationInvoicesBatch);
+    }
+
+    // 5. Final totals calculation
+    const isrBase = totalIncome - deductibleExpenses;
+    const ivaBalance = ivaCharged - ivaCreditable;
+
+    const isrCalculatedValue = calculateISR_RESICO(isrBase, declarationType);
+    const isrRateValue = isrBase > 0 ? isrCalculatedValue / isrBase : 0;
+    const isrBalance = isrCalculatedValue - isrWithheld;
+
+    await db
+      .update(taxDeclarations)
+      .set({
+        totalIncome: totalIncome.toString(),
+        totalExpenses: totalExpenses.toString(),
+        deductibleExpenses: deductibleExpenses.toString(),
+        ivaCharged: ivaCharged.toString(),
+        ivaCreditable: ivaCreditable.toString(),
+        ivaBalance: ivaBalance.toString(),
+        isrBase: isrBase.toString(),
+        isrRate: isrRateValue.toFixed(4).toString(),
+        isrCalculated: isrCalculatedValue.toString(),
+        isrWithheld: isrWithheld.toString(),
+        isrProvisional: "0",
+        isrBalance: isrBalance.toString(),
+        updatedAt: new Date(),
+      })
+      .where(eq(taxDeclarations.id, newDeclaration.id));
+
+    return newDeclaration;
+  });
 
 // New schema for validating a declaration
 const validateTaxDeclarationSchema = z.object({
@@ -235,7 +297,9 @@ export const validateTaxDeclaration = actionClient
     }
 
     if (declaration.status !== "draft") {
-      throw new Error("Solo se pueden validar declaraciones en estado de borrador.");
+      throw new Error(
+        "Solo se pueden validar declaraciones en estado de borrador."
+      );
     }
 
     await db
@@ -255,9 +319,8 @@ export const validateTaxDeclaration = actionClient
     return { success: true, message: "Declaración validada exitosamente." };
   });
 
-
 // New schema for filing a declaration
-const fileTaxDeclarationSchema = z.object({
+const fileTaxDeclarationSchema = zfd.formData({
   declarationId: z.number(),
   acknowledgmentNumber: z.string().min(1, "El número de acuse es requerido."),
 });
@@ -280,7 +343,9 @@ export const fileTaxDeclaration = actionClient
     }
 
     if (declaration.status !== "validated") {
-      throw new Error("Solo se pueden presentar declaraciones en estado 'validada'.");
+      throw new Error(
+        "Solo se pueden presentar declaraciones en estado 'validada'."
+      );
     }
 
     await db
