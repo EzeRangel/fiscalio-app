@@ -19,14 +19,14 @@ export function formatPrice(amount: number, decimals: number = 0) {
   return `$${strAmount}`;
 }
 
-export default function usePrice(amount: number) {
+export default function usePrice(amount: number, decimals: number = 0) {
   const value = useMemo(() => {
     if (typeof amount !== "number") {
       return "";
     }
 
-    return formatPrice(amount);
-  }, [amount]);
+    return formatPrice(amount, decimals);
+  }, [amount, decimals]);
 
   return value;
 }
