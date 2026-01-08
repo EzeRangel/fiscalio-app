@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceDetails } from "../_components/details";
+import { getPaymentsByFolio } from "@/data/payments";
 
 interface InvoiceDetailPageProps {
   params: Promise<{
@@ -23,9 +24,11 @@ export default async function InvoiceDetailPage({
 
   const invoice = await getInvoiceById(invoiceId);
 
-  if (!invoice) {
+  if (!invoice || !invoice.folioFiscal) {
     notFound();
   }
+
+  const relatedPayments = await getPaymentsByFolio(invoice.folioFiscal);
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,7 +41,7 @@ export default async function InvoiceDetailPage({
           </Button>
         </div>
       </div>
-      <InvoiceDetails data={invoice} />
+      <InvoiceDetails data={invoice} relatedPayments={relatedPayments} />
     </div>
   );
 }

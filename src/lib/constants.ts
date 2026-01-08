@@ -2,6 +2,7 @@ export const CFDI_TYPE = {
   I: "Ingreso",
   E: "Egreso",
   T: "Traslado",
+  P: "Pago",
 };
 
 export const TAX_NAMES = {

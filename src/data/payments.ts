@@ -1,7 +1,7 @@
 import "server-only";
 
 import { and, eq } from "drizzle-orm";
-import { invoices, paymentAllocations, payments } from "@/db";
+import { getDB, invoices, paymentAllocations, payments } from "@/db";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 
 export async function savePaymentComplement(
@@ -89,4 +89,20 @@ export async function savePaymentComplement(
       }
     }
   }
+}
+
+export async function getPaymentsByFolio(folio: string) {
+  const { db } = await getDB();
+  const relatedPayments = await db.query.payments.findMany({
+    where: eq(payments.cfdiPaymentId, folio),
+    with: {
+      allocations: {
+        with: {
+          invoice: true,
+        },
+      },
+    },
+  });
+
+  return relatedPayments;
 }

@@ -283,6 +283,12 @@ export const getInvoiceById = async (id: number) => {
           taxes: true,
         },
       },
+      allocations: {
+        with: {
+          payment: true,
+          invoice: true,
+        },
+      },
     },
   });
 };
