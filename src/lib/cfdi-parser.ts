@@ -1,5 +1,8 @@
 import { JsonConverter } from "@nodecfdi/cfdi-to-json";
-import { ComprobanteSchema, type CFDIComprobante } from "@/types/cfdi-schemas";
+import {
+  ComprobanteSchemaWithPagos,
+  type CFDIComprobante,
+} from "@/types/cfdi-schemas";
 import z from "zod/v4";
 
 export class CFDIParser {
@@ -12,7 +15,7 @@ export class CFDIParser {
       const json = jsonConverter.convertToJson(xmlContent);
       const jsonData = JSON.parse(json);
 
-      return ComprobanteSchema.parse(jsonData);
+      return ComprobanteSchemaWithPagos.parse(jsonData);
     } catch (error) {
       if (error instanceof z.ZodError) {
         throw new Error(`CFDI inválido: ${this.formatZodErrors(error)}`);
@@ -36,12 +39,20 @@ export class CFDIParser {
       ? cfdi.Conceptos.Concepto
       : [cfdi.Conceptos.Concepto];
 
+    // Find the TimbreFiscalDigital within the Complemento array
+    const timbreComplement = cfdi.Complemento.find(
+      (c) => c.TimbreFiscalDigital
+    );
+    const timbre = timbreComplement?.TimbreFiscalDigital;
+
+    if (!timbre) {
+      throw new Error("TimbreFiscalDigital no encontrado en el CFDI.");
+    }
+
     return {
       // Datos del timbre
-      uuid: cfdi.Complemento.TimbreFiscalDigital.UUID,
-      fechaTimbrado: new Date(
-        cfdi.Complemento.TimbreFiscalDigital.FechaTimbrado
-      ),
+      uuid: timbre.UUID,
+      fechaTimbrado: new Date(timbre.FechaTimbrado),
 
       // Datos generales
       version: cfdi.Version,

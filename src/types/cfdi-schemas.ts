@@ -106,9 +106,7 @@ export const ComprobanteSchema = z.object({
     Concepto: z.union([ConceptoSchema, z.array(ConceptoSchema)]),
   }),
 
-  Complemento: z.object({
-    TimbreFiscalDigital: TimbreFiscalDigitalSchema,
-  }),
+  Complemento: z.array(z.record(z.any(), z.any())),
   Impuestos: ImpuestosComprobanteSchema.optional(),
 });
 
@@ -118,4 +116,130 @@ export enum Impuesto {
   "003" = "IEPS",
 }
 
-export type CFDIComprobante = z.infer<typeof ComprobanteSchema>;
+// --- Schemas para Complemento de Pagos 2.0 ---
+
+export const TrasladoDRSchema = z.object({
+  BaseDR: z.string(),
+  ImpuestoDR: z.string(),
+  TipoFactorDR: z.string(),
+  TasaOCuotaDR: z.string().optional(),
+  ImporteDR: z.string().optional(),
+});
+
+export const RetencionDRSchema = z.object({
+  BaseDR: z.string(),
+  ImpuestoDR: z.string(),
+  TipoFactorDR: z.string(),
+  TasaOCuotaDR: z.string(),
+  ImporteDR: z.string(),
+});
+
+export const ImpuestosDRSchema = z.object({
+  TrasladosDR: z
+    .object({
+      TrasladoDR: z.union([TrasladoDRSchema, z.array(TrasladoDRSchema)]),
+    })
+    .optional(),
+  RetencionesDR: z
+    .object({
+      RetencionDR: z.union([RetencionDRSchema, z.array(RetencionDRSchema)]),
+    })
+    .optional(),
+});
+
+export const DoctoRelacionadoSchema = z.object({
+  IdDocumento: z.string().uuid(),
+  Serie: z.string().optional(),
+  Folio: z.string().optional(),
+  MonedaDR: z.string(),
+  EquivalenciaDR: z.string().optional(),
+  NumParcialidad: z.string(),
+  ImpSaldoAnt: z.string(),
+  ImpPagado: z.string(),
+  ImpSaldoInsoluto: z.string(),
+  ObjetoImpDR: z.string(),
+  ImpuestosDR: ImpuestosDRSchema.optional(),
+});
+
+export const TrasladoPSchema = z.object({
+  BaseP: z.string(),
+  ImpuestoP: z.string(),
+  TipoFactorP: z.string(),
+  TasaOCuotaP: z.string().optional(),
+  ImporteP: z.string().optional(),
+});
+
+export const RetencionPSchema = z.object({
+  BaseP: z.string(),
+  ImpuestoP: z.string(),
+});
+
+export const ImpuestosPagoSchema = z.object({
+  TrasladosP: z
+    .object({
+      TrasladoP: z.union([TrasladoPSchema, z.array(TrasladoPSchema)]),
+    })
+    .optional(),
+  RetencionesP: z
+    .object({
+      RetencionP: z.union([RetencionPSchema, z.array(RetencionPSchema)]),
+    })
+    .optional(),
+});
+
+export const PagoSchema = z.object({
+  FechaPago: z.string(),
+  FormaDePagoP: z.string(),
+  MonedaP: z.string(),
+  TipoCambioP: z.string().optional(),
+  Monto: z.string(),
+  NumOperacion: z.string().optional(),
+  RfcEmisorCtaOrd: z.string().optional(),
+  NomBancoOrdExt: z.string().optional(),
+  CtaOrdenante: z.string().optional(),
+  RfcEmisorCtaBen: z.string().optional(),
+  CtaBeneficiario: z.string().optional(),
+  TipoCadPago: z.string().optional(),
+  CertPago: z.string().optional(),
+  CadPago: z.string().optional(),
+  SelloPago: z.string().optional(),
+  DoctoRelacionado: z.union([
+    DoctoRelacionadoSchema,
+    z.array(DoctoRelacionadoSchema),
+  ]),
+  ImpuestosP: ImpuestosPagoSchema.optional(),
+});
+
+export const TotalesPagosSchema = z.object({
+  MontoTotalPagos: z.string().optional(),
+  TotalRetencionesIVA: z.string().optional(),
+  TotalRetencionesISR: z.string().optional(),
+  TotalRetencionesIEPS: z.string().optional(),
+  TotalTrasladosBaseIVA16: z.string().optional(),
+  TotalTrasladosImpuestoIVA16: z.string().optional(),
+  TotalTrasladosBaseIVA8: z.string().optional(),
+  TotalTrasladosImpuestoIVA8: z.string().optional(),
+  TotalTrasladosBaseIVA0: z.string().optional(),
+  TotalTrasladosImpuestoIVA0: z.string().optional(),
+  TotalTrasladosBaseIVAExento: z.string().optional(),
+});
+
+export const PagosSchema = z.object({
+  Version: z.literal("2.0"),
+  Totales: TotalesPagosSchema.optional(),
+  Pago: z.union([PagoSchema, z.array(PagoSchema)]),
+});
+
+// Update ComprobanteSchema to handle the array-based Complemento and specialized Pagos schema
+export const ComprobanteSchemaWithPagos = ComprobanteSchema.extend({
+  Complemento: z.array(
+    z
+      .object({
+        TimbreFiscalDigital: TimbreFiscalDigitalSchema.optional(),
+        Pagos: PagosSchema.optional(),
+      })
+      .catchall(z.any())
+  ),
+});
+
+export type CFDIComprobante = z.infer<typeof ComprobanteSchemaWithPagos>;

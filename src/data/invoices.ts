@@ -1,11 +1,11 @@
 import "server-only";
 
 import { and, desc, eq, gte, lte } from "drizzle-orm";
-import { invoices } from "@/db/schema";
 import {
   businessPartners,
   getDB,
   invoiceItems,
+  invoices,
   invoiceTaxes,
   organizations,
   taxRegimes,
@@ -13,75 +13,7 @@ import {
 import { getActiveOrganizationId } from "@/lib/session";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { getTaxName } from "@/lib/utils";
-
-// TODO: Mejorar la función para obtener todas las facturas, enviar filtros como parámetros.
-export const getInvoicesByOrganization = async (organizationId: number) => {
-  const { db } = await getDB();
-
-  return db.query.invoices.findMany({
-    where: eq(invoices.organizationId, organizationId),
-    orderBy: [desc(invoices.invoiceDate)],
-    with: {
-      businessPartner: true,
-    },
-  });
-};
-
-export const getLatestInvoices = async (organizationId: number) => {
-  const { db } = await getDB();
-
-  const now = new Date();
-  const startOfMonth = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    1,
-    0,
-    0,
-    0,
-    0
-  );
-  const endOfMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999
-  );
-
-  return db.query.invoices.findMany({
-    where: and(
-      eq(invoices.organizationId, organizationId),
-      gte(invoices.invoiceDate, startOfMonth),
-      lte(invoices.invoiceDate, endOfMonth)
-    ),
-    orderBy: [desc(invoices.invoiceDate)],
-    with: {
-      businessPartner: true,
-    },
-  });
-};
-
-export const getInvoiceById = async (id: number) => {
-  const { db } = await getDB();
-  const organizationId = await getActiveOrganizationId(); // Still needed for filtering
-  return db.query.invoices.findFirst({
-    where: and(
-      eq(invoices.id, id),
-      eq(invoices.organizationId, organizationId)
-    ),
-    with: {
-      account: true,
-      businessPartner: true,
-      items: {
-        with: {
-          taxes: true,
-        },
-      },
-    },
-  });
-};
+import { savePaymentComplement } from "./payments";
 
 export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
   const { db } = await getDB();
@@ -156,7 +88,26 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       partner = newPartner;
     }
 
-    // 4. Insert the main invoice
+    // 4. Insert the main invoice record
+    const timbreComplement = parsedCFDI.Complemento.find(
+      (c) => c.TimbreFiscalDigital
+    );
+
+    const uuid = timbreComplement?.TimbreFiscalDigital?.UUID;
+
+    if (!uuid) {
+      throw new Error(
+        "El CFDI no contiene un UUID válido (TimbreFiscalDigital)."
+      );
+    }
+
+    const certificationDate =
+      timbreComplement.TimbreFiscalDigital?.FechaTimbrado;
+
+    if (!certificationDate) {
+      throw new Error("El CFDI no contiene una fecha de timbrado.");
+    }
+
     const [newInvoice] = await tx
       .insert(invoices)
       .values({
@@ -165,13 +116,13 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
         invoiceType,
         cfdiType: parsedCFDI.TipoDeComprobante,
         cfdiVersion: parsedCFDI.Version,
-        folioFiscal: parsedCFDI.Complemento.TimbreFiscalDigital.UUID,
+        folioFiscal: uuid,
         internalFolio: parsedCFDI.Folio,
         series: parsedCFDI.Serie,
         invoiceDate: new Date(parsedCFDI.Fecha),
-        certificationDate: new Date(
-          parsedCFDI.Complemento.TimbreFiscalDigital.FechaTimbrado
-        ),
+        certificationDate: timbreComplement
+          ? new Date(certificationDate)
+          : null,
         currency: parsedCFDI.Moneda,
         exchangeRate: parsedCFDI.TipoCambio,
         subtotal: parsedCFDI.SubTotal,
@@ -188,65 +139,76 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       })
       .returning();
 
-    // 5. Insert invoice items and their taxes
-    for (const [index, c] of conceptos.entries()) {
-      const [newItem] = await tx
-        .insert(invoiceItems)
-        .values({
-          invoiceId: newInvoice.id,
-          lineNumber: index + 1,
-          productServiceKey: c.ClaveProdServ,
-          identificationNumber: c.NoIdentificacion,
-          description: c.Descripcion,
-          unit: c.ClaveUnidad,
-          quantity: c.Cantidad,
-          unitPrice: c.ValorUnitario,
-          discount: c.Descuento,
-          subtotal: c.Importe,
-        })
-        .returning();
+    // 5. If it's a Payment Complement, process the payments and allocations
+    if (parsedCFDI.TipoDeComprobante === "P") {
+      await savePaymentComplement(
+        tx,
+        parsedCFDI,
+        organizationId,
+        partner.id,
+        invoiceType as "income" | "expense"
+      );
+    } else {
+      // Standard invoice: Insert items and their taxes
+      for (const [index, c] of conceptos.entries()) {
+        const [newItem] = await tx
+          .insert(invoiceItems)
+          .values({
+            invoiceId: newInvoice.id,
+            lineNumber: index + 1,
+            productServiceKey: c.ClaveProdServ,
+            identificationNumber: c.NoIdentificacion,
+            description: c.Descripcion,
+            unit: c.ClaveUnidad,
+            quantity: c.Cantidad,
+            unitPrice: c.ValorUnitario,
+            discount: c.Descuento,
+            subtotal: c.Importe,
+          })
+          .returning();
 
-      const traslados =
-        c.Impuestos?.Traslados && Array.isArray(c.Impuestos.Traslados.Traslado)
-          ? c.Impuestos.Traslados.Traslado
-          : c.Impuestos?.Traslados?.Traslado
-          ? [c.Impuestos.Traslados.Traslado]
-          : [];
+        const traslados =
+          c.Impuestos?.Traslados &&
+          Array.isArray(c.Impuestos.Traslados.Traslado)
+            ? c.Impuestos.Traslados.Traslado
+            : c.Impuestos?.Traslados?.Traslado
+            ? [c.Impuestos.Traslados.Traslado]
+            : [];
 
-      const retenciones =
-        c.Impuestos?.Retenciones &&
-        Array.isArray(c.Impuestos.Retenciones.Retencion)
-          ? c.Impuestos.Retenciones.Retencion
-          : c.Impuestos?.Retenciones?.Retencion
-          ? [c.Impuestos.Retenciones.Retencion]
-          : [];
+        const retenciones =
+          c.Impuestos?.Retenciones &&
+          Array.isArray(c.Impuestos.Retenciones.Retencion)
+            ? c.Impuestos.Retenciones.Retencion
+            : c.Impuestos?.Retenciones?.Retencion
+            ? [c.Impuestos.Retenciones.Retencion]
+            : [];
 
-      // TODO: Fix this
-      const taxesToInsert = [
-        ...traslados.map((t) => ({
-          itemId: newItem.id,
-          taxType: "transferred" as const,
-          taxCode: t.Impuesto,
-          taxName: getTaxName(t.Impuesto),
-          factor: t.TipoFactor,
-          rate: t.TasaOCuota,
-          baseAmount: t.Base,
-          taxAmount: t.Importe,
-        })),
-        ...retenciones.map((r) => ({
-          itemId: newItem.id,
-          taxType: "withheld" as const,
-          taxCode: r.Impuesto,
-          taxName: getTaxName(r.Impuesto),
-          factor: r.TipoFactor,
-          rate: r.TasaOCuota,
-          baseAmount: r.Base,
-          taxAmount: r.Importe,
-        })),
-      ];
+        const taxesToInsert = [
+          ...traslados.map((t: any) => ({
+            itemId: newItem.id,
+            taxType: "transferred" as const,
+            taxCode: t.Impuesto,
+            taxName: getTaxName(t.Impuesto),
+            factor: t.TipoFactor,
+            rate: t.TasaOCuota,
+            baseAmount: t.Base,
+            taxAmount: t.Importe,
+          })),
+          ...retenciones.map((r: any) => ({
+            itemId: newItem.id,
+            taxType: "withheld" as const,
+            taxCode: r.Impuesto,
+            taxName: getTaxName(r.Impuesto),
+            factor: r.TipoFactor,
+            rate: r.TasaOCuota,
+            baseAmount: r.Base,
+            taxAmount: r.Importe,
+          })),
+        ];
 
-      if (taxesToInsert.length > 0) {
-        await tx.insert(invoiceTaxes).values(taxesToInsert);
+        if (taxesToInsert.length > 0) {
+          await tx.insert(invoiceTaxes).values(taxesToInsert);
+        }
       }
     }
 
@@ -254,4 +216,73 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
   });
 
   return invoiceId;
+};
+
+// TODO: Mejorar la función para obtener todas las facturas, enviar filtros como parámetros.
+export const getInvoicesByOrganization = async (organizationId: number) => {
+  const { db } = await getDB();
+
+  return db.query.invoices.findMany({
+    where: eq(invoices.organizationId, organizationId),
+    orderBy: [desc(invoices.invoiceDate)],
+    with: {
+      businessPartner: true,
+    },
+  });
+};
+
+export const getLatestInvoices = async (organizationId: number) => {
+  const { db } = await getDB();
+
+  const now = new Date();
+  const startOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    1,
+    0,
+    0,
+    0,
+    0
+  );
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  return db.query.invoices.findMany({
+    where: and(
+      eq(invoices.organizationId, organizationId),
+      gte(invoices.invoiceDate, startOfMonth),
+      lte(invoices.invoiceDate, endOfMonth)
+    ),
+    orderBy: [desc(invoices.invoiceDate)],
+    with: {
+      businessPartner: true,
+    },
+  });
+};
+
+export const getInvoiceById = async (id: number) => {
+  const { db } = await getDB();
+  const organizationId = await getActiveOrganizationId(); // Still needed for filtering
+  return db.query.invoices.findFirst({
+    where: and(
+      eq(invoices.id, id),
+      eq(invoices.organizationId, organizationId)
+    ),
+    with: {
+      account: true,
+      businessPartner: true,
+      items: {
+        with: {
+          taxes: true,
+        },
+      },
+    },
+  });
 };
