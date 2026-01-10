@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Organization } from "@/types/organizations";
 import { OrganizationPicker } from "./organizations/organization-picker";
+import { OrganizationSwitcher } from "./organizations/organization-switcher";
 
 const navigation = [
   {
@@ -101,23 +102,7 @@ export function AppSidebar({ organizations }: Props) {
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
     >
       <SidebarHeader className="border-b border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <FileText className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">FDI Assistant</span>
-                  <span className="text-xs text-sidebar-foreground/60">
-                    Gestión Fiscal
-                  </span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <OrganizationSwitcher data={organizations} />
       </SidebarHeader>
 
       <SidebarContent>
@@ -210,17 +195,6 @@ export function AppSidebar({ organizations }: Props) {
           </SidebarGroup>
         ))}
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild size="sm">
-              <OrganizationPicker data={organizations} />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-
       <SidebarRail />
     </Sidebar>
   );
