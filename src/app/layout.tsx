@@ -6,6 +6,14 @@ import { OrganizationPicker } from "@/components/organizations/organization-pick
 import { getOrganizations } from "@/data/organizations";
 import App from "@/components/App";
 import "./globals.css";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarHead } from "@/components/sidebar-head";
+import { SiteHeader } from "@/components/site-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,22 +43,15 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
       >
         <App>
-          <header className="top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-            <div className="max-w-7xl m-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    Factura Inteligente
-                  </h1>
-                </div>
+          <div className="[--header-height:calc(--spacing(14))]">
+            <SidebarProvider className="flex flex-col">
+              <SiteHeader />
+              <div className="flex flex-1">
+                <AppSidebar organizations={organizations} />
+                <SidebarInset>{children}</SidebarInset>
               </div>
-              <OrganizationPicker data={organizations} />
-            </div>
-          </header>
-          <main className="flex-1 py-6">{children}</main>
+            </SidebarProvider>
+          </div>
           <Toaster />
         </App>
       </body>
