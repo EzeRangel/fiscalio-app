@@ -1,13 +1,13 @@
 # Track Plan: Partners Analytics & Aggregation
 
-## Phase 1: Data Access Layer & Server Actions
+## Phase 1: Data Access Layer & Server Actions [checkpoint: 399bb62]
 - [x] Task: Create specific Drizzle queries to aggregate invoice statistics (count, sum amount) grouped by business partner (RFC). 9576fa4
     - [ ] Subtask: Write Tests: [CANCELLED] Skip due to environment complexity.
     - [x] Subtask: Implement Feature: Implement `getPartnersWithAnalytics` server action (or modify existing) to return partners with their attached stats.
 - [x] Task: Create Drizzle queries for global partner stats (Total Client Volume, Total Provider Volume). 9576fa4
     - [ ] Subtask: Write Tests: [CANCELLED] Skip due to environment complexity.
     - [x] Subtask: Implement Feature: Implement `getGlobalPartnerStats` server action.
-- [ ] Task: Conductor - User Manual Verification 'Data Access Layer & Server Actions' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Data Access Layer & Server Actions' (Protocol in workflow.md) 13acca3
 
 ## Phase 2: UI Implementation - Summary Cards
 - [ ] Task: Create/Update `PartnersSummary` component to display the global volumes.
