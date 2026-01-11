@@ -56,3 +56,31 @@ export const fetchBusinessPartnersWithAnalytics = async (
 
   return results;
 };
+
+export const fetchGlobalPartnerStats = async (organizationId: number) => {
+  const { db } = await getDB();
+
+  const results = await db
+    .select({
+      type: invoices.invoiceType,
+      volume: sql<number>`sum(${invoices.subtotal})`.mapWith(Number),
+    })
+    .from(invoices)
+    .where(eq(invoices.organizationId, organizationId))
+    .groupBy(invoices.invoiceType);
+
+  const stats = {
+    totalClientVolume: 0,
+    totalProviderVolume: 0,
+  };
+
+  results.forEach((row) => {
+    if (row.type === "income") {
+      stats.totalClientVolume = row.volume || 0;
+    } else if (row.type === "expense") {
+      stats.totalProviderVolume = row.volume || 0;
+    }
+  });
+
+  return stats;
+};
