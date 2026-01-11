@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd" Version="4.0" Serie="A" Folio="12345" Fecha="2024-07-18T12:00:00" Sello="ABC...XYZ" FormaPago="01" NoCertificado="123..." Certificado="ABC...XYZ" SubTotal="100.00" Moneda="MXN" Total="116.00" TipoDeComprobante="I" Exportacion="01" MetodoPago="PUE" LugarExpedicion="12345">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="Empresa Emisora S.A. de C.V." RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="XEXX010101000" Nombre="Empresa Receptora S.A. de C.V." DomicilioFiscalReceptor="67890" RegimenFiscalReceptor="601" UsoCFDI="G03"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="01010101" Cantidad="1" ClaveUnidad="EA" Descripcion="Producto 1" ValorUnitario="100.00" Importe="100.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="100.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.00"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosTrasladados="16.00">
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="100.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.00"/>
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+  <cfdi:Complemento>
+    <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="1.1" UUID="12345678-1234-1234-1234-123456789012" FechaTimbrado="2024-07-18T12:01:00" RfcProvCertif="SAT970701NN3" SelloCFD="ABC...XYZ" NoCertificadoSAT="123...SAT" SelloSAT="ABC...SAT"/>
+  </cfdi:Complemento>
+</cfdi:Comprobante>
