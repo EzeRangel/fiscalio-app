@@ -25,9 +25,9 @@
     - [x] Subtask: Implement Feature: Ensure the table receives the enriched data.
 - [x] Task: Conductor - User Manual Verification 'UI Implementation - Partners Table' (Protocol in workflow.md) a80a785
 
-## Phase 4: Final Polish & Integration
+## Phase 4: Final Polish & Integration [checkpoint: b41cd75]
 - [x] Task: Verify currency formatting and localization (MXN). a4eda49
     - [x] Subtask: Implement Feature: Ensure all monetary values use the standard formatter.
 - [x] Task: Verify empty states (Partners with 0 invoices). 13acca3
     - [x] Subtask: Implement Feature: Ensure they display "0" or "-" gracefully.
-- [~] Task: Conductor - User Manual Verification 'Final Polish & Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Final Polish & Integration' (Protocol in workflow.md) b41cd75
