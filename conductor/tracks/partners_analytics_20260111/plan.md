@@ -9,16 +9,16 @@
     - [x] Subtask: Implement Feature: Implement `getGlobalPartnerStats` server action.
 - [x] Task: Conductor - User Manual Verification 'Data Access Layer & Server Actions' (Protocol in workflow.md) 13acca3
 
-## Phase 2: UI Implementation - Summary Cards
+## Phase 2: UI Implementation - Summary Cards [checkpoint: 68fb7e2]
 - [x] Task: Create/Update `PartnersSummary` component to display the global volumes. bf97445
     - [ ] Subtask: Write Tests: [CANCELLED] Skip due to environment complexity.
     - [x] Subtask: Implement Feature: specific UI implementation matching the "Refined Editorial" style.
 - [x] Task: Integrate `getGlobalPartnerStats` data into the Partners page layout. bf97445
     - [x] Subtask: Implement Feature: Fetch data in `page.tsx` and pass to the summary component.
-- [~] Task: Conductor - User Manual Verification 'UI Implementation - Summary Cards' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'UI Implementation - Summary Cards' (Protocol in workflow.md) a4eda49
 
 ## Phase 3: UI Implementation - Partners Table
-- [ ] Task: Update the `columns` definition for the Partners data table.
+- [~] Task: Update the `columns` definition for the Partners data table.
     - [ ] Subtask: Write Tests: Verify new columns (Invoices, Volume) are present in the table configuration.
     - [ ] Subtask: Implement Feature: Add `invoiceCount` and `totalVolume` columns with proper sorting capabilities.
 - [ ] Task: Update the Partners data fetching logic to use the new `getPartnersWithAnalytics` action.
