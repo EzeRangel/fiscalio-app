@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCompactNumber } from "@/lib/utils";
+import { formatCompactNumber, formatCurrency } from "@/lib/utils";
 import { BusinessPartner } from "@/types/businessPartners";
 import { TrendingDown, TrendingUp, UsersIcon, Wallet } from "lucide-react";
 
@@ -51,7 +51,7 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {formatCompactNumber(stats.clientVolume)}
+                {formatCurrency(stats.clientVolume)}
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Volumen Clientes
@@ -67,7 +67,7 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {formatCompactNumber(stats.providerVolume)}
+                {formatCurrency(stats.providerVolume)}
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Volumen Proveedores
@@ -83,7 +83,7 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {formatCompactNumber(stats.clientVolume - stats.providerVolume)}
+                {formatCurrency(stats.clientVolume - stats.providerVolume)}
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Balance Neto
