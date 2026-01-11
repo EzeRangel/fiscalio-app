@@ -14,6 +14,20 @@ export function getTaxName(code: keyof typeof TAX_NAMES): string {
   return TAX_NAMES[code];
 }
 
+export function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(amount);
+}
+
+export function formatCompactNumber(number: number) {
+  return new Intl.NumberFormat("es-MX", {
+    notation: "compact",
+    compactDisplay: "short",
+  }).format(number);
+}
+
 export function delay(seconds: number): Promise<void> {
   return new Promise((resolve) => {
     const ms = seconds * 1000;

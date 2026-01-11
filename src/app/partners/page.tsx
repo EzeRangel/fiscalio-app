@@ -5,23 +5,29 @@ import { getTaxRegimes } from "@/data/taxRegimes";
 import { getActiveOrganizationId } from "@/lib/session";
 import { fetchBusinessPartnersByOrg } from "@/data/businessPartners";
 import { BusinessPartnersDialogForm } from "@/components/business-partners/business-partners-dialog-form";
+import {
+  fetchBusinessPartnersWithAnalytics,
+  fetchGlobalPartnerStats,
+} from "@/data/businessPartners";
 
 const getData = async () => {
   const activeOrg = await getActiveOrganizationId();
 
-  const [regimes, partners] = await Promise.all([
+  const [regimes, partnersWithAnalytics, globalStats] = await Promise.all([
     getTaxRegimes(),
-    fetchBusinessPartnersByOrg(activeOrg),
+    fetchBusinessPartnersWithAnalytics(activeOrg),
+    fetchGlobalPartnerStats(activeOrg),
   ]);
 
   return {
     regimes,
-    partners,
+    partners: partnersWithAnalytics,
+    globalStats,
   };
 };
 
 export default async function PartnersPage() {
-  const { regimes, partners } = await getData();
+  const { regimes, partners, globalStats } = await getData();
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +62,7 @@ export default async function PartnersPage() {
         </div>
       </header>
 
-      <StatsCards partners={partners} />
+      <StatsCards partners={partners} globalStats={globalStats} />
 
       <Table data={partners} />
     </div>

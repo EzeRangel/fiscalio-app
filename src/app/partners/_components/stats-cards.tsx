@@ -1,13 +1,18 @@
 "use client";
 
+import { formatCompactNumber } from "@/lib/utils";
 import { BusinessPartner } from "@/types/businessPartners";
-import { FileText, TrendingDown, TrendingUp, UsersIcon } from "lucide-react";
+import { TrendingDown, TrendingUp, UsersIcon, Wallet } from "lucide-react";
 
 interface Props {
   partners: BusinessPartner[];
+  globalStats?: {
+    totalClientVolume: number;
+    totalProviderVolume: number;
+  };
 }
 
-export function StatsCards({ partners }: Props) {
+export function StatsCards({ partners, globalStats }: Props) {
   const stats = {
     total: partners.length,
     clients: partners.filter(
@@ -16,8 +21,8 @@ export function StatsCards({ partners }: Props) {
     suppliers: partners.filter(
       (p) => p.partnerType === "supplier" || p.partnerType === "both"
     ).length,
-    totalVolume: 25000,
-    // totalVolume: partners.reduce((sum, p) => sum + p.totalVolume, 0),
+    clientVolume: globalStats?.totalClientVolume ?? 0,
+    providerVolume: globalStats?.totalProviderVolume ?? 0,
   };
 
   return (
@@ -32,7 +37,7 @@ export function StatsCards({ partners }: Props) {
               <div className="text-2xl font-mono font-medium">
                 {stats.total}
               </div>
-              <div className="text-xs text-muted-foreground uppercase tracking-widest">
+              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Socios Totales
               </div>
             </div>
@@ -46,10 +51,10 @@ export function StatsCards({ partners }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {stats.clients}
+                {formatCompactNumber(stats.clientVolume)}
               </div>
-              <div className="text-xs text-muted-foreground uppercase tracking-widest">
-                Clientes
+              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
+                Volumen Clientes
               </div>
             </div>
           </div>
@@ -62,10 +67,10 @@ export function StatsCards({ partners }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {stats.suppliers}
+                {formatCompactNumber(stats.providerVolume)}
               </div>
-              <div className="text-xs text-muted-foreground uppercase tracking-widest">
-                Proveedores
+              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
+                Volumen Proveedores
               </div>
             </div>
           </div>
@@ -74,14 +79,14 @@ export function StatsCards({ partners }: Props) {
         <div className="bg-card border border-border rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-amber-500/10 p-2.5">
-              <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <Wallet className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div className="space-y-0.5">
-              <div className="text-xl font-mono font-medium">
-                ${(stats.totalVolume / 1000000).toFixed(1)}M
+              <div className="text-2xl font-mono font-medium">
+                {formatCompactNumber(stats.clientVolume - stats.providerVolume)}
               </div>
-              <div className="text-xs text-muted-foreground uppercase tracking-widest">
-                Volumen Total
+              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
+                Balance Neto
               </div>
             </div>
           </div>
