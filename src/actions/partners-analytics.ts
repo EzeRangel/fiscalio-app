@@ -14,8 +14,8 @@ export const getPartnersWithAnalytics = actionClient.action(async () => {
   const statsQuery = db
     .select({
       partnerId: invoices.partnerId,
-      invoiceCount: sql<number>`count(${invoices.id})`.mapWith(Number),
-      totalVolume: sql<number>`sum(${invoices.subtotal})`.mapWith(Number),
+      invoiceCount: sql<number>`count(${invoices.id})`.mapWith(Number).as("invoice_count"),
+      totalVolume: sql<number>`sum(${invoices.subtotal})`.mapWith(Number).as("total_volume"),
     })
     .from(invoices)
     .where(eq(invoices.organizationId, organizationId))
