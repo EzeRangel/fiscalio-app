@@ -1,11 +1,11 @@
 "use client";
 
 import { DataTable } from "@/components/data-table";
-import { BusinessPartner } from "@/types/businessPartners";
+import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { columns } from "./cols";
 
 interface Props {
-  data: BusinessPartner[];
+  data: BusinessPartnerWithAnalytics[];
 }
 
 export function Table({ data }: Props) {

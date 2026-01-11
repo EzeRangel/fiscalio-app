@@ -1,15 +1,10 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { BusinessPartner } from "@/types/businessPartners";
+  BusinessPartner,
+  BusinessPartnerWithAnalytics,
+} from "@/types/businessPartners";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, FileText, MoreHorizontal, Tag, Trash2 } from "lucide-react";
 
@@ -25,6 +20,7 @@ const getPartnerTypeBadge = (type: string) => {
         </Badge>
       );
     case "supplier":
+    case "provider":
       return (
         <Badge
           variant="outline"
@@ -45,7 +41,7 @@ const getPartnerTypeBadge = (type: string) => {
   }
 };
 
-export const columns: ColumnDef<BusinessPartner>[] = [
+export const columns: ColumnDef<BusinessPartnerWithAnalytics>[] = [
   {
     accessorKey: "businessName",
     header: "Socio",
@@ -63,7 +59,7 @@ export const columns: ColumnDef<BusinessPartner>[] = [
               </Badge>
             )}
           </div>
-          {partner.legalName !== partner.businessName && (
+          {partner.legalName && partner.legalName !== partner.businessName && (
             <div className="text-xs text-muted-foreground">
               {partner.legalName}
             </div>
@@ -85,31 +81,16 @@ export const columns: ColumnDef<BusinessPartner>[] = [
     cell: ({ row }) => getPartnerTypeBadge(row.original.partnerType),
   },
   {
-    accessorKey: "taxRegimeId",
-    header: "Régimen Fiscal",
-    cell: ({ row }) => {
-      return (
-        <span className="text-sm text-muted-foreground">
-          {row.original.taxRegimeId}
-        </span>
-      );
-    },
-  },
-  {
     id: "invoices",
-    header: "Facturas",
-    // TODO: Obtener facturas del socio...
+    header: ({ column }) => (
+      <div className="text-center">Facturas</div>
+    ),
+    accessorKey: "invoiceCount",
     cell: ({ row: { original: partner } }) => {
       return (
         <div className="text-center">
-          <div className="space-y-0.5">
-            <div className="text-sm font-mono font-medium">2</div>
-            <div className="text-xs text-muted-foreground">
-              {new Date().toLocaleDateString("es-MX", {
-                month: "short",
-                day: "numeric",
-              })}
-            </div>
+          <div className="text-sm font-mono font-medium">
+            {partner.invoiceCount}
           </div>
         </div>
       );
@@ -117,16 +98,19 @@ export const columns: ColumnDef<BusinessPartner>[] = [
   },
   {
     id: "volume",
-    header: "Volumen",
+    header: ({ column }) => (
+      <div className="text-right">Volumen</div>
+    ),
+    accessorKey: "totalVolume",
     cell: ({ row: { original: partner } }) => {
       return (
         <div className="text-right">
-          {/* <div className="font-mono text-sm font-medium">
-            ${(partner.totalVolume / 1000).toFixed(0)}K
-          </div> */}
-          {partner.creditLimit && (
-            <div className="text-xs text-muted-foreground font-mono">
-              Crédito: ${(Number(partner.creditLimit) / 1000).toFixed(0)}K
+          <div className="font-mono text-sm font-medium">
+            {formatCurrency(partner.totalVolume)}
+          </div>
+          {partner.creditLimit && Number(partner.creditLimit) > 0 && (
+            <div className="text-[10px] text-muted-foreground font-mono uppercase">
+              Límite: {formatCurrency(Number(partner.creditLimit))}
             </div>
           )}
         </div>
@@ -140,12 +124,12 @@ export const columns: ColumnDef<BusinessPartner>[] = [
       return (
         <div className="flex flex-wrap gap-1">
           {partner.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
+            <Badge key={tag} variant="secondary" className="text-[10px] uppercase font-medium">
               {tag}
             </Badge>
           ))}
           {partner.tags && partner.tags?.length > 2 && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-[10px] uppercase font-medium">
               +{partner.tags?.length - 2}
             </Badge>
           )}

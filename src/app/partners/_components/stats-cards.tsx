@@ -1,11 +1,11 @@
 "use client";
 
 import { formatCompactNumber, formatCurrency } from "@/lib/utils";
-import { BusinessPartner } from "@/types/businessPartners";
+import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { TrendingDown, TrendingUp, UsersIcon, Wallet } from "lucide-react";
 
 interface Props {
-  partners: BusinessPartner[];
+  partners: BusinessPartnerWithAnalytics[];
   globalStats?: {
     totalClientVolume: number;
     totalProviderVolume: number;

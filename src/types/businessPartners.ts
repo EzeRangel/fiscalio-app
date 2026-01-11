@@ -22,3 +22,8 @@ export const insertBusinessPartnerSchema = createInsertSchema(
 });
 
 export type BusinessPartner = typeof businessPartners.$inferSelect;
+
+export type BusinessPartnerWithAnalytics = BusinessPartner & {
+  invoiceCount: number;
+  totalVolume: number;
+};
