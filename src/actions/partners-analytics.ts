@@ -1,43 +1,15 @@
 "use server";
 
+import { fetchBusinessPartnersWithAnalytics } from "@/data/businessPartners";
 import { getDB } from "@/db/drizzle";
-import { businessPartners, invoices } from "@/db/schema";
+import { invoices } from "@/db/schema";
 import { actionClient } from "@/lib/safe-action";
 import { getActiveOrganizationId } from "@/lib/session";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export const getPartnersWithAnalytics = actionClient.action(async () => {
-  const { db } = await getDB();
   const organizationId = await getActiveOrganizationId();
-
-  // Aggregate invoice stats per partner
-  const statsQuery = db
-    .select({
-      partnerId: invoices.partnerId,
-      invoiceCount: sql<number>`count(${invoices.id})`.mapWith(Number).as("invoice_count"),
-      totalVolume: sql<number>`sum(${invoices.subtotal})`.mapWith(Number).as("total_volume"),
-    })
-    .from(invoices)
-    .where(eq(invoices.organizationId, organizationId))
-    .groupBy(invoices.partnerId)
-    .as("stats");
-
-  // Join partners with their stats
-  const results = await db
-    .select({
-      id: businessPartners.id,
-      businessName: businessPartners.businessName,
-      rfc: businessPartners.rfc,
-      partnerType: businessPartners.partnerType,
-      isActive: businessPartners.isActive,
-      invoiceCount: sql<number>`COALESCE(${statsQuery.invoiceCount}, 0)`.mapWith(Number),
-      totalVolume: sql<number>`COALESCE(${statsQuery.totalVolume}, 0)`.mapWith(Number),
-    })
-    .from(businessPartners)
-    .leftJoin(statsQuery, eq(businessPartners.id, statsQuery.partnerId))
-    .where(eq(businessPartners.organizationId, organizationId));
-
-  return results;
+  return fetchBusinessPartnersWithAnalytics(organizationId);
 });
 
 export const getGlobalPartnerStats = actionClient.action(async () => {
