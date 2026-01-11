@@ -55,14 +55,14 @@ export function BusinessPartnersDialogForm({ regimes = [] }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button size="lg" className="gap-2 shadow-lg">
           <Plus className="w-4 h-4 mr-2" />
-          Agregar Contacto
+          Nuevo Socio
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl max-h-162.5 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Agregar Contacto</DialogTitle>
+          <DialogTitle>Agregar Socio</DialogTitle>
           <DialogDescription>
             Ingresa los datos del cliente o proveedor
           </DialogDescription>

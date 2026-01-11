@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { PlusIcon } from "lucide-react";
 
 type Regime = typeof taxRegimes.$inferSelect;
 
@@ -53,8 +54,9 @@ export default function OrganizationDialog({ regimes = [] }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link" className="ml-2 h-auto p-0">
-          Configurar
+        <Button size="lg" className="gap-2 shadow-lg">
+          <PlusIcon />
+          Nueva Organización
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl max-h-162.5 overflow-y-auto">
