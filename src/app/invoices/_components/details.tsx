@@ -18,6 +18,7 @@ import ClassificationAssigned from "./classification-assigned";
 import { cn, getCFDIType } from "@/lib/utils";
 import { PaymentAllocation } from "@/types/payments";
 import { formatPrice } from "@/hooks/usePrice";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 interface Props {
   data: CFDI;
@@ -85,7 +86,10 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 {invoice.businessPartner?.legalName}
               </h2>
               <div className="flex gap-6 text-sm text-muted-foreground font-mono">
-                <span>RFC: {invoice.businessPartner?.rfc}</span>
+                <span>
+                  RFC:{" "}
+                  <PrivacyBlur>{invoice.businessPartner?.rfc}</PrivacyBlur>
+                </span>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
                 {invoice.businessPartner?.taxRegimeId}
@@ -102,7 +106,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 {isPaymentComplement ? "Monto Total Pagado" : "Total"}
               </div>
               <div className="text-5xl font-mono font-light tracking-tight mb-2">
-                ${invoice.total}
+                <PrivacyBlur>${invoice.total}</PrivacyBlur>
               </div>
               <div className="text-sm opacity-80 font-mono">
                 {invoice.currency}
@@ -116,7 +120,9 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                   <span className="text-sm text-muted-foreground">
                     Subtotal
                   </span>
-                  <span className="font-mono text-lg">${invoice.subtotal}</span>
+                  <span className="font-mono text-lg">
+                    <PrivacyBlur>${invoice.subtotal}</PrivacyBlur>
+                  </span>
                 </div>
 
                 {invoice.totalTaxes && invoice.totalTaxes !== "0.00" && (
@@ -125,7 +131,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                       Impuestos
                     </span>
                     <span className="font-mono text-lg text-emerald-600 dark:text-emerald-400">
-                      +${invoice.totalTaxes}
+                      +<PrivacyBlur>${invoice.totalTaxes}</PrivacyBlur>
                     </span>
                   </div>
                 )}
@@ -136,7 +142,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                       Descuento
                     </span>
                     <span className="font-mono text-lg text-red-600 dark:text-red-400">
-                      -${invoice.discount}
+                      -<PrivacyBlur>${invoice.discount}</PrivacyBlur>
                     </span>
                   </div>
                 )}
@@ -146,7 +152,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 <div className="flex justify-between items-baseline pt-2">
                   <span className="text-sm font-medium">Total</span>
                   <span className="font-mono text-2xl font-medium">
-                    ${invoice.total}
+                    <PrivacyBlur>${invoice.total}</PrivacyBlur>
                   </span>
                 </div>
               </div>
@@ -298,7 +304,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                   </div>
                   <div className="space-y-2 text-right">
                     <div className="text-2xl font-mono font-light">
-                      ${payment.amount}
+                      <PrivacyBlur>${payment.amount}</PrivacyBlur>
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {payment.currency} • TC: {payment.exchangeRate}
@@ -328,7 +334,12 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                             </span>
                           </div>
                           <div className="font-mono font-medium">
-                            {formatPrice(Number(allocation.amountAllocated), 2)}
+                            <PrivacyBlur>
+                              {formatPrice(
+                                Number(allocation.amountAllocated),
+                                2
+                              )}
+                            </PrivacyBlur>
                           </div>
                         </div>
                       ))}
@@ -374,7 +385,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                   </div>
                   <div className="text-right space-y-1">
                     <div className="text-2xl font-mono font-light">
-                      ${item.subtotal}
+                      <PrivacyBlur>${item.subtotal}</PrivacyBlur>
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {invoice.currency}
@@ -408,7 +419,9 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                     <div className="text-xs text-muted-foreground mb-1">
                       Precio Unit.
                     </div>
-                    <div className="font-mono text-sm">${item.unitPrice}</div>
+                    <div className="font-mono text-sm">
+                      <PrivacyBlur>${item.unitPrice}</PrivacyBlur>
+                    </div>
                   </div>
                 </div>
 
@@ -428,7 +441,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                             {tax.taxType} • {tax.rate}
                           </span>
                           <span className="font-mono text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                            ${tax.taxAmount}
+                            <PrivacyBlur>${tax.taxAmount}</PrivacyBlur>
                           </span>
                         </div>
                       ))}

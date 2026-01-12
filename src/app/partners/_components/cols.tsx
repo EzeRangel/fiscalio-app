@@ -14,6 +14,7 @@ import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, FileText, MoreHorizontal, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 const getPartnerTypeBadge = (type: string) => {
   switch (type) {
@@ -86,7 +87,11 @@ export const getColumns = (
     accessorKey: "rfc",
     header: "RFC",
     cell: ({ row }) => {
-      return <span className="font-mono text-sm">{row.original.rfc}</span>;
+      return (
+        <span className="font-mono text-sm">
+          <PrivacyBlur>{row.original.rfc}</PrivacyBlur>
+        </span>
+      );
     },
   },
   {
@@ -116,11 +121,14 @@ export const getColumns = (
       return (
         <div className="text-right">
           <div className="font-mono text-sm font-medium">
-            {formatCurrency(partner.totalVolume)}
+            <PrivacyBlur>{formatCurrency(partner.totalVolume)}</PrivacyBlur>
           </div>
           {partner.creditLimit && Number(partner.creditLimit) > 0 && (
             <div className="text-[10px] text-muted-foreground font-mono uppercase">
-              Límite: {formatCurrency(Number(partner.creditLimit))}
+              Límite:{" "}
+              <PrivacyBlur>
+                {formatCurrency(Number(partner.creditLimit))}
+              </PrivacyBlur>
             </div>
           )}
         </div>

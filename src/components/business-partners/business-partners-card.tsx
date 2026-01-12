@@ -15,6 +15,7 @@ import { Regime } from "@/types/taxRegimes";
 import { Button } from "../ui/button";
 import { BusinessPartnersDialogForm } from "./business-partners-dialog-form";
 import { getBusinessPartnersByOrg } from "@/actions/business-partners";
+import { PrivacyBlur } from "../privacy-blur";
 
 interface Props {
   regimes: Regime[];
@@ -102,7 +103,7 @@ export function BusinessPartnersCard({ regimes }: Props) {
                             {client.businessName}
                           </p>
                           <p className="text-sm text-gray-500">
-                            RFC: {client.rfc}
+                            RFC: <PrivacyBlur>{client.rfc}</PrivacyBlur>
                           </p>
                           {client.contact?.email && (
                             <p className="text-sm text-gray-600 mt-1">
@@ -145,7 +146,7 @@ export function BusinessPartnersCard({ regimes }: Props) {
                             {provider.businessName}
                           </p>
                           <p className="text-sm text-gray-500">
-                            RFC: {provider.rfc}
+                            RFC: <PrivacyBlur>{provider.rfc}</PrivacyBlur>
                           </p>
                           {provider.contact?.email && (
                             <p className="text-sm text-gray-600 mt-1">

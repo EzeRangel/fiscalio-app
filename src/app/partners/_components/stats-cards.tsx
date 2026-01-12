@@ -3,6 +3,7 @@
 import { formatCurrency } from "@/lib/utils";
 import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { TrendingDown, TrendingUp, UsersIcon, Wallet } from "lucide-react";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 interface Props {
   partners: BusinessPartnerWithAnalytics[];
@@ -51,7 +52,7 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {formatCurrency(stats.clientVolume)}
+                <PrivacyBlur>{formatCurrency(stats.clientVolume)}</PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Volumen Clientes
@@ -67,7 +68,7 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {formatCurrency(stats.providerVolume)}
+                <PrivacyBlur>{formatCurrency(stats.providerVolume)}</PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Volumen Proveedores
@@ -83,7 +84,9 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                {formatCurrency(stats.clientVolume - stats.providerVolume)}
+                <PrivacyBlur>
+                  {formatCurrency(stats.clientVolume - stats.providerVolume)}
+                </PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Balance Neto

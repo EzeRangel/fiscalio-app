@@ -5,6 +5,7 @@ import { formatCurrency } from "../_utils/formatCurrency";
 import { cn } from "@/lib/utils";
 import { getIvaTypeLabel } from "../_utils/getIvaTypeLabel";
 import { AlertCircle } from "lucide-react";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 interface Props {
   data: DeclarationInvoice;
@@ -43,7 +44,7 @@ export function InvoiceItem({ data: item }: Props) {
         </div>
         <div className="text-right">
           <p className="text-lg font-mono font-semibold text-foreground">
-            {formatCurrency(item.invoice.total)}
+            <PrivacyBlur>{formatCurrency(item.invoice.total)}</PrivacyBlur>
           </p>
         </div>
       </div>
@@ -114,7 +115,7 @@ export function InvoiceItem({ data: item }: Props) {
               Monto IVA
             </span>
             <span className="text-xs font-mono font-medium">
-              {formatCurrency(item.ivaAmount)}
+              <PrivacyBlur>{formatCurrency(item.ivaAmount)}</PrivacyBlur>
             </span>
           </div>
         </div>
@@ -127,7 +128,7 @@ export function InvoiceItem({ data: item }: Props) {
             Incluido
           </p>
           <p className="text-sm font-mono font-medium">
-            {formatCurrency(item.includedAmount)}
+            <PrivacyBlur>{formatCurrency(item.includedAmount)}</PrivacyBlur>
           </p>
         </div>
         <div>
@@ -135,7 +136,7 @@ export function InvoiceItem({ data: item }: Props) {
             Deducible
           </p>
           <p className="text-sm font-mono font-medium text-chart-4">
-            {formatCurrency(item.deductibleAmount)}
+            <PrivacyBlur>{formatCurrency(item.deductibleAmount)}</PrivacyBlur>
           </p>
         </div>
       </div>

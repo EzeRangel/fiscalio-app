@@ -21,6 +21,7 @@ import { formatCurrency } from "../_utils/formatCurrency";
 import { getDeclarationInvoicesById } from "@/data/declaration-invoices";
 import { FileDeclarationDialog } from "../_components/file-declaration-dialog";
 import { InvoiceItem } from "../_components/invoice-item";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 interface PageProps {
   params: Promise<{
@@ -152,7 +153,9 @@ export default async function TaxDeclarationReviewPage({
                     Ingresos Totales
                   </span>
                   <span className="text-lg font-mono font-medium text-chart-4">
-                    {formatCurrency(declaration.totalIncome)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.totalIncome)}
+                    </PrivacyBlur>
                   </span>
                 </div>
 
@@ -162,7 +165,9 @@ export default async function TaxDeclarationReviewPage({
                     (-) Gastos Deducibles
                   </span>
                   <span className="text-lg font-mono font-medium text-chart-3">
-                    {formatCurrency(declaration.deductibleExpenses)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.deductibleExpenses)}
+                    </PrivacyBlur>
                   </span>
                 </div>
 
@@ -172,7 +177,9 @@ export default async function TaxDeclarationReviewPage({
                     Base Gravable ISR
                   </span>
                   <span className="text-xl font-mono font-semibold text-primary">
-                    {formatCurrency(declaration.isrBase || 0)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.isrBase || 0)}
+                    </PrivacyBlur>
                   </span>
                 </div>
 
@@ -187,7 +194,9 @@ export default async function TaxDeclarationReviewPage({
                       %)
                     </span>
                     <span className="text-lg font-mono font-medium">
-                      {formatCurrency(declaration.isrCalculated || 0)}
+                      <PrivacyBlur>
+                        {formatCurrency(declaration.isrCalculated || 0)}
+                      </PrivacyBlur>
                     </span>
                   </div>
 
@@ -196,7 +205,9 @@ export default async function TaxDeclarationReviewPage({
                       (-) Retenciones
                     </span>
                     <span className="text-lg font-mono font-medium">
-                      {formatCurrency(declaration.isrWithheld || 0)}
+                      <PrivacyBlur>
+                        {formatCurrency(declaration.isrWithheld || 0)}
+                      </PrivacyBlur>
                     </span>
                   </div>
 
@@ -205,7 +216,9 @@ export default async function TaxDeclarationReviewPage({
                       (-) Pagos Provisionales
                     </span>
                     <span className="text-lg font-mono font-medium">
-                      {formatCurrency(declaration.isrProvisional || 0)}
+                      <PrivacyBlur>
+                        {formatCurrency(declaration.isrProvisional || 0)}
+                      </PrivacyBlur>
                     </span>
                   </div>
                 </div>
@@ -216,7 +229,9 @@ export default async function TaxDeclarationReviewPage({
                     ISR a Pagar
                   </span>
                   <span className="text-2xl font-mono font-bold text-chart-3">
-                    {formatCurrency(declaration.isrBalance || 0)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.isrBalance || 0)}
+                    </PrivacyBlur>
                   </span>
                 </div>
               </CardContent>
@@ -241,7 +256,9 @@ export default async function TaxDeclarationReviewPage({
                     IVA Cobrado
                   </span>
                   <span className="text-lg font-mono font-medium text-chart-4">
-                    {formatCurrency(declaration.ivaCharged || 0)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.ivaCharged || 0)}
+                    </PrivacyBlur>
                   </span>
                 </div>
 
@@ -251,7 +268,9 @@ export default async function TaxDeclarationReviewPage({
                     (-) IVA Acreditable
                   </span>
                   <span className="text-lg font-mono font-medium text-chart-3">
-                    {formatCurrency(declaration.ivaCreditable || 0)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.ivaCreditable || 0)}
+                    </PrivacyBlur>
                   </span>
                 </div>
 
@@ -261,7 +280,9 @@ export default async function TaxDeclarationReviewPage({
                     IVA a Pagar
                   </span>
                   <span className="text-2xl font-mono font-bold text-chart-3">
-                    {formatCurrency(declaration.ivaBalance || 0)}
+                    <PrivacyBlur>
+                      {formatCurrency(declaration.ivaBalance || 0)}
+                    </PrivacyBlur>
                   </span>
                 </div>
               </CardContent>
@@ -355,7 +376,9 @@ export default async function TaxDeclarationReviewPage({
                       ISR
                     </span>
                     <span className="text-sm font-mono font-medium">
-                      {formatCurrency(declaration.isrBalance || 0)}
+                      <PrivacyBlur>
+                        {formatCurrency(declaration.isrBalance || 0)}
+                      </PrivacyBlur>
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -363,7 +386,9 @@ export default async function TaxDeclarationReviewPage({
                       IVA
                     </span>
                     <span className="text-sm font-mono font-medium">
-                      {formatCurrency(declaration.ivaBalance || 0)}
+                      <PrivacyBlur>
+                        {formatCurrency(declaration.ivaBalance || 0)}
+                      </PrivacyBlur>
                     </span>
                   </div>
                   <div className="h-px bg-border" />
@@ -372,10 +397,12 @@ export default async function TaxDeclarationReviewPage({
                       Total a Pagar
                     </span>
                     <span className="text-xl font-mono font-bold text-chart-3">
-                      {formatCurrency(
-                        Number.parseFloat(declaration.isrBalance) +
-                          Number.parseFloat(declaration.ivaBalance)
-                      )}
+                      <PrivacyBlur>
+                        {formatCurrency(
+                          Number.parseFloat(declaration.isrBalance) +
+                            Number.parseFloat(declaration.ivaBalance)
+                        )}
+                      </PrivacyBlur>
                     </span>
                   </div>
                 </div>

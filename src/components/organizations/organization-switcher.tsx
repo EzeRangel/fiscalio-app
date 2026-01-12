@@ -27,6 +27,7 @@ import {
 } from "@/actions/session";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
+import { PrivacyBlur } from "../privacy-blur";
 
 interface Props {
   data: Organization[];
@@ -110,7 +111,7 @@ export function OrganizationSwitcher({ data }: Props) {
                   {activeOrganization.businessName}
                 </span>
                 <span className="truncate text-xs">
-                  {activeOrganization.rfc}
+                  <PrivacyBlur>{activeOrganization.rfc}</PrivacyBlur>
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />

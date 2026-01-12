@@ -6,6 +6,7 @@ import OrganizationDialog from "./organization-dialog";
 import { Button } from "../ui/button";
 import { Organization } from "@/types/organizations";
 import { Regime } from "@/types/taxRegimes";
+import { PrivacyBlur } from "../privacy-blur";
 
 interface Props {
   organization?: Organization;
@@ -28,13 +29,17 @@ export function OrganizationCard({ organization: data, regimes }: Props) {
               <p className="text-sm font-medium text-gray-700">
                 {data.legalName}
               </p>
-              <p className="text-xs text-gray-500">RFC: {data.rfc}</p>
+              <p className="text-xs text-gray-500">
+                RFC: <PrivacyBlur>{data.rfc}</PrivacyBlur>
+              </p>
             </div>
             {data.contact?.email && (
               <p className="text-xs text-gray-600">{data.contact.email}</p>
             )}
             {data.contact?.phone && (
-              <p className="text-xs text-gray-600">{data.contact.phone}</p>
+              <p className="text-xs text-gray-600">
+                <PrivacyBlur>{data.contact.phone}</PrivacyBlur>
+              </p>
             )}
             <Button variant="outline" size="sm" className="w-full">
               Editar

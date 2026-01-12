@@ -7,6 +7,7 @@ import { ArrowRight, FileText } from "lucide-react";
 import { formatPrice } from "@/hooks/usePrice";
 import { getCFDIType } from "@/lib/utils";
 import { Button } from "../ui/button";
+import { PrivacyBlur } from "../privacy-blur";
 import {
   Empty,
   EmptyContent,
@@ -106,7 +107,7 @@ export function InvoicesList({ invoices }: Props) {
                           {invoice.businessPartner?.legalName}
                         </div>
                         <div className="text-xs text-muted-foreground font-mono">
-                          {invoice.businessPartner?.rfc}
+                          <PrivacyBlur>{invoice.businessPartner?.rfc}</PrivacyBlur>
                         </div>
                       </div>
                     </div>
@@ -127,7 +128,9 @@ export function InvoicesList({ invoices }: Props) {
 
                       <div className="text-right">
                         <div className="text-lg font-mono font-medium">
-                          {formatPrice(Number(invoice.total), 2)}
+                          <PrivacyBlur>
+                            {formatPrice(Number(invoice.total), 2)}
+                          </PrivacyBlur>
                         </div>
                         <div className="text-xs text-muted-foreground font-mono">
                           {invoice.currency}

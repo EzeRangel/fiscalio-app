@@ -31,7 +31,7 @@ Implement the visual blurring logic and components.
 ## Phase 4: Global Application
 Apply the obfuscation to target data fields across the app.
 
-- [ ] Task: Apply `PrivacyBlur` to currency amounts (e.g., in Invoice lists, Dashboards).
-- [ ] Task: Apply `PrivacyBlur` to sensitive IDs like RFCs and Phone numbers.
-- [ ] Task: Perform a final audit to ensure no sensitive numbers are missed.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Global Application' (Protocol in workflow.md)
+- [x] Task: Apply `PrivacyBlur` to currency amounts (e.g., in Invoice lists, Dashboards). 5aa66d6
+- [x] Task: Apply `PrivacyBlur` to sensitive IDs like RFCs and Phone numbers. 5aa66d6
+- [x] Task: Perform a final audit to ensure no sensitive numbers are missed. 5aa66d6
+- [~] Task: Conductor - User Manual Verification 'Phase 4: Global Application' (Protocol in workflow.md)

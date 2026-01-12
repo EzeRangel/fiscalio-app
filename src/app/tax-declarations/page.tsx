@@ -26,6 +26,7 @@ import { GenerateDraftButton } from "./_components/generate-draft-button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("es-MX", {
@@ -153,7 +154,7 @@ export default async function TaxDeclarationsPage() {
                       Ingresos
                     </CardDescription>
                     <CardTitle className="text-xl font-mono font-medium text-chart-4">
-                      {formatCurrency(totalIncome)}
+                      <PrivacyBlur>{formatCurrency(totalIncome)}</PrivacyBlur>
                     </CardTitle>
                   </div>
                   <div className="h-10 w-10 rounded-lg bg-chart-4/10 border border-chart-4/20 flex items-center justify-center">
@@ -178,7 +179,7 @@ export default async function TaxDeclarationsPage() {
                       Egresos
                     </CardDescription>
                     <CardTitle className="text-xl font-mono font-medium text-chart-3">
-                      {formatCurrency(totalExpenses)}
+                      <PrivacyBlur>{formatCurrency(totalExpenses)}</PrivacyBlur>
                     </CardTitle>
                   </div>
                   <div className="h-10 w-10 rounded-lg bg-chart-3/10 border border-chart-3/20 flex items-center justify-center">
@@ -203,7 +204,7 @@ export default async function TaxDeclarationsPage() {
                       Base Gravable
                     </CardDescription>
                     <CardTitle className="text-xl font-mono font-medium text-primary">
-                      {formatCurrency(netAmount)}
+                      <PrivacyBlur>{formatCurrency(netAmount)}</PrivacyBlur>
                     </CardTitle>
                   </div>
                   <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -228,7 +229,7 @@ export default async function TaxDeclarationsPage() {
                       ISR
                     </CardDescription>
                     <CardTitle className="text-xl font-mono font-medium text-chart-2">
-                      {formatCurrency(estimatedTax)}
+                      <PrivacyBlur>{formatCurrency(estimatedTax)}</PrivacyBlur>
                     </CardTitle>
                   </div>
                   <div className="h-10 w-10 rounded-lg bg-chart-2/10 border border-chart-2/20 flex items-center justify-center">
@@ -253,7 +254,9 @@ export default async function TaxDeclarationsPage() {
                       IVA
                     </CardDescription>
                     <CardTitle className="text-xl font-mono font-medium text-chart-1">
-                      {formatCurrency(displayIvaBalance)}
+                      <PrivacyBlur>
+                        {formatCurrency(displayIvaBalance)}
+                      </PrivacyBlur>
                     </CardTitle>
                   </div>
                   <div className="h-10 w-10 rounded-lg bg-chart-1/10 border border-chart-1/20 flex items-center justify-center">
@@ -306,7 +309,7 @@ export default async function TaxDeclarationsPage() {
                         Ingresos
                       </span>
                       <span className="font-mono font-medium text-chart-4">
-                        {formatCurrency(totalIncome)}
+                        <PrivacyBlur>{formatCurrency(totalIncome)}</PrivacyBlur>
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -323,7 +326,7 @@ export default async function TaxDeclarationsPage() {
                         Egresos
                       </span>
                       <span className="font-mono font-medium text-chart-3">
-                        {formatCurrency(totalExpenses)}
+                        <PrivacyBlur>{formatCurrency(totalExpenses)}</PrivacyBlur>
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -342,7 +345,7 @@ export default async function TaxDeclarationsPage() {
                         Utilidad Neta
                       </span>
                       <span className="font-mono font-semibold text-primary">
-                        {formatCurrency(netAmount)}
+                        <PrivacyBlur>{formatCurrency(netAmount)}</PrivacyBlur>
                       </span>
                     </div>
                   </div>

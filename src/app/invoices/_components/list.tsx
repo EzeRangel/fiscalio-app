@@ -22,6 +22,7 @@ import { Invoice } from "@/types/invoices";
 import { InferResultType } from "@/types/orm";
 import { Download, Eye, FileText, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
+import { PrivacyBlur } from "@/components/privacy-blur";
 
 type InvoiceWithContacts = InferResultType<
   "invoices",
@@ -145,7 +146,7 @@ export default function List({
                         Ingresos
                       </div>
                       <div className="font-mono text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                        {formatPrice(totals.income, 2)}
+                        <PrivacyBlur>{formatPrice(totals.income, 2)}</PrivacyBlur>
                       </div>
                     </div>
                     <div className="text-right">
@@ -153,7 +154,7 @@ export default function List({
                         Egresos
                       </div>
                       <div className="font-mono text-lg font-medium text-red-600 dark:text-red-400">
-                        {formatPrice(totals.expense, 2)}
+                        <PrivacyBlur>{formatPrice(totals.expense, 2)}</PrivacyBlur>
                       </div>
                     </div>
                     <div className="text-right">
@@ -161,7 +162,7 @@ export default function List({
                         Neto
                       </div>
                       <div className="font-mono text-lg font-medium">
-                        {formatPrice(totals.net, 2)}
+                        <PrivacyBlur>{formatPrice(totals.net, 2)}</PrivacyBlur>
                       </div>
                     </div>
                   </div>
@@ -209,7 +210,9 @@ export default function List({
                               {invoice.businessPartner?.legalName}
                             </div>
                             <div className="text-xs text-muted-foreground font-mono">
-                              {invoice.businessPartner?.rfc}
+                              <PrivacyBlur>
+                                {invoice.businessPartner?.rfc}
+                              </PrivacyBlur>
                             </div>
                           </div>
                         </TableCell>
@@ -243,7 +246,9 @@ export default function List({
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="font-mono text-sm font-medium">
-                            {formatPrice(Number(invoice.total), 2)}
+                            <PrivacyBlur>
+                              {formatPrice(Number(invoice.total), 2)}
+                            </PrivacyBlur>
                           </div>
                           <div className="text-xs text-muted-foreground font-mono">
                             {invoice.currency}

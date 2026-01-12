@@ -10,6 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import usePrice from "@/hooks/usePrice";
+import { PrivacyBlur } from "../privacy-blur";
 import {
   Empty,
   EmptyDescription,
@@ -64,7 +65,7 @@ export default function SummaryCards({ monthName, invoices }: Props) {
             </div>
             <div className="space-y-1">
               <div className="text-3xl font-mono font-medium text-emerald-600 dark:text-emerald-400">
-                {formattedIncome}
+                <PrivacyBlur>{formattedIncome}</PrivacyBlur>
               </div>
               <div className="text-xs text-muted-foreground font-mono">
                 {invoices.filter((inv) => inv.cfdiType === "I").length} facturas
@@ -81,7 +82,7 @@ export default function SummaryCards({ monthName, invoices }: Props) {
             </div>
             <div className="space-y-1">
               <div className="text-3xl font-mono font-medium text-red-600 dark:text-red-400">
-                {formattedExpense}
+                <PrivacyBlur>{formattedExpense}</PrivacyBlur>
               </div>
               <div className="text-xs text-muted-foreground font-mono">
                 {invoices.filter((inv) => inv.cfdiType === "E").length} notas de
@@ -99,7 +100,7 @@ export default function SummaryCards({ monthName, invoices }: Props) {
             </div>
             <div className="space-y-1">
               <div className="text-3xl font-mono font-medium">
-                {formattedNet}
+                <PrivacyBlur>{formattedNet}</PrivacyBlur>
               </div>
               <div className="text-xs text-muted-foreground font-mono">
                 {invoices.length} documentos totales
@@ -116,10 +117,10 @@ export default function SummaryCards({ monthName, invoices }: Props) {
             </div>
             <div className="space-y-1">
               <div className="text-3xl font-mono font-medium text-amber-600 dark:text-amber-400">
-                {formattedIVAToPay}
+                <PrivacyBlur>{formattedIVAToPay}</PrivacyBlur>
               </div>
               <div className="text-xs text-muted-foreground font-mono">
-                Cobrado: {formattedIVAToCharge}
+                Cobrado: <PrivacyBlur>{formattedIVAToCharge}</PrivacyBlur>
               </div>
             </div>
           </Card>
