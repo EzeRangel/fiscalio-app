@@ -16,13 +16,13 @@
 - [x] Task: Conductor - User Manual Verification 'Tag Management Backend' (Protocol in workflow.md)
 
 ## Phase 3: Business Partners UI Updates
-- [ ] Task: Implement Tag Management Sheet
-    - [ ] Sub-task: Create a new component `BusinessPartnerTagsSheet`.
-    - [ ] Sub-task: Implement UI for listing current tags (badges with remove button).
-    - [ ] Sub-task: Implement UI for adding new tags (input + add button).
-    - [ ] Sub-task: Integrate `updateBusinessPartnerTags` server action.
-- [ ] Task: Update Partners Table Actions
-    - [ ] Sub-task: Remove the "Edit" action from the `BusinessPartnersTable` columns definition.
-    - [ ] Sub-task: Add "View Invoices" action (link to `/invoices?partner=...`).
-    - [ ] Sub-task: Add "Manage Tags" action (triggers the `BusinessPartnerTagsSheet`).
-- [ ] Task: Conductor - User Manual Verification 'Business Partners UI Updates' (Protocol in workflow.md)
+- [x] Task: Implement Tag Management Sheet 1e1685c
+    - [x] Sub-task: Create a new component `BusinessPartnerTagsSheet`.
+    - [x] Sub-task: Implement UI for listing current tags (badges with remove button).
+    - [x] Sub-task: Implement UI for adding new tags (input + add button).
+    - [x] Sub-task: Integrate `updateBusinessPartnerTags` server action.
+- [x] Task: Update Partners Table Actions 1e1685c
+    - [x] Sub-task: Remove the "Edit" action from the `BusinessPartnersTable` columns definition.
+    - [x] Sub-task: Add "View Invoices" action (link to `/invoices?partner=...`).
+    - [x] Sub-task: Add "Manage Tags" action (triggers the `BusinessPartnerTagsSheet`).
+- [~] Task: Conductor - User Manual Verification 'Business Partners UI Updates' (Protocol in workflow.md)
