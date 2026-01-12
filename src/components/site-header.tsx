@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
+import { UserNav } from "./user-nav";
 
 export function SiteHeader() {
   const { open } = useSidebar();
@@ -15,6 +16,7 @@ export function SiteHeader() {
       <div className="flex h-(--header-height) w-full items-center gap-2 px-4">
         <SidebarTrigger className="-ml-1" />
         <div className="flex-1" />
+        <UserNav />
       </div>
     </div>
   );
