@@ -4,7 +4,7 @@
 This feature introduces a "Privacy Mode" toggle that allows users to blur sensitive numerical and currency data throughout the application. This is intended to facilitate the creation of demo materials (images/videos) without exposing real financial or personal data.
 
 ## Functional Requirements
-- **Toggle Location**: A new toggle switch will be added to the user profile dropdown menu in the `SiteHeader`.
+- **Toggle Location**: A new toggle switch will be added to the **Sidebar Footer**.
 - **Obfuscation Method**: Sensitive data will be visually blurred using CSS `filter: blur()`.
 - **Target Data**:
     - All currency amounts (prices, totals, balances).
@@ -17,7 +17,7 @@ This feature introduces a "Privacy Mode" toggle that allows users to blur sensit
 - **Security**: While this is a visual obfuscation for demo purposes, the underlying data should still be handled securely in the DOM (this is not a data-redaction feature for security, but a visual tool for privacy).
 
 ## Acceptance Criteria
-- [ ] A "Privacy Mode" toggle exists in the user profile dropdown.
+- [ ] A "Privacy Mode" toggle exists in the Sidebar Footer.
 - [ ] Toggling "Privacy Mode" ON immediately blurs currency values across the app.
 - [ ] Toggling "Privacy Mode" ON immediately blurs sensitive identifiers (RFC, etc.) across the app.
 - [ ] Toggling "Privacy Mode" OFF immediately restores clear visibility.
