@@ -3,7 +3,6 @@ import { StatsCards } from "./_components/stats-cards";
 import { Table } from "./_components/table";
 import { getTaxRegimes } from "@/data/taxRegimes";
 import { getActiveOrganizationId } from "@/lib/session";
-import { fetchBusinessPartnersByOrg } from "@/data/businessPartners";
 import { BusinessPartnersDialogForm } from "@/components/business-partners/business-partners-dialog-form";
 import {
   fetchBusinessPartnersWithAnalytics,

@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCompactNumber, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { TrendingDown, TrendingUp, UsersIcon, Wallet } from "lucide-react";
 

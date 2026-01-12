@@ -1,10 +1,16 @@
 "use client";
 
-import { formatCurrency } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  BusinessPartner,
-  BusinessPartnerWithAnalytics,
-} from "@/types/businessPartners";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatCurrency } from "@/lib/utils";
+import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, FileText, MoreHorizontal, Tag, Trash2 } from "lucide-react";
 
@@ -82,9 +88,7 @@ export const columns: ColumnDef<BusinessPartnerWithAnalytics>[] = [
   },
   {
     id: "invoices",
-    header: ({ column }) => (
-      <div className="text-center">Facturas</div>
-    ),
+    header: () => <div className="text-center">Facturas</div>,
     accessorKey: "invoiceCount",
     cell: ({ row: { original: partner } }) => {
       return (
@@ -98,9 +102,7 @@ export const columns: ColumnDef<BusinessPartnerWithAnalytics>[] = [
   },
   {
     id: "volume",
-    header: ({ column }) => (
-      <div className="text-right">Volumen</div>
-    ),
+    header: () => <div className="text-right">Volumen</div>,
     accessorKey: "totalVolume",
     cell: ({ row: { original: partner } }) => {
       return (
@@ -124,12 +126,19 @@ export const columns: ColumnDef<BusinessPartnerWithAnalytics>[] = [
       return (
         <div className="flex flex-wrap gap-1">
           {partner.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-[10px] uppercase font-medium">
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="text-[10px] uppercase font-medium"
+            >
               {tag}
             </Badge>
           ))}
           {partner.tags && partner.tags?.length > 2 && (
-            <Badge variant="secondary" className="text-[10px] uppercase font-medium">
+            <Badge
+              variant="secondary"
+              className="text-[10px] uppercase font-medium"
+            >
               +{partner.tags?.length - 2}
             </Badge>
           )}

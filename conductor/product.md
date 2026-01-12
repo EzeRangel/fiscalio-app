@@ -11,6 +11,7 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 - **Automated Invoice Classification:** An ML Engine that learns from patterns to automatically suggest account classifications based on invoice data and product codes.
 - **Tax Declaration Generation:** Creating preliminary tax declarations and financial reports tailored to the RESICO regime.
 - **CFDI Validation:** Automatically validating invoices against official SAT requirements to ensure compliance.
+- **Business Partner Analytics:** Real-time tracking of invoice volumes and financial balance for clients and providers.
 - **Smart Predictions:** Providing auto-completion and suggestions during manual data adjustments to increase efficiency.
 
 ## Technical Philosophy: Offline-First
