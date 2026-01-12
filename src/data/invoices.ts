@@ -219,11 +219,20 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 };
 
 // TODO: Mejorar la función para obtener todas las facturas, enviar filtros como parámetros.
-export const getInvoicesByOrganization = async (organizationId: number) => {
+export const getInvoicesByOrganization = async (
+  organizationId: number,
+  filters?: { partnerId?: number }
+) => {
   const { db } = await getDB();
 
+  const conditions = [eq(invoices.organizationId, organizationId)];
+
+  if (filters?.partnerId) {
+    conditions.push(eq(invoices.partnerId, filters.partnerId));
+  }
+
   return db.query.invoices.findMany({
-    where: eq(invoices.organizationId, organizationId),
+    where: and(...conditions),
     orderBy: [desc(invoices.invoiceDate)],
     with: {
       businessPartner: true,

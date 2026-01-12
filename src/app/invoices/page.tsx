@@ -5,10 +5,10 @@ import Filters from "./_components/filters";
 import List from "./_components/list";
 import { getActiveOrganizationId } from "@/lib/session";
 
-const getData = async () => {
+const getData = async (partnerId?: number) => {
   const organizationId = await getActiveOrganizationId();
   const [invoices] = await Promise.all([
-    getInvoicesByOrganization(organizationId),
+    getInvoicesByOrganization(organizationId, { partnerId }),
   ]);
 
   return {
@@ -16,8 +16,14 @@ const getData = async () => {
   };
 };
 
-export default async function InvoicesList() {
-  const { invoices } = await getData();
+export default async function InvoicesList({
+  searchParams,
+}: {
+  searchParams: Promise<{ partner?: string }>;
+}) {
+  const { partner } = await searchParams;
+  const partnerId = partner ? parseInt(partner) : undefined;
+  const { invoices } = await getData(partnerId);
 
   return (
     <section className="min-h-screen">
