@@ -15,6 +15,39 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Edit, FileText, MoreHorizontal, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
 
+const getPartnerTypeBadge = (type: string) => {
+  switch (type) {
+    case "client":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+        >
+          Cliente
+        </Badge>
+      );
+    case "supplier":
+    case "provider":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+        >
+          Proveedor
+        </Badge>
+      );
+    case "both":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+        >
+          Ambos
+        </Badge>
+      );
+  }
+};
+
 interface Actions {
   onManageTags: (partner: BusinessPartnerWithAnalytics) => void;
   onDeactivate: (partner: BusinessPartnerWithAnalytics) => void;
