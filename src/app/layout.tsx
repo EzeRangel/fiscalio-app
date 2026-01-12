@@ -15,6 +15,10 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarHead } from "@/components/sidebar-head";
 import { SiteHeader } from "@/components/site-header";
 
+import { cookies } from "next/headers";
+import { PRIVACY_MODE_COOKIE } from "@/lib/privacy-mode";
+import { PrivacyModeProvider } from "@/components/providers/privacy-mode-provider";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,6 +40,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const organizations = await getOrganizations();
+  const cookieStore = await cookies();
+  const privacyModeEnabled =
+    cookieStore.get(PRIVACY_MODE_COOKIE)?.value === "true";
 
   return (
     <html lang="en">
@@ -43,16 +50,18 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
       >
         <App>
-          <div className="[--header-height:calc(--spacing(14))]">
-            <SidebarProvider className="flex flex-col">
-              <SiteHeader />
-              <div className="flex flex-1">
-                <AppSidebar organizations={organizations} />
-                <SidebarInset>{children}</SidebarInset>
-              </div>
-            </SidebarProvider>
-          </div>
-          <Toaster />
+          <PrivacyModeProvider initialEnabled={privacyModeEnabled}>
+            <div className="[--header-height:calc(--spacing(14))]">
+              <SidebarProvider className="flex flex-col">
+                <SiteHeader />
+                <div className="flex flex-1">
+                  <AppSidebar organizations={organizations} />
+                  <SidebarInset>{children}</SidebarInset>
+                </div>
+              </SidebarProvider>
+            </div>
+            <Toaster />
+          </PrivacyModeProvider>
         </App>
       </body>
     </html>
