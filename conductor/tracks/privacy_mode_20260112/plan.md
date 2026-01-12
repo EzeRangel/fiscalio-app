@@ -6,7 +6,7 @@ This plan implements a "Privacy Mode" that blurs sensitive data (currency and ID
 Implement the logic for managing the Privacy Mode state via cookies and a global provider.
 
 - [x] Task: Create `src/lib/privacy-mode.ts` with utilities for cookie-based state management (get/set). 1bcdfe6
-- [ ] Task: Implement a Server Action in `src/actions/privacy-mode.ts` to toggle the state.
+- [x] Task: Implement a Server Action in `src/actions/privacy-mode.ts` to toggle the state. 57500d2
 - [ ] Task: Create a React Context `PrivacyModeProvider` and hook `usePrivacyMode` in `src/components/providers/privacy-mode-provider.tsx`.
 - [ ] Task: Wrap the application with `PrivacyModeProvider` in `src/app/layout.tsx`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md)
