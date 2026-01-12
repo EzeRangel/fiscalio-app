@@ -21,12 +21,12 @@ Add the toggle switch to the application sidebar footer.
 - [x] Task: Update `src/components/app-sidebar.tsx` to include a `SidebarFooter` with the Privacy Mode toggle. a6fc89a
 - [x] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md) 2df94d9
 
-## Phase 3: Obfuscation Mechanism
+## Phase 3: Obfuscation Mechanism [checkpoint: 5aa66d6]
 Implement the visual blurring logic and components.
 
 - [x] Task: Define a Tailwind utility or CSS variable for the blur effect in `src/app/globals.css`. fbc15bf
 - [x] Task: Create a `PrivacyBlur` component in `src/components/privacy-blur.tsx` that conditionally applies the blur. 644379e
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Obfuscation Mechanism' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Obfuscation Mechanism' (Protocol in workflow.md) 5aa66d6
 
 ## Phase 4: Global Application
 Apply the obfuscation to target data fields across the app.
