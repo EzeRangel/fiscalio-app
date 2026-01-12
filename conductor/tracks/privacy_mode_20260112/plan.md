@@ -15,7 +15,7 @@ Implement the logic for managing the Privacy Mode state via cookies and a global
 Add the toggle switch to the application header's user menu.
 
 - [x] Task: Create a `UserNav` component in `src/components/user-nav.tsx` using `DropdownMenu`. b8e3eba
-- [ ] Task: Add the Privacy Mode toggle switch inside `UserNav`.
+- [x] Task: Add the Privacy Mode toggle switch inside `UserNav`. b8e3eba
 - [ ] Task: Update `src/components/site-header.tsx` to include the `UserNav` component.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md)
 
