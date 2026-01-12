@@ -4,4 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-
+## [~] Track: Privacy Mode (Data Obfuscation)
+*Link: [./conductor/tracks/privacy_mode_20260112/](./conductor/tracks/privacy_mode_20260112/)*

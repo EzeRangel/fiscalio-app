@@ -1,0 +1,8 @@
+{
+  "track_id": "privacy_mode_20260112",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-12T12:00:00Z",
+  "updated_at": "2026-01-12T12:00:00Z",
+  "description": "Add a new feature to hide currency data. This must be a globally available feature, when the users toggles it all the numbers in any component should be hidden or blurred for privacy reasons."
+}

@@ -1,0 +1,8 @@
+{
+  "track_id": "partner_actions_20260112",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-12T16:00:00Z",
+  "updated_at": "2026-01-12T16:00:00Z",
+  "description": "Implements the partners table actions. - Remove the edit option - The user should see the invoices related to a businessPartner - The user should manage buinesspartners tags."
+}
