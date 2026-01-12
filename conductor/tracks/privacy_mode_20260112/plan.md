@@ -2,14 +2,14 @@
 
 This plan implements a "Privacy Mode" that blurs sensitive data (currency and IDs) throughout the application to facilitate demos and recordings.
 
-## Phase 1: Setup and State Management
+## Phase 1: Setup and State Management [checkpoint: bd801d5]
 Implement the logic for managing the Privacy Mode state via cookies and a global provider.
 
 - [x] Task: Create `src/lib/privacy-mode.ts` with utilities for cookie-based state management (get/set). 1bcdfe6
 - [x] Task: Implement a Server Action in `src/actions/privacy-mode.ts` to toggle the state. 57500d2
 - [x] Task: Create a React Context `PrivacyModeProvider` and hook `usePrivacyMode` in `src/components/providers/privacy-mode-provider.tsx`. d38b173
 - [x] Task: Wrap the application with `PrivacyModeProvider` in `src/app/layout.tsx`. 70fe4fd
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md) bd801d5
 
 ## Phase 2: UI Implementation
 Add the toggle switch to the application header's user menu.
