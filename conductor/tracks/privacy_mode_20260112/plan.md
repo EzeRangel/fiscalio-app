@@ -12,11 +12,13 @@ Implement the logic for managing the Privacy Mode state via cookies and a global
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md) bd801d5
 
 ## Phase 2: UI Implementation
-Add the toggle switch to the application header's user menu.
+Add the toggle switch to the application sidebar footer.
 
 - [x] Task: Create a `UserNav` component in `src/components/user-nav.tsx` using `DropdownMenu`. b8e3eba
 - [x] Task: Add the Privacy Mode toggle switch inside `UserNav`. b8e3eba
 - [x] Task: Update `src/components/site-header.tsx` to include the `UserNav` component. f2c3354
+- [x] Task: Remove Privacy Mode toggle from `UserNav` in `src/components/user-nav.tsx`. 632140d
+- [ ] Task: Update `src/components/app-sidebar.tsx` to include a `SidebarFooter` with the Privacy Mode toggle.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Obfuscation Mechanism
