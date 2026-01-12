@@ -1,11 +1,11 @@
 # Plan: Business Partner Actions Enhancement
 
-## Phase 1: Invoices Page Integration
+## Phase 1: Invoices Page Integration [checkpoint: 3c404b7]
 - [x] Task: Update Invoices List Component afcbf3a
     - [x] Sub-task: Modify `InvoicesList` component (or its parent page) to read the `partner` query parameter.
     - [x] Sub-task: Update the initial data fetch/query to support filtering by `businessPartnerId` (if not already supported).
     - [x] Sub-task: Verify that navigating to `/invoices?partner=123` correctly filters the list.
-- [ ] Task: Conductor - User Manual Verification 'Invoices Page Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Invoices Page Integration' (Protocol in workflow.md)
 
 ## Phase 2: Tag Management Backend
 - [ ] Task: Create Server Action for Tag Updates
