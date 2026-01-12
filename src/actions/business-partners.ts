@@ -7,11 +7,12 @@ import {
   organizationAddressSchema,
   organizationContactSchema,
 } from "@/types/organizations";
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { zfd } from "zod-form-data";
 import z from "zod/v4";
 import { getActiveOrganizationId } from "@/lib/session";
 import { fetchBusinessPartnersByOrg } from "@/data/businessPartners";
+import { and, eq } from "drizzle-orm";
 
 const insertBusinessPartnerFormSchema = zfd.formData({
   businessName: zfd.text(z.string()),
@@ -53,3 +54,29 @@ export const getBusinessPartnersByOrg = actionClient.action(async () => {
 
   return fetchBusinessPartnersByOrg(organizationId);
 });
+
+const updateTagsSchema = z.object({
+  partnerId: z.number(),
+  tags: z.array(z.string()),
+});
+
+export const updateBusinessPartnerTags = actionClient
+  .inputSchema(updateTagsSchema)
+  .action(async ({ parsedInput }) => {
+    const { partnerId, tags } = parsedInput;
+    const { db } = await getDB();
+    const organizationId = await getActiveOrganizationId();
+
+    await db
+      .update(businessPartners)
+      .set({ tags })
+      .where(
+        and(
+          eq(businessPartners.id, partnerId),
+          eq(businessPartners.organizationId, organizationId)
+        )
+      );
+
+    revalidatePath("/partners");
+    return { success: true };
+  });
