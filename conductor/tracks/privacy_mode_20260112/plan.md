@@ -16,7 +16,7 @@ Add the toggle switch to the application header's user menu.
 
 - [x] Task: Create a `UserNav` component in `src/components/user-nav.tsx` using `DropdownMenu`. b8e3eba
 - [x] Task: Add the Privacy Mode toggle switch inside `UserNav`. b8e3eba
-- [ ] Task: Update `src/components/site-header.tsx` to include the `UserNav` component.
+- [x] Task: Update `src/components/site-header.tsx` to include the `UserNav` component. f2c3354
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Obfuscation Mechanism
