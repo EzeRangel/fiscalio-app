@@ -7,13 +7,13 @@
     - [x] Sub-task: Verify that navigating to `/invoices?partner=123` correctly filters the list.
 - [x] Task: Conductor - User Manual Verification 'Invoices Page Integration' (Protocol in workflow.md)
 
-## Phase 2: Tag Management Backend
+## Phase 2: Tag Management Backend [checkpoint: a5e1d11]
 - [x] Task: Create Server Action for Tag Updates fb2586f
     - [x] Sub-task: Create a new server action `updateBusinessPartnerTags` in `src/actions/business-partners.ts`.
     - [x] Sub-task: Implement validation using Zod (array of strings).
     - [x] Sub-task: Implement the database update using Drizzle to modify the `tags` column for the given partner ID.
     - [x] Sub-task: Write unit test for the server action.
-- [~] Task: Conductor - User Manual Verification 'Tag Management Backend' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Tag Management Backend' (Protocol in workflow.md)
 
 ## Phase 3: Business Partners UI Updates
 - [ ] Task: Implement Tag Management Sheet
