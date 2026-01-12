@@ -101,7 +101,7 @@ const config: Config = {
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -191,8 +191,7 @@ const config: Config = {
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   transformIgnorePatterns: [
-    "/node_modules/(?!(@nodecfdi/core))",
-    "/node_modules/(?!(@nodecfdi/cfdi-to-json))",
+    "/node_modules/(?!(@nodecfdi/cfdi-core|@nodecfdi/cfdi-to-json|next-safe-action|@electric-sql/pglite|drizzle-orm))",
   ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
