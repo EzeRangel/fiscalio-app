@@ -28,10 +28,10 @@ Implement the visual blurring logic and components.
 - [x] Task: Create a `PrivacyBlur` component in `src/components/privacy-blur.tsx` that conditionally applies the blur. 644379e
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Obfuscation Mechanism' (Protocol in workflow.md) 5aa66d6
 
-## Phase 4: Global Application
+## Phase 4: Global Application [checkpoint: e087b25]
 Apply the obfuscation to target data fields across the app.
 
 - [x] Task: Apply `PrivacyBlur` to currency amounts (e.g., in Invoice lists, Dashboards). 5aa66d6
 - [x] Task: Apply `PrivacyBlur` to sensitive IDs like RFCs and Phone numbers. 5aa66d6
 - [x] Task: Perform a final audit to ensure no sensitive numbers are missed. 5aa66d6
-- [~] Task: Conductor - User Manual Verification 'Phase 4: Global Application' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Global Application' (Protocol in workflow.md) e087b25
