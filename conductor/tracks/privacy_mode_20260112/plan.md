@@ -7,7 +7,7 @@ Implement the logic for managing the Privacy Mode state via cookies and a global
 
 - [x] Task: Create `src/lib/privacy-mode.ts` with utilities for cookie-based state management (get/set). 1bcdfe6
 - [x] Task: Implement a Server Action in `src/actions/privacy-mode.ts` to toggle the state. 57500d2
-- [ ] Task: Create a React Context `PrivacyModeProvider` and hook `usePrivacyMode` in `src/components/providers/privacy-mode-provider.tsx`.
+- [x] Task: Create a React Context `PrivacyModeProvider` and hook `usePrivacyMode` in `src/components/providers/privacy-mode-provider.tsx`. d38b173
 - [ ] Task: Wrap the application with `PrivacyModeProvider` in `src/app/layout.tsx`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md)
 
