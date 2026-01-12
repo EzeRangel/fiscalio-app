@@ -35,6 +35,7 @@ import {
 import { Organization } from "@/types/organizations";
 import { OrganizationPicker } from "./organizations/organization-picker";
 import { OrganizationSwitcher } from "./organizations/organization-switcher";
+import { PrivacyModeToggle } from "./privacy-mode-toggle";
 
 const navigation = [
   {
@@ -195,6 +196,7 @@ export function AppSidebar({ organizations }: Props) {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <PrivacyModeToggle />
       <SidebarRail />
     </Sidebar>
   );
