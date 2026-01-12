@@ -1,26 +1,7 @@
 import { Calendar } from "lucide-react";
-import { OrganizationCard } from "@/components/organizations/organization-card";
-import { getOrganizations } from "@/data/organizations";
-import { getTaxRegimes } from "@/data/taxRegimes";
-import { BusinessPartnersCard } from "@/components/business-partners/business-partners-card";
 import Dashboard from "@/components/dashboard";
 
-const getData = async () => {
-  const [regimes, organizations] = await Promise.all([
-    getTaxRegimes(),
-    getOrganizations(),
-  ]);
-
-  return {
-    regimes,
-    organizations,
-  };
-};
-
 export default async function Home() {
-  const { regimes, organizations } = await getData();
-  const organization = organizations?.[0] ?? undefined;
-
   const currentDate = new Date();
   const monthName = currentDate.toLocaleDateString("es-MX", {
     month: "long",
@@ -55,12 +36,6 @@ export default async function Home() {
         </div>
       </div>
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <OrganizationCard regimes={regimes} organization={organization} />
-          <div className="lg:col-span-2">
-            <BusinessPartnersCard regimes={regimes} />
-          </div>
-        </div>
         <Dashboard monthName={monthName} />
       </div>
     </div>
