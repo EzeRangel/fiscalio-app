@@ -1,0 +1,28 @@
+# Plan: Business Partner Actions Enhancement
+
+## Phase 1: Invoices Page Integration
+- [x] Task: Update Invoices List Component afcbf3a
+    - [x] Sub-task: Modify `InvoicesList` component (or its parent page) to read the `partner` query parameter.
+    - [x] Sub-task: Update the initial data fetch/query to support filtering by `businessPartnerId` (if not already supported).
+    - [x] Sub-task: Verify that navigating to `/invoices?partner=123` correctly filters the list.
+- [ ] Task: Conductor - User Manual Verification 'Invoices Page Integration' (Protocol in workflow.md)
+
+## Phase 2: Tag Management Backend
+- [ ] Task: Create Server Action for Tag Updates
+    - [ ] Sub-task: Create a new server action `updateBusinessPartnerTags` in `src/actions/business-partners.ts`.
+    - [ ] Sub-task: Implement validation using Zod (array of strings).
+    - [ ] Sub-task: Implement the database update using Drizzle to modify the `tags` column for the given partner ID.
+    - [ ] Sub-task: Write unit test for the server action.
+- [ ] Task: Conductor - User Manual Verification 'Tag Management Backend' (Protocol in workflow.md)
+
+## Phase 3: Business Partners UI Updates
+- [ ] Task: Implement Tag Management Sheet
+    - [ ] Sub-task: Create a new component `BusinessPartnerTagsSheet`.
+    - [ ] Sub-task: Implement UI for listing current tags (badges with remove button).
+    - [ ] Sub-task: Implement UI for adding new tags (input + add button).
+    - [ ] Sub-task: Integrate `updateBusinessPartnerTags` server action.
+- [ ] Task: Update Partners Table Actions
+    - [ ] Sub-task: Remove the "Edit" action from the `BusinessPartnersTable` columns definition.
+    - [ ] Sub-task: Add "View Invoices" action (link to `/invoices?partner=...`).
+    - [ ] Sub-task: Add "Manage Tags" action (triggers the `BusinessPartnerTagsSheet`).
+- [ ] Task: Conductor - User Manual Verification 'Business Partners UI Updates' (Protocol in workflow.md)
