@@ -124,3 +124,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .privacy-blur {
+    @apply blur-[6px] transition-all duration-300;
+  }
+}
