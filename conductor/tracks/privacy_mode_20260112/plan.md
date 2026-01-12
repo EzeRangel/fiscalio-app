@@ -25,7 +25,7 @@ Add the toggle switch to the application sidebar footer.
 Implement the visual blurring logic and components.
 
 - [x] Task: Define a Tailwind utility or CSS variable for the blur effect in `src/app/globals.css`. fbc15bf
-- [ ] Task: Create a `PrivacyBlur` component in `src/components/privacy-blur.tsx` that conditionally applies the blur.
+- [x] Task: Create a `PrivacyBlur` component in `src/components/privacy-blur.tsx` that conditionally applies the blur. 644379e
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Obfuscation Mechanism' (Protocol in workflow.md)
 
 ## Phase 4: Global Application
