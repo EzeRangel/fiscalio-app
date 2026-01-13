@@ -14,6 +14,7 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 - **Business Partner Analytics:** Real-time tracking of invoice volumes and financial balance for clients and providers.
 - **Partner Management & Categorization:** Tools for managing business partners, including tagging and quick access to related invoice history.
 - **Smart Predictions:** Providing auto-completion and suggestions during manual data adjustments to increase efficiency.
+- **Privacy Mode:** A global toggle to blur sensitive currency and identifier data (RFCs, phones) for safe recording and demo presentations.
 
 ## Technical Philosophy: Offline-First
 - **Privacy & Security:** Sensitive financial data (SAT credentials and invoices) stays local on the user's device using PGLite.

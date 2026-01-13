@@ -23,6 +23,7 @@
 ## Utilities & Specialized Libraries
 - **@nodecfdi/cfdi-*:** Libraries for parsing, validating, and handling Mexican CFDI (invoices).
 - **Date-fns:** For consistent date manipulation.
+- **js-cookie:** For client-side cookie management.
 
 ## Testing & Quality Assurance
 - **Jest & React Testing Library:** For unit and integration testing.

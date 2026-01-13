@@ -9,7 +9,7 @@
     - [ ] Dynamic path segment generation.
     - [ ] Application of friendly name overrides.
   - [ ] Implement the `useBreadcrumbs` hook to pass tests.
-- [ ] Task: Conductor - User Manual Verification 'Core Logic & Configuration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Core Logic & Configuration' (Protocol in workflow.md)
 
 ## Phase 2: UI Implementation & Integration
 - [ ] Task: Implement Breadcrumb Component
