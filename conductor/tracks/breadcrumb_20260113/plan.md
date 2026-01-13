@@ -1,6 +1,6 @@
 # Implementation Plan - Breadcrumb in Site Header
 
-## Phase 1: Core Logic & Configuration
+## Phase 1: Core Logic & Configuration [checkpoint: 3b823e9]
 - [x] Task: Implement Breadcrumb Generation Logic (TDD) 1ae3c5d
   - [ ] Create `src/config/breadcrumb-routes.ts` (or `src/lib/`) to define path-to-label mappings.
   - [ ] Create `src/hooks/use-breadcrumbs.ts` for logic extraction.
