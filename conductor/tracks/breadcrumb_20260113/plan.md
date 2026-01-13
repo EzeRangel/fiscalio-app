@@ -12,11 +12,8 @@
 - [x] Task: Conductor - User Manual Verification 'Core Logic & Configuration' (Protocol in workflow.md)
 
 ## Phase 2: UI Implementation & Integration
-- [ ] Task: Implement Breadcrumb Component
-  - [ ] Verify/Install `shadcn/ui` Breadcrumb component (`npx shadcn@latest add breadcrumb`).
-  - [ ] Create `src/components/site-breadcrumb.tsx`.
-  - [ ] Implement responsiveness: collapse middle items (`...`) on smaller screens.
-- [ ] Task: Integrate into Site Header
+- [x] Task: Implement Breadcrumb Component 0bbdf8e
+- [x] Task: Integrate into Site Header 0bbdf8e
   - [ ] Modify `src/components/site-header.tsx` to include `SiteBreadcrumb`.
   - [ ] Position correctly: Left-aligned, immediately after `SidebarTrigger`.
 - [ ] Task: Conductor - User Manual Verification 'UI Implementation & Integration' (Protocol in workflow.md)
