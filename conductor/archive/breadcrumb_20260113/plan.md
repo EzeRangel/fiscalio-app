@@ -1,0 +1,19 @@
+# Implementation Plan - Breadcrumb in Site Header
+
+## Phase 1: Core Logic & Configuration [checkpoint: 3b823e9]
+- [x] Task: Implement Breadcrumb Generation Logic (TDD) 1ae3c5d
+  - [ ] Create `src/config/breadcrumb-routes.ts` (or `src/lib/`) to define path-to-label mappings.
+  - [ ] Create `src/hooks/use-breadcrumbs.ts` for logic extraction.
+  - [ ] **TDD:** Write unit tests (`src/hooks/use-breadcrumbs.test.ts`) covering:
+    - [ ] "Dashboard" as the root item.
+    - [ ] Dynamic path segment generation.
+    - [ ] Application of friendly name overrides.
+  - [ ] Implement the `useBreadcrumbs` hook to pass tests.
+- [x] Task: Conductor - User Manual Verification 'Core Logic & Configuration' (Protocol in workflow.md)
+
+## Phase 2: UI Implementation & Integration [checkpoint: 296de87]
+- [x] Task: Implement Breadcrumb Component 0bbdf8e
+- [x] Task: Integrate into Site Header 0bbdf8e
+  - [ ] Modify `src/components/site-header.tsx` to include `SiteBreadcrumb`.
+  - [ ] Position correctly: Left-aligned, immediately after `SidebarTrigger`.
+- [ ] Task: Conductor - User Manual Verification 'UI Implementation & Integration' (Protocol in workflow.md)
