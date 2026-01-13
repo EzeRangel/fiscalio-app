@@ -11,7 +11,7 @@
   - [ ] Implement the `useBreadcrumbs` hook to pass tests.
 - [x] Task: Conductor - User Manual Verification 'Core Logic & Configuration' (Protocol in workflow.md)
 
-## Phase 2: UI Implementation & Integration
+## Phase 2: UI Implementation & Integration [checkpoint: 296de87]
 - [x] Task: Implement Breadcrumb Component 0bbdf8e
 - [x] Task: Integrate into Site Header 0bbdf8e
   - [ ] Modify `src/components/site-header.tsx` to include `SiteBreadcrumb`.
