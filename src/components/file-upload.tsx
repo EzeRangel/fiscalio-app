@@ -102,9 +102,7 @@ export default function CFDIUploader() {
             {/* Text */}
             <div className="space-y-2 max-w-md">
               <h3 className="text-2xl font-light tracking-tight">
-                {isDragging
-                  ? "Suelta tus archivos aquí"
-                  : "Cargar Facturas XML"}
+                {isDragging ? "Suelta tus archivos aquí" : "Cargar CFDIs"}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Arrastra y suelta archivos XML o haz clic para seleccionar. Se

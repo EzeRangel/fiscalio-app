@@ -23,7 +23,7 @@ export default async function Home() {
             <h1 className="text-6xl font-light tracking-tight leading-[1.1]">
               Panel de Control
               <span className="block text-muted-foreground mt-2">
-                FDI Assistant
+                CFDI Assistant
               </span>
             </h1>
 
