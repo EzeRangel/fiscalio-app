@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -15,23 +15,21 @@ import { X, Plus, Loader2 } from "lucide-react";
 import { updateBusinessPartnerTags } from "@/actions/business-partners";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
-import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
+import { BusinessPartnerWithStats } from "@/types/businessPartners";
 
 interface Props {
-  partner: BusinessPartnerWithAnalytics | null;
+  partner: BusinessPartnerWithStats | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function BusinessPartnerTagsSheet({ partner, open, onOpenChange }: Props) {
-  const [tags, setTags] = useState<string[]>([]);
+export function BusinessPartnerTagsSheet({
+  partner,
+  open,
+  onOpenChange,
+}: Props) {
+  const [tags, setTags] = useState<string[]>(partner?.tags ?? []);
   const [newTag, setNewTag] = useState("");
-
-  useEffect(() => {
-    if (partner) {
-      setTags(partner.tags || []);
-    }
-  }, [partner]);
 
   const { execute, isPending } = useAction(updateBusinessPartnerTags, {
     onSuccess: () => {
@@ -39,7 +37,7 @@ export function BusinessPartnerTagsSheet({ partner, open, onOpenChange }: Props)
       onOpenChange(false);
     },
     onError: (error) => {
-        console.error(error);
+      console.error(error);
       toast.error("Error al actualizar las etiquetas");
     },
   });
@@ -58,7 +56,7 @@ export function BusinessPartnerTagsSheet({ partner, open, onOpenChange }: Props)
 
   const handleSave = () => {
     if (!partner) return;
-    execute({ partnerId: partner.id, tags });
+    execute({ partnerId: partner.id!, tags });
   };
 
   return (
@@ -67,7 +65,8 @@ export function BusinessPartnerTagsSheet({ partner, open, onOpenChange }: Props)
         <SheetHeader>
           <SheetTitle>Gestionar Etiquetas</SheetTitle>
           <SheetDescription>
-            Añade o elimina etiquetas para <strong>{partner?.businessName}</strong>.
+            Añade o elimina etiquetas para{" "}
+            <strong>{partner?.businessName}</strong>.
           </SheetDescription>
         </SheetHeader>
 

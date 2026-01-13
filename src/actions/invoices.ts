@@ -106,6 +106,22 @@ export const saveInvoice = actionClient
         partner = newPartner;
       }
 
+      const complements = Array.isArray(parsedCFDI.Complemento)
+        ? parsedCFDI.Complemento
+        : [parsedCFDI.Complemento];
+
+      const complement = complements.find((item) =>
+        Boolean(item.TimbreFiscalDigital?.UUID)
+      );
+
+      if (!complement?.TimbreFiscalDigital?.UUID) {
+        throw new ActionError(`El CFDI no contiene un folio fiscal correcto`);
+      }
+
+      if (!complement?.TimbreFiscalDigital?.FechaTimbrado) {
+        throw new ActionError(`El CFDI no tiene una fecha de timbrado`);
+      }
+
       // 4. Insert the main invoice
       const [newInvoice] = await tx
         .insert(invoices)
@@ -115,12 +131,12 @@ export const saveInvoice = actionClient
           invoiceType,
           cfdiType: parsedCFDI.TipoDeComprobante,
           cfdiVersion: parsedCFDI.Version,
-          folioFiscal: parsedCFDI.Complemento.TimbreFiscalDigital.UUID,
+          folioFiscal: complement.TimbreFiscalDigital.UUID,
           internalFolio: parsedCFDI.Folio,
           series: parsedCFDI.Serie,
           invoiceDate: new Date(parsedCFDI.Fecha),
           certificationDate: new Date(
-            parsedCFDI.Complemento.TimbreFiscalDigital.FechaTimbrado
+            complement.TimbreFiscalDigital.FechaTimbrado
           ),
           currency: parsedCFDI.Moneda,
           exchangeRate: parsedCFDI.TipoCambio,
@@ -156,38 +172,35 @@ export const saveInvoice = actionClient
           })
           .returning();
 
-        const traslados =
-          c.Impuestos?.Traslados &&
-          Array.isArray(c.Impuestos.Traslados.Traslado)
-            ? c.Impuestos.Traslados.Traslado
-            : c.Impuestos?.Traslados?.Traslado
-            ? [c.Impuestos.Traslados.Traslado]
-            : [];
+        const traslados = Array.isArray(c.Impuestos?.Traslados?.Traslado)
+          ? c.Impuestos.Traslados.Traslado
+          : c.Impuestos?.Traslados?.Traslado
+          ? [c.Impuestos.Traslados.Traslado]
+          : [];
 
-        const retenciones =
-          c.Impuestos?.Retenciones &&
-          Array.isArray(c.Impuestos.Retenciones.Retencion)
-            ? c.Impuestos.Retenciones.Retencion
-            : c.Impuestos?.Retenciones?.Retencion
-            ? [c.Impuestos.Retenciones.Retencion]
-            : [];
+        const retenciones = Array.isArray(c.Impuestos?.Retenciones?.Retencion)
+          ? c.Impuestos.Retenciones.Retencion
+          : c.Impuestos?.Retenciones?.Retencion
+          ? [c.Impuestos.Retenciones.Retencion]
+          : [];
 
         const taxesToInsert = [
           ...traslados.map((t) => ({
             itemId: newItem.id,
             taxType: "transferred" as const,
             taxCode: t.Impuesto,
-            taxName: getTaxName(t.Impuesto),
+            taxName: getTaxName(t.Impuesto as "001" | "002" | "003"),
             factor: t.TipoFactor,
             rate: t.TasaOCuota,
             baseAmount: t.Base,
-            taxAmount: t.Importe, // Corrected from t.Impuesto
+            taxAmount: t.Importe ?? "0.00", // TODO: Check if this is correct
           })),
+
           ...retenciones.map((r) => ({
             itemId: newItem.id,
             taxType: "withheld" as const,
             taxCode: r.Impuesto,
-            taxName: getTaxName(r.Impuesto),
+            taxName: getTaxName(r.Impuesto as "001" | "002" | "003"),
             factor: r.TipoFactor,
             rate: r.TasaOCuota,
             baseAmount: r.Base,

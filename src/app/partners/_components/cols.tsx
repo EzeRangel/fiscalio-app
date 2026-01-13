@@ -10,9 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatCurrency } from "@/lib/utils";
-import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
+import { BusinessPartnerWithStats } from "@/types/businessPartners";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, FileText, MoreHorizontal, Tag, Trash2 } from "lucide-react";
+import { FileText, MoreHorizontal, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { PrivacyBlur } from "@/components/privacy-blur";
 
@@ -50,13 +50,13 @@ const getPartnerTypeBadge = (type: string) => {
 };
 
 interface Actions {
-  onManageTags: (partner: BusinessPartnerWithAnalytics) => void;
-  onDeactivate: (partner: BusinessPartnerWithAnalytics) => void;
+  onManageTags: (partner: BusinessPartnerWithStats) => void;
+  onDeactivate: (partner: BusinessPartnerWithStats) => void;
 }
 
 export const getColumns = (
   actions: Actions
-): ColumnDef<BusinessPartnerWithAnalytics>[] => [
+): ColumnDef<BusinessPartnerWithStats>[] => [
   {
     accessorKey: "businessName",
     header: "Socio",
@@ -97,7 +97,13 @@ export const getColumns = (
   {
     accessorKey: "partnerType",
     header: "Tipo",
-    cell: ({ row }) => getPartnerTypeBadge(row.original.partnerType),
+    cell: ({ row }) => {
+      if (row.original.partnerType) {
+        return getPartnerTypeBadge(row.original.partnerType);
+      }
+
+      return null;
+    },
   },
   {
     id: "invoices",

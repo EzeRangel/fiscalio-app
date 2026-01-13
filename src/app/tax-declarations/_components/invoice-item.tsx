@@ -89,7 +89,7 @@ export function InvoiceItem({ data: item }: Props) {
                 Porcentaje
               </span>
               <span className="text-xs font-mono font-medium">
-                {Number.parseFloat(item.deductionPercentage).toFixed(0)}%
+                {Number.parseFloat(item.deductionPercentage!).toFixed(0)}%
               </span>
             </div>
           )}
@@ -115,7 +115,7 @@ export function InvoiceItem({ data: item }: Props) {
               Monto IVA
             </span>
             <span className="text-xs font-mono font-medium">
-              <PrivacyBlur>{formatCurrency(item.ivaAmount)}</PrivacyBlur>
+              <PrivacyBlur>{formatCurrency(item.ivaAmount!)}</PrivacyBlur>
             </span>
           </div>
         </div>
@@ -136,7 +136,7 @@ export function InvoiceItem({ data: item }: Props) {
             Deducible
           </p>
           <p className="text-sm font-mono font-medium text-chart-4">
-            <PrivacyBlur>{formatCurrency(item.deductibleAmount)}</PrivacyBlur>
+            <PrivacyBlur>{formatCurrency(item.deductibleAmount!)}</PrivacyBlur>
           </p>
         </div>
       </div>

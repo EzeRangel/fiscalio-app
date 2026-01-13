@@ -23,7 +23,7 @@ export const insertBusinessPartnerSchema = createInsertSchema(
 
 export type BusinessPartner = typeof businessPartners.$inferSelect;
 
-export type BusinessPartnerWithAnalytics = BusinessPartner & {
+export type BusinessPartnerWithStats = {
   invoiceCount: number;
   totalVolume: number;
-};
+} & Partial<BusinessPartner>;

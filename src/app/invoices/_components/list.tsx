@@ -23,6 +23,7 @@ import { InferResultType } from "@/types/orm";
 import { Download, Eye, FileText, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { PrivacyBlur } from "@/components/privacy-blur";
+import { CFDI_TYPE } from "@/lib/constants";
 
 type InvoiceWithContacts = InferResultType<
   "invoices",
@@ -146,7 +147,9 @@ export default function List({
                         Ingresos
                       </div>
                       <div className="font-mono text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                        <PrivacyBlur>{formatPrice(totals.income, 2)}</PrivacyBlur>
+                        <PrivacyBlur>
+                          {formatPrice(totals.income, 2)}
+                        </PrivacyBlur>
                       </div>
                     </div>
                     <div className="text-right">
@@ -154,7 +157,9 @@ export default function List({
                         Egresos
                       </div>
                       <div className="font-mono text-lg font-medium text-red-600 dark:text-red-400">
-                        <PrivacyBlur>{formatPrice(totals.expense, 2)}</PrivacyBlur>
+                        <PrivacyBlur>
+                          {formatPrice(totals.expense, 2)}
+                        </PrivacyBlur>
                       </div>
                     </div>
                     <div className="text-right">
@@ -241,7 +246,9 @@ export default function List({
                                 : "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
                             }
                           >
-                            {getCFDIType(invoice.cfdiType)}
+                            {getCFDIType(
+                              invoice.cfdiType as keyof typeof CFDI_TYPE
+                            )}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">

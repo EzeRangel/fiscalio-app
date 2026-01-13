@@ -92,9 +92,9 @@ export default async function TaxDeclarationsPage() {
     : currentPeriod.totalExpenses;
   // netAmount is the taxable base (isrBase) from the declaration.
   const netAmount = declaration
-    ? parseFloat(declaration.isrBase)
+    ? parseFloat(declaration.isrBase!)
     : currentPeriod.netAmount;
-  const estimatedTax = declaration ? parseFloat(declaration.isrCalculated) : 0;
+  const estimatedTax = declaration ? parseFloat(declaration.isrCalculated!) : 0;
   const taxRate = declaration ? parseFloat(declaration.isrRate || "0") : 0;
 
   // IVA values
@@ -326,7 +326,9 @@ export default async function TaxDeclarationsPage() {
                         Egresos
                       </span>
                       <span className="font-mono font-medium text-chart-3">
-                        <PrivacyBlur>{formatCurrency(totalExpenses)}</PrivacyBlur>
+                        <PrivacyBlur>
+                          {formatCurrency(totalExpenses)}
+                        </PrivacyBlur>
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">

@@ -1,12 +1,12 @@
 "use client";
 
 import { formatCurrency } from "@/lib/utils";
-import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
 import { TrendingDown, TrendingUp, UsersIcon, Wallet } from "lucide-react";
 import { PrivacyBlur } from "@/components/privacy-blur";
+import { BusinessPartnerWithStats } from "@/types/businessPartners";
 
 interface Props {
-  partners: BusinessPartnerWithAnalytics[];
+  partners: BusinessPartnerWithStats[];
   globalStats?: {
     totalClientVolume: number;
     totalProviderVolume: number;
@@ -68,7 +68,9 @@ export function StatsCards({ partners, globalStats }: Props) {
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                <PrivacyBlur>{formatCurrency(stats.providerVolume)}</PrivacyBlur>
+                <PrivacyBlur>
+                  {formatCurrency(stats.providerVolume)}
+                </PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
                 Volumen Proveedores

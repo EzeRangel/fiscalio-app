@@ -38,14 +38,15 @@ export const fetchBusinessPartnersWithAnalytics = async (
   const results = await db
     .select({
       id: businessPartners.id,
+      legalName: businessPartners.legalName,
       businessName: businessPartners.businessName,
       rfc: businessPartners.rfc,
       partnerType: businessPartners.partnerType,
       isActive: businessPartners.isActive,
       tags: businessPartners.tags,
-      invoiceCount: sql<number>`COALESCE(${statsQuery.invoiceCount}, 0)`.mapWith(
-        Number
-      ),
+      creditLimit: businessPartners.creditLimit,
+      invoiceCount:
+        sql<number>`COALESCE(${statsQuery.invoiceCount}, 0)`.mapWith(Number),
       totalVolume: sql<number>`COALESCE(${statsQuery.totalVolume}, 0)`.mapWith(
         Number
       ),

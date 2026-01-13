@@ -6,7 +6,6 @@ import {
   Users,
   FileBarChart,
   Settings,
-  UserCircle,
   Home,
   ChevronRight,
 } from "lucide-react";
@@ -14,7 +13,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -33,7 +31,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Organization } from "@/types/organizations";
-import { OrganizationPicker } from "./organizations/organization-picker";
 import { OrganizationSwitcher } from "./organizations/organization-switcher";
 import { PrivacyModeToggle } from "./privacy-mode-toggle";
 
@@ -118,9 +115,8 @@ export function AppSidebar({ organizations }: Props) {
                   const isActive =
                     pathname === item.href ||
                     pathname.startsWith(`${item.href}/`);
-                  const hasSubItems = item.subItems && item.subItems.length > 0;
 
-                  if (hasSubItems) {
+                  if ("subItems" in item) {
                     return (
                       <Collapsible
                         key={item.title}
@@ -144,7 +140,7 @@ export function AppSidebar({ organizations }: Props) {
                           </CollapsibleTrigger>
                           <CollapsibleContent>
                             <SidebarMenuSub>
-                              {item.subItems?.map((subItem) => {
+                              {item.subItems!.map((subItem) => {
                                 const isSubActive = pathname === subItem.href;
                                 return (
                                   <SidebarMenuSubItem key={subItem.title}>

@@ -1,18 +1,18 @@
 "use client";
 
 import { DataTable } from "@/components/data-table";
-import { BusinessPartnerWithAnalytics } from "@/types/businessPartners";
+import { BusinessPartnerWithStats } from "@/types/businessPartners";
 import { getColumns } from "./cols";
 import { useState } from "react";
 import { BusinessPartnerTagsSheet } from "./tags-sheet";
 
 interface Props {
-  data: BusinessPartnerWithAnalytics[];
+  data: BusinessPartnerWithStats[];
 }
 
 export function Table({ data }: Props) {
   const [selectedPartner, setSelectedPartner] =
-    useState<BusinessPartnerWithAnalytics | null>(null);
+    useState<BusinessPartnerWithStats | null>(null);
   const [isTagsOpen, setIsTagsOpen] = useState(false);
 
   const columns = getColumns({

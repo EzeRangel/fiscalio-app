@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { FileText } from "lucide-react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import { OrganizationPicker } from "@/components/organizations/organization-picker";
 import { getOrganizations } from "@/data/organizations";
 import App from "@/components/App";
 import "./globals.css";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarHead } from "@/components/sidebar-head";
 import { SiteHeader } from "@/components/site-header";
 
 import { cookies } from "next/headers";
@@ -40,6 +33,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const organizations = await getOrganizations();
+
+  // ! This makes the entire app dynamic
+  // TODO: Look for a way to prevent this, maybe a server action that is consumed with react query
   const cookieStore = await cookies();
   const privacyModeEnabled =
     cookieStore.get(PRIVACY_MODE_COOKIE)?.value === "true";

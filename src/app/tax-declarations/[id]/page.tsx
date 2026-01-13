@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   AlertCircle,
-  AlertTriangle,
   CheckCircle2,
   ChevronRightIcon,
   FileDown,
@@ -335,7 +334,7 @@ export default async function TaxDeclarationReviewPage({
           {/* Sidebar */}
           <aside className="lg:col-span-1 space-y-6">
             {/* Validations Card */}
-            {declaration.aiValidations &&
+            {/* {declaration.aiValidations &&
               declaration.aiValidations.length > 0 && (
                 <Card className="border-chart-2/30 bg-card/50 backdrop-blur">
                   <CardHeader>
@@ -360,7 +359,7 @@ export default async function TaxDeclarationReviewPage({
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              )} */}
 
             {/* Summary Card */}
             <Card className="border-border bg-card/50 backdrop-blur">
@@ -399,8 +398,8 @@ export default async function TaxDeclarationReviewPage({
                     <span className="text-xl font-mono font-bold text-chart-3">
                       <PrivacyBlur>
                         {formatCurrency(
-                          Number.parseFloat(declaration.isrBalance) +
-                            Number.parseFloat(declaration.ivaBalance)
+                          Number.parseFloat(declaration.isrBalance!) +
+                            Number.parseFloat(declaration.ivaBalance!)
                         )}
                       </PrivacyBlur>
                     </span>
