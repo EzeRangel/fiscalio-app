@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
 import { UserNav } from "./user-nav";
+import { SiteBreadcrumb } from "./site-breadcrumb";
+import { Separator } from "./ui/separator";
 
 export function SiteHeader() {
   const { open } = useSidebar();
@@ -15,6 +17,8 @@ export function SiteHeader() {
     >
       <div className="flex h-(--header-height) w-full items-center gap-2 px-4">
         <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="mr-2 h-4" />
+        <SiteBreadcrumb />
         <div className="flex-1" />
         <UserNav />
       </div>
