@@ -14,8 +14,8 @@
 - [x] Task: TDD - Create integration tests for Invoice Server Actions (ensure actions create audit records).
     - [x] Subtask: Test cases for Create, Update, Delete, and Classify (AI vs Manual).
 - [x] Task: Integrate `AuditService` into Invoice Server Actions.
-- [~] Task: TDD - Create integration tests for Payment Server Actions.
-- [ ] Task: Integrate `AuditService` into Payment Server Actions.
+- [x] Task: TDD - Create integration tests for Payment Server Actions.
+- [x] Task: Integrate `AuditService` into Payment Server Actions.
 - [ ] Task: Conductor - User Manual Verification 'Invoice & Payment Integration' (Protocol in workflow.md)
 
 ## Phase 3: Configuration Integration

@@ -3,6 +3,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { getDB, invoices, paymentAllocations, payments } from "@/db";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
+import { logAction } from "@/lib/audit-service";
 
 export async function savePaymentComplement(
   tx: any,
@@ -44,6 +45,19 @@ export async function savePaymentComplement(
         cfdiPaymentId: cfdiPaymentUuid,
       })
       .returning();
+
+    await logAction({
+      organizationId,
+      entityType: "payment",
+      entityId: newPayment.id,
+      action: "created",
+      metadata: {
+        source: "import",
+        reason: "Payment Complement Import",
+        cfdiUuid: cfdiPaymentUuid,
+      },
+      tx,
+    });
 
     const docs = Array.isArray(pago.DoctoRelacionado)
       ? pago.DoctoRelacionado
