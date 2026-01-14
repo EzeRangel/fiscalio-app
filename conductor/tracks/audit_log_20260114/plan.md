@@ -1,6 +1,6 @@
 # Plan: System-Wide Audit Log
 
-## Phase 1: Database & Core Service
+## Phase 1: Database & Core Service [checkpoint: 0c721a8]
 - [x] Task: Define Drizzle schema for `audit_logs` table (including indexes and types) and generate migration.
 - [x] Task: Create `AuditService` utility.
     - [x] Subtask: Define Zod schemas for `metadata` and `changes` JSONB structures.
@@ -8,7 +8,7 @@
     - [x] Subtask: Implement `logAction` function.
 - [x] Task: TDD - Write unit tests for `AuditService` (verifying diff logic and schema validation).
 - [x] Task: Implement `AuditService` logic to pass tests.
-- [ ] Task: Conductor - User Manual Verification 'Database & Core Service' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Database & Core Service' (Protocol in workflow.md)
 
 ## Phase 2: Invoice & Payment Integration
 - [ ] Task: TDD - Create integration tests for Invoice Server Actions (ensure actions create audit records).
