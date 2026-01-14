@@ -13,6 +13,7 @@ import z from "zod/v4";
 import { getActiveOrganizationId } from "@/lib/session";
 import { fetchBusinessPartnersByOrg } from "@/data/businessPartners";
 import { and, eq } from "drizzle-orm";
+import { logAction, calculateDiff } from "@/lib/audit-service";
 
 const insertBusinessPartnerFormSchema = zfd.formData({
   businessName: zfd.text(z.string()),
@@ -41,9 +42,20 @@ export const saveBusinessPartner = actionClient
     const { db } = await getDB();
     const organizationId = await getActiveOrganizationId();
 
-    await db.insert(businessPartners).values({
-      ...parsedInput,
+    const [newPartner] = await db
+      .insert(businessPartners)
+      .values({
+        ...parsedInput,
+        organizationId,
+      })
+      .returning();
+
+    await logAction({
       organizationId,
+      entityType: "business_partner",
+      entityId: newPartner.id,
+      action: "created",
+      metadata: { source: "manual" },
     });
 
     revalidateTag("contacts", "max");
@@ -67,6 +79,13 @@ export const updateBusinessPartnerTags = actionClient
     const { db } = await getDB();
     const organizationId = await getActiveOrganizationId();
 
+    const oldPartner = await db.query.businessPartners.findFirst({
+      where: and(
+        eq(businessPartners.id, partnerId),
+        eq(businessPartners.organizationId, organizationId)
+      ),
+    });
+
     await db
       .update(businessPartners)
       .set({ tags })
@@ -76,6 +95,24 @@ export const updateBusinessPartnerTags = actionClient
           eq(businessPartners.organizationId, organizationId)
         )
       );
+
+    if (oldPartner) {
+      const changes = calculateDiff(
+        { tags: oldPartner.tags },
+        { tags: tags }
+      );
+
+      if (Object.keys(changes).length > 0) {
+        await logAction({
+          organizationId,
+          entityType: "business_partner",
+          entityId: partnerId,
+          action: "updated",
+          changes,
+          metadata: { source: "manual", reason: "Tags update" },
+        });
+      }
+    }
 
     revalidatePath("/partners");
     return { success: true };

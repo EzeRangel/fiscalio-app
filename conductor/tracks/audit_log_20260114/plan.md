@@ -19,8 +19,8 @@
 - [x] Task: Conductor - User Manual Verification 'Invoice & Payment Integration' (Protocol in workflow.md)
 
 ## Phase 3: Configuration Integration
-- [ ] Task: TDD - Create integration tests for Business Partner Server Actions.
-- [ ] Task: Integrate `AuditService` into Business Partner Server Actions.
-- [ ] Task: TDD - Create integration tests for Chart of Accounts Server Actions.
-- [ ] Task: Integrate `AuditService` into Chart of Accounts Server Actions.
-- [ ] Task: Conductor - User Manual Verification 'Configuration Integration' (Protocol in workflow.md)
+- [x] Task: TDD - Create integration tests for Business Partner Server Actions.
+- [x] Task: Integrate `AuditService` into Business Partner Server Actions.
+- [x] Task: TDD - Create integration tests for Chart of Accounts Server Actions.
+- [x] Task: Integrate `AuditService` into Chart of Accounts Server Actions.
+- [x] Task: Conductor - User Manual Verification 'Configuration Integration' (Protocol in workflow.md)

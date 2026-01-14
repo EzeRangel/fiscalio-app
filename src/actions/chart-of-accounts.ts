@@ -10,6 +10,7 @@ import { AccountFormSchema } from "@/types/chart-of-accounts";
 import { revalidatePath } from "next/cache";
 import { ActionError } from "@/lib/errors";
 import { getChartOfAccountsByOrg } from "@/data/chart-of-accounts";
+import { logAction } from "@/lib/audit-service";
 
 export async function fetchChartOfAccounts() {
   return getChartOfAccountsByOrg();
@@ -41,7 +42,7 @@ export const createAccount = actionClient
       }
     }
 
-    await db
+    const [newAccount] = await db
       .insert(chartOfAccounts)
       .values({
         ...parsedInput,
@@ -50,6 +51,14 @@ export const createAccount = actionClient
         parentAccountId: parentIdAsNumber,
       })
       .returning();
+
+    await logAction({
+      organizationId,
+      entityType: "account",
+      entityId: newAccount.id,
+      action: "created",
+      metadata: { source: "manual" },
+    });
 
     revalidatePath("/settings/chart-of-accounts");
   });
