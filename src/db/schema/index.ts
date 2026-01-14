@@ -15,3 +15,5 @@ export * from "./classificationFeedback";
 export * from "./taxDeclarations";
 export * from "./declarationInvoices";
 export * from "./fiscalPeriods";
+export * from "./auditLogs";
+
