@@ -19,6 +19,7 @@ import { getActiveOrganizationId } from "@/lib/session";
 import { getDB } from "@/db";
 import { ActionError } from "@/lib/errors";
 import { getTaxName } from "@/lib/utils";
+import { logAction } from "@/lib/audit-service";
 
 const insertInvoiceSchema = zfd.formData({
   cfdi: zfd.file(),
@@ -212,6 +213,18 @@ export const saveInvoice = actionClient
           await tx.insert(invoiceTaxes).values(taxesToInsert);
         }
       }
+
+      await logAction({
+        organizationId,
+        entityType: "invoice",
+        entityId: newInvoice.id,
+        action: "created",
+        metadata: {
+          source: "import",
+          reason: "CFDI Upload",
+        },
+        tx,
+      });
 
       return newInvoice.id;
     });

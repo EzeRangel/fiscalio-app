@@ -17,10 +17,8 @@ import {
 } from "@/db/schema";
 import { getClassificationRules } from "@/data/classification-rules";
 import { ClassificationEngine } from "@/lib/classification-engine";
-import {
-  ClassificationCandidate,
-  EngineInvoice,
-} from "@/types/classification-engine";
+import { ClassificationCandidate, EngineInvoice } from "@/types/classification-engine";
+import { logAction } from "@/lib/audit-service";
 
 const LEARNING_RATE = 0.05;
 const DOMINANT_EVIDENCE_THRESHOLD = 0.15;
@@ -214,6 +212,18 @@ export const applyClassification = actionClient
           classificationConfindence: totalScore.toString(),
         })
         .where(eq(invoices.id, invoiceId));
+
+      await logAction({
+        organizationId,
+        entityType: "invoice",
+        entityId: invoiceId,
+        action: "classified",
+        metadata: {
+          source: "ai",
+          reason: "User accepted AI suggestion",
+          aiConfidence: totalScore,
+        },
+      });
     } else if (action === "non-correct" && hasCandidates) {
       // User did not select any suggested candidates
       //  instead chose manually an account
@@ -261,6 +271,17 @@ export const applyClassification = actionClient
           classificationConfindence: "1.00",
         })
         .where(eq(invoices.id, invoiceId));
+
+      await logAction({
+        organizationId,
+        entityType: "invoice",
+        entityId: invoiceId,
+        action: "classified",
+        metadata: {
+          source: "manual",
+          reason: "User manually corrected/selected account",
+        },
+      });
     } else if (action === "non-correct" && !hasCandidates) {
       // User manually selected an account when no candidates were presented.
       //  No rule reinforcement/penalization, no metric updates.
@@ -274,6 +295,17 @@ export const applyClassification = actionClient
           classificationConfindence: "1.00",
         })
         .where(eq(invoices.id, invoiceId));
+
+      await logAction({
+        organizationId,
+        entityType: "invoice",
+        entityId: invoiceId,
+        action: "classified",
+        metadata: {
+          source: "manual",
+          reason: "Manual classification (no candidates)",
+        },
+      });
     }
 
     revalidatePath(`/invoices/${invoiceId}`);
