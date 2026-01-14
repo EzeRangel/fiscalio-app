@@ -10,13 +10,13 @@
 - [x] Task: Implement `AuditService` logic to pass tests.
 - [x] Task: Conductor - User Manual Verification 'Database & Core Service' (Protocol in workflow.md)
 
-## Phase 2: Invoice & Payment Integration
+## Phase 2: Invoice & Payment Integration [checkpoint: 11bf212]
 - [x] Task: TDD - Create integration tests for Invoice Server Actions (ensure actions create audit records).
     - [x] Subtask: Test cases for Create, Update, Delete, and Classify (AI vs Manual).
 - [x] Task: Integrate `AuditService` into Invoice Server Actions.
 - [x] Task: TDD - Create integration tests for Payment Server Actions.
 - [x] Task: Integrate `AuditService` into Payment Server Actions.
-- [ ] Task: Conductor - User Manual Verification 'Invoice & Payment Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Invoice & Payment Integration' (Protocol in workflow.md)
 
 ## Phase 3: Configuration Integration
 - [ ] Task: TDD - Create integration tests for Business Partner Server Actions.
