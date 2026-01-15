@@ -14,6 +14,8 @@ import { z } from "zod";
 import { calculateISR_RESICO } from "@/lib/tax-calculations";
 import { getActiveOrganizationId } from "@/lib/session";
 import { zfd } from "zod-form-data";
+import { revalidatePath } from "next/cache";
+import { calculateDiff, logAction } from "@/lib/audit-service";
 
 const createTaxDeclarationDraftSchema = z.object({
   fiscalPeriod: z
@@ -63,7 +65,7 @@ export const createTaxDeclarationDraft = actionClient
     const endDate = new Date(year, month, 1);
 
     // 2. Fetch relevant data for the period (Cash Flow based)
-    
+
     // 2a. Fetch PUE invoices (Paid in full at issuance)
     const pueInvoices = await db.query.invoices.findMany({
       where: and(
@@ -209,9 +211,10 @@ export const createTaxDeclarationDraft = actionClient
         // Calculate proportional IVA
         const invoiceTotal = parseFloat(invoice.total);
         const invoiceTotalTaxes = parseFloat(invoice.totalTaxes || "0");
-        const proportionalIva = invoiceTotal > 0 
-          ? (includedAmount / invoiceTotal) * invoiceTotalTaxes
-          : 0;
+        const proportionalIva =
+          invoiceTotal > 0
+            ? (includedAmount / invoiceTotal) * invoiceTotalTaxes
+            : 0;
 
         let ivaType: string | null = null;
         if (proportionalIva > 0) {
@@ -321,8 +324,10 @@ export const validateTaxDeclaration = actionClient
 
 // New schema for filing a declaration
 const fileTaxDeclarationSchema = zfd.formData({
-  declarationId: z.number(),
-  acknowledgmentNumber: z.string().min(1, "El número de acuse es requerido."),
+  declarationId: zfd.numeric(),
+  acknowledgmentNumber: zfd.text(
+    z.string().min(1, "El número de acuse es requerido.")
+  ),
 });
 
 export const fileTaxDeclaration = actionClient
@@ -356,10 +361,33 @@ export const fileTaxDeclaration = actionClient
         filedAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(eq(taxDeclarations.id, declarationId));
+      .where(eq(taxDeclarations.id, declarationId))
+      .returning();
+
+    if (declaration) {
+      const changes = calculateDiff(
+        {
+          status: declaration.status,
+          acknowledgmentNumber: declaration.acknowledgmentNumber,
+        },
+        { status: "filed", acknowledgmentNumber: acknowledgmentNumber }
+      );
+
+      await logAction({
+        organizationId,
+        entityType: "tax_declaration",
+        entityId: declarationId,
+        action: "updated",
+        changes,
+        metadata: {
+          source: "manual",
+          reason: "Presentar declaración",
+        },
+      });
+    }
 
     // revalidatePath might be needed here depending on UI implementation
-    // revalidatePath(`/declarations/${declarationId}`);
+    revalidatePath(`/tax-declarations/${declarationId}`);
 
     return { success: true, message: "Declaración presentada exitosamente." };
   });

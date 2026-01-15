@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { QueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Send } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
@@ -23,9 +24,14 @@ export function FileDeclarationDialog({
 }: {
   declarationId: number;
 }) {
+  const queryClient = new QueryClient();
+
   const { execute } = useAction(fileTaxDeclaration, {
     onSuccess: () => {
       toast.success("Se guardó el acuse de la declaración correctamente.");
+      queryClient.invalidateQueries({
+        queryKey: ["auditLogs", "tax_declaration", declarationId],
+      });
     },
     onError: ({ error }) => {
       toast.error(
@@ -54,7 +60,7 @@ export function FileDeclarationDialog({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <input type="hidden" value={declarationId} />
+            <input name="declarationId" type="hidden" value={declarationId} />
             <div className="space-y-2">
               <Label
                 htmlFor="acknowledgmentNumber"
