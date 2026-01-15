@@ -54,7 +54,7 @@ const navigation = [
         icon: FileText,
       },
       {
-        title: "Socios de Negocio",
+        title: "Socios Comerciales",
         href: "/partners",
         icon: Users,
       },

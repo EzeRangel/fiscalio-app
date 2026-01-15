@@ -61,7 +61,7 @@ export function BusinessPartnerTagsSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+      <SheetContent className="px-4">
         <SheetHeader>
           <SheetTitle>Gestionar Etiquetas</SheetTitle>
           <SheetDescription>

@@ -32,15 +32,6 @@ export default async function InvoiceDetailPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-6 py-4">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Regresar a Dashboard
-          </Button>
-        </div>
-      </div>
       <InvoiceDetails data={invoice} relatedPayments={relatedPayments} />
     </div>
   );
