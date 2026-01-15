@@ -23,6 +23,7 @@
 ## Utilities & Specialized Libraries
 - **@nodecfdi/cfdi-*:** Libraries for parsing, validating, and handling Mexican CFDI (invoices).
 - **Date-fns:** For consistent date manipulation.
+- **AuditService:** Custom internal utility for type-safe audit logging and diff calculation.
 - **js-cookie:** For client-side cookie management.
 
 ## Testing & Quality Assurance

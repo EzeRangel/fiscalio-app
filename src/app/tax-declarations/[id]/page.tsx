@@ -21,6 +21,7 @@ import { getDeclarationInvoicesById } from "@/data/declaration-invoices";
 import { FileDeclarationDialog } from "../_components/file-declaration-dialog";
 import { InvoiceItem } from "../_components/invoice-item";
 import { PrivacyBlur } from "@/components/privacy-blur";
+import { EntityAuditLog } from "@/components/EntityAuditLog";
 
 interface PageProps {
   params: Promise<{
@@ -491,6 +492,7 @@ export default async function TaxDeclarationReviewPage({
           </aside>
         </div>
       </section>
+      <EntityAuditLog entityType="tax_declaration" entityId={declarationId} />
     </div>
   );
 }

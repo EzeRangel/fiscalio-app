@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [x] Track: Implement a system-wide Audit Log for traceability of critical operations.
-*Link: [./conductor/tracks/audit_log_20260114/](./conductor/tracks/audit_log_20260114/)* (ae10d76)
+- [x] **Track: Implement the UI for the AuditLog. There's already a component called audit-log-pane which can be used for invoices, the goal is to use this pane for other entities. Analyze the component to implement it in other pages.**
+*Link: [./tracks/audit_log_ui_20260115/](./tracks/audit_log_ui_20260115/)*
