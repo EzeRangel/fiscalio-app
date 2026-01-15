@@ -1,3 +1,4 @@
+import z from "zod/v4";
 import {
   index,
   integer,
@@ -8,6 +9,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
+import { auditChangesSchema, auditMetadataSchema } from "@/types/audit-log";
 
 export const auditLogs = pgTable(
   "audit_logs",
@@ -22,8 +24,12 @@ export const auditLogs = pgTable(
     userIdentifier: varchar("user_identifier", { length: 100 })
       .notNull()
       .default("local-user"),
-    changes: jsonb("changes").notNull(),
-    metadata: jsonb("metadata").notNull(),
+    changes: jsonb("changes")
+      .$type<z.infer<typeof auditChangesSchema>>()
+      .notNull(),
+    metadata: jsonb("metadata")
+      .$type<z.infer<typeof auditMetadataSchema>>()
+      .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => {

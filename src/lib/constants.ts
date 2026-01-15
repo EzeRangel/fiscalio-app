@@ -166,3 +166,19 @@ export const BASE_RULES = [
     confidenceBoost: "0.20",
   },
 ];
+
+export const AUDIT_ENTITIES = {
+  invoice: "Facturas",
+  business_partner: "Socio Comercial",
+  account: "Cuenta Contable",
+  tax_declaration: "Declaración Fiscal",
+  payment: "Pago",
+};
+
+export const AUDIT_ACTIONS = {
+  created: "Creado",
+  updated: "Actualizado",
+  deleted: "Eliminado",
+  classified: "Clasificado",
+  reconciled: "Conciliado",
+};

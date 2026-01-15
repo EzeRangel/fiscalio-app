@@ -23,27 +23,27 @@ type AuditLogPaneProps = {
 
 const actionConfig = {
   created: {
-    label: "Created",
+    label: "Creado",
     icon: Zap,
     color: "text-emerald-600 dark:text-emerald-400",
   },
   updated: {
-    label: "Updated",
+    label: "Actualizado",
     icon: GitBranch,
     color: "text-blue-600 dark:text-blue-400",
   },
   deleted: {
-    label: "Deleted",
+    label: "Eliminado",
     icon: X,
     color: "text-red-600 dark:text-red-400",
   },
   classified: {
-    label: "Classified",
+    label: "Clasificado",
     icon: Zap,
     color: "text-purple-600 dark:text-purple-400",
   },
   reconciled: {
-    label: "Reconciled",
+    label: "Conciliado",
     icon: GitBranch,
     color: "text-teal-600 dark:text-teal-400",
   },
@@ -62,18 +62,19 @@ const sourceConfig = {
       "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
   },
   import: {
-    label: "Import",
+    label: "Importación",
     icon: FileInput,
     color:
       "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
   },
   reconciliation: {
-    label: "Reconciliation",
+    label: "Conciliación",
     icon: GitBranch,
     color: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20",
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatValue(value: any): string {
   if (value === null || value === undefined) return "—";
   if (typeof value === "boolean") return value ? "true" : "false";
@@ -81,7 +82,7 @@ function formatValue(value: any): string {
   return String(value);
 }
 
-function formatTimestamp(timestamp: string): string {
+function formatTimestamp(timestamp: Date): string {
   const date = new Date(timestamp);
   return date.toLocaleString("es-MX", {
     year: "numeric",
@@ -93,7 +94,11 @@ function formatTimestamp(timestamp: string): string {
   });
 }
 
-export function AuditLogPane({ logs, entityId, entityType }: AuditLogPaneProps) {
+export function AuditLogPane({
+  logs,
+  entityId,
+  entityType,
+}: AuditLogPaneProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -112,7 +117,7 @@ export function AuditLogPane({ logs, entityId, entityType }: AuditLogPaneProps) 
     <>
       {/* Toggle Button - Fixed at bottom */}
       <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
-        <div className="container mx-auto px-6 max-w-7xl">
+        <div className="container mx-auto max-w-7xl">
           <div className="flex justify-end pb-6 pointer-events-auto">
             <Button
               onClick={() => setIsOpen(!isOpen)}
@@ -124,7 +129,7 @@ export function AuditLogPane({ logs, entityId, entityType }: AuditLogPaneProps) 
               ) : (
                 <ChevronUp className="h-4 w-4" />
               )}
-              {isOpen ? "Hide" : "Show"} Audit Logs
+              {isOpen ? "Ocultar" : "Mostrar"} logs de auditoría
               <Badge
                 variant="secondary"
                 className="ml-1 bg-background/20 text-background border-0"
@@ -145,16 +150,17 @@ export function AuditLogPane({ logs, entityId, entityType }: AuditLogPaneProps) 
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="flex-shrink-0 px-6 py-4 border-b border-border bg-muted/30">
+          <div className="shrink-0 px-6 py-4 border-b border-border bg-muted/30">
             <div className="container mx-auto max-w-7xl">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h2 className="text-lg font-mono font-medium tracking-tight">
-                    Audit Trail
+                    Historial de Auditoría
                   </h2>
                   <p className="text-xs text-muted-foreground font-mono">
-                    Entity: <span className="text-foreground">{entityType}</span> •
-                    ID: <span className="text-foreground">{entityId}</span>
+                    Entidad:{" "}
+                    <span className="text-foreground">{entityType}</span> • ID:{" "}
+                    <span className="text-foreground">{entityId}</span>
                   </p>
                 </div>
                 <Button
@@ -175,13 +181,14 @@ export function AuditLogPane({ logs, entityId, entityType }: AuditLogPaneProps) 
                 <div className="text-center py-12">
                   <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                   <p className="text-sm text-muted-foreground font-mono">
-                    No audit logs found for this invoice
+                    No hay logs de auditoría para esta entidad
                   </p>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {logs.map((log, index) => {
-                    const action = actionConfig[log.action];
+                    const logAction = log.action as keyof typeof actionConfig;
+                    const action = actionConfig[logAction];
                     const source = log.metadata.source
                       ? sourceConfig[log.metadata.source]
                       : null;

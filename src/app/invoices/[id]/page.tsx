@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceDetails } from "../_components/details";
 import { getPaymentsByFolio } from "@/data/payments";
+import { EntityAuditLog } from "@/components/EntityAuditLog";
 
 interface InvoiceDetailPageProps {
   params: Promise<{
@@ -33,6 +34,7 @@ export default async function InvoiceDetailPage({
   return (
     <div className="min-h-screen bg-background">
       <InvoiceDetails data={invoice} relatedPayments={relatedPayments} />
+      <EntityAuditLog entityType="invoice" entityId={invoice.id} />
     </div>
   );
 }

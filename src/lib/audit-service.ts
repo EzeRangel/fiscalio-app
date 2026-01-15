@@ -1,24 +1,8 @@
-import { z } from "zod";
 import { auditLogs } from "@/db/schema/auditLogs";
 import { getDB } from "@/db";
+import { AuditChanges, AuditMetadata } from "@/types/audit-log";
 
-export const auditMetadataSchema = z.object({
-  reason: z.string().optional(),
-  source: z.enum(['manual', 'ai', 'import', 'reconciliation']).optional(),
-  aiConfidence: z.number().optional(),
-}).catchall(z.any());
-
-export const auditChangesSchema = z.record(
-  z.string(),
-  z.object({
-    old: z.any(),
-    new: z.any(),
-  })
-);
-
-export type AuditMetadata = z.infer<typeof auditMetadataSchema>;
-export type AuditChanges = z.infer<typeof auditChangesSchema>;
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function calculateDiff<T extends Record<string, any>>(
   oldObj: T,
   newObj: T
@@ -36,19 +20,19 @@ export function calculateDiff<T extends Record<string, any>>(
     let hasChanged = false;
 
     if (oldValue instanceof Date && newValue instanceof Date) {
-        hasChanged = oldValue.getTime() !== newValue.getTime();
+      hasChanged = oldValue.getTime() !== newValue.getTime();
     } else {
-        hasChanged = oldValue !== newValue;
+      hasChanged = oldValue !== newValue;
     }
 
     if (hasChanged) {
-        // Ignore undefined -> undefined
-       if (oldValue === undefined && newValue === undefined) continue;
+      // Ignore undefined -> undefined
+      if (oldValue === undefined && newValue === undefined) continue;
 
-       changes[key] = {
-         old: oldValue,
-         new: newValue,
-       };
+      changes[key] = {
+        old: oldValue,
+        new: newValue,
+      };
     }
   }
   return changes;
@@ -58,32 +42,41 @@ type LogActionParams = {
   organizationId: number;
   entityType: string;
   entityId: number;
-  action: 'created' | 'updated' | 'deleted' | 'classified' | 'reconciled';
+  action: "created" | "updated" | "deleted" | "classified" | "reconciled";
   changes?: AuditChanges;
   metadata?: AuditMetadata;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tx?: any; // To allow passing transaction object
 };
 
 export async function logAction(params: LogActionParams) {
-  const { organizationId, entityType, entityId, action, changes = {}, metadata = {}, tx } = params;
+  const {
+    organizationId,
+    entityType,
+    entityId,
+    action,
+    changes = {},
+    metadata = {},
+    tx,
+  } = params;
 
   try {
-      let database = tx;
-      if (!database) {
-          const { db } = await getDB();
-          database = db;
-      }
-      
-      await database.insert(auditLogs).values({
-        organizationId,
-        entityType,
-        entityId,
-        action,
-        userIdentifier: "local-user",
-        changes,
-        metadata,
-      });
+    let database = tx;
+    if (!database) {
+      const { db } = await getDB();
+      database = db;
+    }
+
+    await database.insert(auditLogs).values({
+      organizationId,
+      entityType,
+      entityId,
+      action,
+      userIdentifier: "local-user",
+      changes,
+      metadata,
+    });
   } catch (error) {
-      console.error("Failed to log audit action:", error);
+    console.error("Failed to log audit action:", error);
   }
 }
