@@ -26,9 +26,7 @@ export async function savePaymentComplement(
     return;
   }
 
-  const pagos = Array.isArray(pagosNode.Pago)
-    ? pagosNode.Pago
-    : [pagosNode.Pago];
+  const pagos = pagosNode.Pago;
 
   for (const pago of pagos) {
     const [newPayment] = await tx
@@ -59,9 +57,7 @@ export async function savePaymentComplement(
       tx,
     });
 
-    const docs = Array.isArray(pago.DoctoRelacionado)
-      ? pago.DoctoRelacionado
-      : [pago.DoctoRelacionado];
+    const docs = pago.DoctoRelacionado;
 
     for (const doc of docs) {
       // Find the original invoice being paid

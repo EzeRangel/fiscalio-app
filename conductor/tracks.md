@@ -9,5 +9,10 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Enforce Unique RFC Constraints with Generic RFC Exceptions.**
+- [ ] **Track: Enforce Unique RFC Constraints with Generic RFC Exceptions.**
 *Link: [./tracks/unique_rfc_constraints_20260116/](./tracks/unique_rfc_constraints_20260116/)*
+
+---
+
+- [x] **Track: Fix Payment Complement Schema Validation for single object vs array variability.**
+*Link: [./tracks/payment_complement_schema_fix_20260116/](./tracks/payment_complement_schema_fix_20260116/)*

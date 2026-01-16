@@ -1,5 +1,15 @@
 import z from "zod/v4";
 
+/**
+ * Helper para manejar campos que pueden venir como un objeto único o como un array.
+ * Siempre los normaliza a un array para facilitar el procesamiento.
+ */
+const maybeArray = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((val) => {
+    if (val === undefined || val === null) return [];
+    return Array.isArray(val) ? val : [val];
+  }, z.array(schema));
+
 // NodeCfdi convierte atributos XML a propiedades del objeto
 export const EmisorSchema = z.object({
   Rfc: z.string().regex(/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/),
@@ -34,18 +44,12 @@ const RetencionConceptoSchema = z.object({
 const ImpuestosConceptoSchema = z.object({
   Traslados: z
     .object({
-      Traslado: z.union([
-        TrasladoConceptoSchema,
-        z.array(TrasladoConceptoSchema),
-      ]),
+      Traslado: maybeArray(TrasladoConceptoSchema),
     })
     .optional(),
   Retenciones: z
     .object({
-      Retencion: z.union([
-        RetencionConceptoSchema,
-        z.array(RetencionConceptoSchema),
-      ]),
+      Retencion: maybeArray(RetencionConceptoSchema),
     })
     .optional(),
 });
@@ -103,10 +107,10 @@ export const ComprobanteSchema = z.object({
 
   // NodeCfdi maneja esto correctamente: array o objeto único
   Conceptos: z.object({
-    Concepto: z.union([ConceptoSchema, z.array(ConceptoSchema)]),
+    Concepto: maybeArray(ConceptoSchema),
   }),
 
-  Complemento: z.array(z.record(z.any(), z.any())),
+  Complemento: maybeArray(z.record(z.any(), z.any())),
   Impuestos: ImpuestosComprobanteSchema.optional(),
 });
 
@@ -137,12 +141,12 @@ export const RetencionDRSchema = z.object({
 export const ImpuestosDRSchema = z.object({
   TrasladosDR: z
     .object({
-      TrasladoDR: z.union([TrasladoDRSchema, z.array(TrasladoDRSchema)]),
+      TrasladoDR: maybeArray(TrasladoDRSchema),
     })
     .optional(),
   RetencionesDR: z
     .object({
-      RetencionDR: z.union([RetencionDRSchema, z.array(RetencionDRSchema)]),
+      RetencionDR: maybeArray(RetencionDRSchema),
     })
     .optional(),
 });
@@ -177,12 +181,12 @@ export const RetencionPSchema = z.object({
 export const ImpuestosPagoSchema = z.object({
   TrasladosP: z
     .object({
-      TrasladoP: z.union([TrasladoPSchema, z.array(TrasladoPSchema)]),
+      TrasladoP: maybeArray(TrasladoPSchema),
     })
     .optional(),
   RetencionesP: z
     .object({
-      RetencionP: z.union([RetencionPSchema, z.array(RetencionPSchema)]),
+      RetencionP: maybeArray(RetencionPSchema),
     })
     .optional(),
 });
@@ -203,10 +207,7 @@ export const PagoSchema = z.object({
   CertPago: z.string().optional(),
   CadPago: z.string().optional(),
   SelloPago: z.string().optional(),
-  DoctoRelacionado: z.union([
-    DoctoRelacionadoSchema,
-    z.array(DoctoRelacionadoSchema),
-  ]),
+  DoctoRelacionado: maybeArray(DoctoRelacionadoSchema),
   ImpuestosP: ImpuestosPagoSchema.optional(),
 });
 
@@ -227,12 +228,12 @@ export const TotalesPagosSchema = z.object({
 export const PagosSchema = z.object({
   Version: z.literal("2.0"),
   Totales: TotalesPagosSchema.optional(),
-  Pago: z.union([PagoSchema, z.array(PagoSchema)]),
+  Pago: maybeArray(PagoSchema),
 });
 
 // Update ComprobanteSchema to handle the array-based Complemento and specialized Pagos schema
 export const ComprobanteSchemaWithPagos = ComprobanteSchema.extend({
-  Complemento: z.array(
+  Complemento: maybeArray(
     z
       .object({
         TimbreFiscalDigital: TimbreFiscalDigitalSchema.optional(),

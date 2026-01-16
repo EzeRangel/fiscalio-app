@@ -11,15 +11,15 @@
 
 ## Phase 2: Refine Invoice Ingestion Logic
 
-- [ ] Task: Write failing tests for generic RFC handling in `src/data/invoices.test.ts`.
+- [x] Task: Write failing tests for generic RFC handling in `src/data/invoices.test.ts`.
     - [ ] Test that two invoices with the same generic RFC but different names create two separate partners.
     - [ ] Test that two invoices with the same generic RFC and the same name link to the same partner.
     - [ ] Test that two invoices with the same specific RFC always link to the same partner.
-- [ ] Task: Implement the refined "Find or Create" logic in `src/data/invoices.ts`.
-    - [ ] Modify `saveNewInvoice` to include `businessName` in the query when the RFC is generic.
-    - [ ] Ensure the query is scoped to the `organizationId`.
-- [ ] Task: Verify the tests pass for invoice ingestion.
-- [ ] Task: Conductor - User Manual Verification 'Refine Invoice Ingestion Logic' (Protocol in workflow.md)
+- [x] Task: Implement the refined "Find or Create" logic in `src/data/invoices.ts`.
+    - [x] Modify `saveNewInvoice` to include `businessName` in the query when the RFC is generic.
+    - [x] Ensure the query is scoped to the `organizationId`.
+- [x] Task: Verify the tests pass for invoice ingestion.
+- [x] Task: Conductor - User Manual Verification 'Refine Invoice Ingestion Logic' (Protocol in workflow.md)
 
 ## Phase 3: Update Manual Partner Creation
 

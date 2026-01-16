@@ -38,9 +38,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       );
     }
 
-    const conceptos = Array.isArray(parsedCFDI.Conceptos.Concepto)
-      ? parsedCFDI.Conceptos.Concepto
-      : [parsedCFDI.Conceptos.Concepto];
+    const conceptos = parsedCFDI.Conceptos.Concepto;
 
     // 2. Determine partner info and invoice type
     const isEmitter = organization.rfc === emitterRfc;
@@ -55,11 +53,20 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       : parsedCFDI.Emisor.RegimenFiscal;
 
     // 3. Find or create the business partner (scoped to the organization)
+    const genericRfcs = ["XAXX010101000", "XEXX010101000"];
+    const isGenericRfc = genericRfcs.includes(partnerRfc);
+
+    const partnerConditions = [
+      eq(businessPartners.rfc, partnerRfc),
+      eq(businessPartners.organizationId, organizationId),
+    ];
+
+    if (isGenericRfc) {
+      partnerConditions.push(eq(businessPartners.businessName, partnerName));
+    }
+
     let partner = await tx.query.businessPartners.findFirst({
-      where: and(
-        eq(businessPartners.rfc, partnerRfc),
-        eq(businessPartners.organizationId, organizationId)
-      ),
+      where: and(...partnerConditions),
     });
 
     const partnerTaxRegime = await tx.query.taxRegimes.findFirst({

@@ -34,10 +34,7 @@ export class CFDIParser {
   }
 
   static extractEssentials(cfdi: CFDIComprobante) {
-    // NodeCfdi ya maneja arrays vs objetos únicos correctamente
-    const conceptos = Array.isArray(cfdi.Conceptos.Concepto)
-      ? cfdi.Conceptos.Concepto
-      : [cfdi.Conceptos.Concepto];
+    const conceptos = cfdi.Conceptos.Concepto;
 
     // Find the TimbreFiscalDigital within the Complemento array
     const timbreComplement = cfdi.Complemento.find(
