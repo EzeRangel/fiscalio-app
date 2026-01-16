@@ -37,6 +37,11 @@ describe("updateBusinessPartnerTags", () => {
     update: jest.fn().mockReturnThis(),
     set: jest.fn().mockReturnThis(),
     where: jest.fn().mockResolvedValue([{ id: 1 }]),
+    query: {
+      businessPartners: {
+        findFirst: jest.fn().mockResolvedValue({ tags: ["old-tag"] }),
+      },
+    },
   };
 
   beforeEach(() => {

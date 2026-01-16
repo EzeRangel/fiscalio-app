@@ -9,11 +9,12 @@ import {
   timestamp,
   varchar,
   decimal,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
 import z from "zod/v4";
 import { taxRegimes } from "./taxRegimes";
-import { relations } from "drizzle-orm/relations";
+import { relations, sql } from "drizzle-orm";
 import {
   organizationAddressSchema,
   organizationContactSchema,
@@ -49,6 +50,9 @@ export const businessPartners = pgTable(
     return {
       organizationIdIndex: index("idx_partners_org").on(table.organizationId),
       rfcIndex: index("idx_partners_rfc").on(table.rfc),
+      uniqueOrgRfc: uniqueIndex("idx_partners_org_rfc_unique")
+        .on(table.organizationId, table.rfc)
+        .where(sql`${table.rfc} NOT IN ('XAXX010101000', 'XEXX010101000')`),
     };
   }
 );

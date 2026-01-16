@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "idx_partners_org_rfc_unique" ON "business_partners" USING btree ("organization_id","rfc") WHERE "business_partners"."rfc" NOT IN ('XAXX010101000', 'XEXX010101000');
