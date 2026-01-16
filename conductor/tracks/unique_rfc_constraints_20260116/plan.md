@@ -1,6 +1,6 @@
 # Implementation Plan: Enforce Unique RFC Constraints with Generic RFC Exceptions
 
-## Phase 1: Database Schema and Data Integrity
+## Phase 1: Database Schema and Data Integrity [checkpoint: f706b66]
 
 - [x] Task: Create a Drizzle migration to add the partial unique index to `business_partners`.
     - [x] Create a new migration file.
