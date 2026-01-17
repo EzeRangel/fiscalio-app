@@ -9,12 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
-  DollarSign,
   Eye,
   FileText,
-  TrendingDown,
-  TrendingUp,
-  HandCoins,
   CircleDashed,
   CircleDotDashed,
   CircleCheck,
@@ -25,21 +21,10 @@ import { getActiveOrganizationId } from "@/lib/session";
 import { GenerateDraftButton } from "./_components/generate-draft-button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { PrivacyBlur } from "@/components/privacy-blur";
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-  }).format(amount);
-}
-
-function formatPeriod(period: string) {
-  const [year, month] = period.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1);
-  return format(date, "MMMM yyyy", { locale: es });
-}
+import { SummaryCards } from "./_components/summary-cards";
+import { formatPeriod } from "./_utils/formatPeriod";
 
 function getStatusInfo(status: string): {
   text: string;
@@ -94,13 +79,6 @@ export default async function TaxDeclarationsPage() {
   const netAmount = declaration
     ? parseFloat(declaration.isrBase!)
     : currentPeriod.netAmount;
-  const estimatedTax = declaration ? parseFloat(declaration.isrCalculated!) : 0;
-  const taxRate = declaration ? parseFloat(declaration.isrRate || "0") : 0;
-
-  // IVA values
-  const displayIvaBalance = declaration
-    ? parseFloat(declaration.ivaBalance || "0")
-    : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,7 +108,7 @@ export default async function TaxDeclarationsPage() {
               <div
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg border font-mono text-xs",
-                  currentStatusInfo.className
+                  currentStatusInfo.className,
                 )}
               >
                 {currentStatusInfo.icon}
@@ -144,134 +122,7 @@ export default async function TaxDeclarationsPage() {
       <section className="container mx-auto px-6 py-8">
         <div className="grid gap-6">
           {/* Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Income Card */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardDescription className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                      Ingresos
-                    </CardDescription>
-                    <CardTitle className="text-xl font-mono font-medium text-chart-4">
-                      <PrivacyBlur>{formatCurrency(totalIncome)}</PrivacyBlur>
-                    </CardTitle>
-                  </div>
-                  <div className="h-10 w-10 rounded-lg bg-chart-4/10 border border-chart-4/20 flex items-center justify-center">
-                    <TrendingUp className="h-5 w-5 text-chart-4" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                  <div className="h-1.5 w-1.5 rounded-full bg-chart-4" />
-                  {currentPeriod.incomeInvoiceCount} facturas emitidas
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Expenses Card */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardDescription className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                      Egresos
-                    </CardDescription>
-                    <CardTitle className="text-xl font-mono font-medium text-chart-3">
-                      <PrivacyBlur>{formatCurrency(totalExpenses)}</PrivacyBlur>
-                    </CardTitle>
-                  </div>
-                  <div className="h-10 w-10 rounded-lg bg-chart-3/10 border border-chart-3/20 flex items-center justify-center">
-                    <TrendingDown className="h-5 w-5 text-chart-3" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                  <div className="h-1.5 w-1.5 rounded-full bg-chart-3" />
-                  {currentPeriod.expenseInvoiceCount} facturas recibidas
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Net Amount Card */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardDescription className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                      Base Gravable
-                    </CardDescription>
-                    <CardTitle className="text-xl font-mono font-medium text-primary">
-                      <PrivacyBlur>{formatCurrency(netAmount)}</PrivacyBlur>
-                    </CardTitle>
-                  </div>
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <DollarSign className="h-5 w-5 text-primary" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  Ingresos - Deducibles
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Estimated Tax Card */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardDescription className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                      ISR
-                    </CardDescription>
-                    <CardTitle className="text-xl font-mono font-medium text-chart-2">
-                      <PrivacyBlur>{formatCurrency(estimatedTax)}</PrivacyBlur>
-                    </CardTitle>
-                  </div>
-                  <div className="h-10 w-10 rounded-lg bg-chart-2/10 border border-chart-2/20 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-chart-2" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                  <div className="h-1.5 w-1.5 rounded-full bg-chart-2" />
-                  Tasa del {(taxRate * 100).toFixed(2)}%
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* IVA Balance Card */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardDescription className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                      IVA
-                    </CardDescription>
-                    <CardTitle className="text-xl font-mono font-medium text-chart-1">
-                      <PrivacyBlur>
-                        {formatCurrency(displayIvaBalance)}
-                      </PrivacyBlur>
-                    </CardTitle>
-                  </div>
-                  <div className="h-10 w-10 rounded-lg bg-chart-1/10 border border-chart-1/20 flex items-center justify-center">
-                    <HandCoins className="h-5 w-5 text-chart-1" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                  <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
-                  Cobrado - Acreditable
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <SummaryCards data={declaration!} currentPeriod={currentPeriod} />
 
           {/* Current Period Section */}
           <Card className="border-border bg-card/50 backdrop-blur">
@@ -291,7 +142,7 @@ export default async function TaxDeclarationsPage() {
                 <div
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-lg border font-mono text-xs",
-                    currentStatusInfo.className
+                    currentStatusInfo.className,
                   )}
                 >
                   {currentStatusInfo.icon}
@@ -440,7 +291,7 @@ export default async function TaxDeclarationsPage() {
                               ? format(
                                   declaration.filedAt,
                                   "d 'de' MMMM yyyy",
-                                  { locale: es }
+                                  { locale: es },
                                 )
                               : "-"}
                           </div>
