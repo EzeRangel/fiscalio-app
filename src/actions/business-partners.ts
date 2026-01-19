@@ -14,6 +14,8 @@ import { getActiveOrganizationId } from "@/lib/session";
 import { fetchBusinessPartnersByOrg } from "@/data/businessPartners";
 import { and, eq } from "drizzle-orm";
 import { logAction, calculateDiff } from "@/lib/audit-service";
+import { ActionError } from "@/lib/errors";
+import { GENERIC_RFC_LIST } from "@/lib/constants";
 
 const insertBusinessPartnerFormSchema = zfd.formData({
   businessName: zfd.text(z.string()),
@@ -41,6 +43,19 @@ export const saveBusinessPartner = actionClient
   .action(async ({ parsedInput }) => {
     const { db } = await getDB();
     const organizationId = await getActiveOrganizationId();
+
+    if (!GENERIC_RFC_LIST.includes(parsedInput.rfc)) {
+      const existingPartner = await db.query.businessPartners.findFirst({
+        where: and(
+          eq(businessPartners.organizationId, organizationId),
+          eq(businessPartners.rfc, parsedInput.rfc)
+        ),
+      });
+
+      if (existingPartner) {
+        throw new ActionError("Ya existe un socio con este RFC.");
+      }
+    }
 
     const [newPartner] = await db
       .insert(businessPartners)

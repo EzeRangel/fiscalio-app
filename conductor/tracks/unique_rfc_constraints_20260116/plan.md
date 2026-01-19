@@ -23,14 +23,14 @@
 
 ## Phase 3: Update Manual Partner Creation
 
-- [ ] Task: Write failing tests for manual partner creation uniqueness in `src/actions/business-partners.test.ts`.
-    - [ ] Test that creating a partner with an existing specific RFC in the same organization fails.
-    - [ ] Test that creating a partner with an existing specific RFC in a different organization succeeds.
-    - [ ] Test that creating a partner with an existing generic RFC succeeds.
-- [ ] Task: Update `saveBusinessPartner` server action in `src/actions/business-partners.ts`.
-    - [ ] Add a pre-check to query for existing RFCs (scoped to organization) if the RFC is not generic.
-    - [ ] Return a structured error if a duplicate is found.
-- [ ] Task: Update the UI to handle the duplicate RFC error.
-    - [ ] Ensure the `useAction` hook in the partner form displays a toast notification when the specific uniqueness error occurs.
-- [ ] Task: Verify the tests pass for manual creation.
+- [x] Task: Write failing tests for manual partner creation uniqueness in `src/actions/business-partners.test.ts`.
+    - [x] Test that creating a partner with an existing specific RFC in the same organization fails.
+    - [x] Test that creating a partner with an existing specific RFC in a different organization succeeds.
+    - [x] Test that creating a partner with an existing generic RFC succeeds.
+- [x] Task: Update `saveBusinessPartner` server action in `src/actions/business-partners.ts`.
+    - [x] Add a pre-check to query for existing RFCs (scoped to organization) if the RFC is not generic.
+    - [x] Return a structured error if a duplicate is found.
+- [x] Task: Update the UI to handle the duplicate RFC error.
+    - [x] Ensure the `useAction` hook in the partner form displays a toast notification when the specific uniqueness error occurs.
+- [x] Task: Verify the tests pass for manual creation.
 - [ ] Task: Conductor - User Manual Verification 'Update Manual Partner Creation' (Protocol in workflow.md)

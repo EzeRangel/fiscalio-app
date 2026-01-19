@@ -182,3 +182,10 @@ export const AUDIT_ACTIONS = {
   classified: "Clasificado",
   reconciled: "Conciliado",
 };
+
+export const GENERIC_RFCS = {
+  PUBLIC: "XAXX010101000",
+  FOREIGN: "XEXX010101000",
+};
+
+export const GENERIC_RFC_LIST = [GENERIC_RFCS.PUBLIC, GENERIC_RFCS.FOREIGN];

@@ -14,6 +14,7 @@ import { getActiveOrganizationId } from "@/lib/session";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { getTaxName } from "@/lib/utils";
 import { savePaymentComplement } from "./payments";
+import { GENERIC_RFC_LIST } from "@/lib/constants";
 
 export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
   const { db } = await getDB();
@@ -53,8 +54,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       : parsedCFDI.Emisor.RegimenFiscal;
 
     // 3. Find or create the business partner (scoped to the organization)
-    const genericRfcs = ["XAXX010101000", "XEXX010101000"];
-    const isGenericRfc = genericRfcs.includes(partnerRfc);
+    const isGenericRfc = GENERIC_RFC_LIST.includes(partnerRfc);
 
     const partnerConditions = [
       eq(businessPartners.rfc, partnerRfc),

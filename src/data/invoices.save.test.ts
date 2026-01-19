@@ -2,6 +2,7 @@ import { saveNewInvoice } from "./invoices";
 import { getDB } from "@/db";
 import { getActiveOrganizationId } from "@/lib/session";
 import { businessPartners } from "@/db/schema";
+import { GENERIC_RFCS } from "@/lib/constants";
 
 jest.mock("@/db", () => {
   const actual = jest.requireActual("@/db");
@@ -110,7 +111,7 @@ describe("saveNewInvoice - Partner creation logic", () => {
   });
 
   it("should create separate partners for same generic RFC with different names", async () => {
-    const genericRfc = "XEXX010101000";
+    const genericRfc = GENERIC_RFCS.FOREIGN;
     const cfdi1 = createMockCFDI(genericRfc, "Foreign Partner A");
     const cfdi2 = createMockCFDI(genericRfc, "Foreign Partner B");
 
@@ -169,7 +170,7 @@ describe("saveNewInvoice - Partner creation logic", () => {
   });
 
   it("should reuse same partner for same generic RFC with same name", async () => {
-      const genericRfc = "XEXX010101000";
+      const genericRfc = GENERIC_RFCS.FOREIGN;
       const cfdi1 = createMockCFDI(genericRfc, "Foreign Partner A");
       const cfdi2 = createMockCFDI(genericRfc, "Foreign Partner A");
 
