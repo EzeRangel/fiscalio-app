@@ -7,11 +7,11 @@
 - [ ] Task: Conductor - User Manual Verification 'Setup & Types' (Protocol in workflow.md)
 
 ## Phase 2: Data Fetching Logic (TDD)
-- [ ] Task: Update/Create Server Action for Dashboard Data
-    - [ ] Write failing test: `dashboard.test.ts` - Ensure `getDashboardMetrics` accepts month/year and returns correct aggregates.
-    - [ ] Implement `getDashboardMetrics` server action to query DB with date filters.
-    - [ ] Refactor: Optimize query if necessary.
-    - [ ] Verify Coverage: Ensure tests pass.
+- [x] Task: Update/Create Server Action for Dashboard Data 1f985ed
+    - [x] Write failing test: `dashboard.test.ts` - Ensure `getDashboardMetrics` accepts month/year and returns correct aggregates.
+    - [x] Implement `getDashboardMetrics` server action to query DB with date filters.
+    - [x] Refactor: Optimize query if necessary.
+    - [x] Verify Coverage: Ensure tests pass.
 - [ ] Task: Conductor - User Manual Verification 'Data Fetching Logic' (Protocol in workflow.md)
 
 ## Phase 3: UI Implementation
