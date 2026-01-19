@@ -283,6 +283,36 @@ export const getLatestInvoices = async (organizationId: number) => {
   });
 };
 
+export const getInvoicesByPeriod = async (
+  organizationId: number,
+  period: { month: number; year: number }
+) => {
+  const { db } = await getDB();
+
+  const startOfMonth = new Date(period.year, period.month, 1, 0, 0, 0, 0);
+  const endOfMonth = new Date(
+    period.year,
+    period.month + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  return db.query.invoices.findMany({
+    where: and(
+      eq(invoices.organizationId, organizationId),
+      gte(invoices.invoiceDate, startOfMonth),
+      lte(invoices.invoiceDate, endOfMonth)
+    ),
+    orderBy: [desc(invoices.invoiceDate)],
+    with: {
+      businessPartner: true,
+    },
+  });
+};
+
 export const getInvoiceById = async (id: number) => {
   const { db } = await getDB();
   const organizationId = await getActiveOrganizationId(); // Still needed for filtering

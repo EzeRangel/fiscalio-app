@@ -19,6 +19,7 @@ import {
 import { SummaryCard } from "../summary-card";
 import { DashboardMetrics } from "@/types/dashboard";
 import { Skeleton } from "../ui/skeleton";
+import Link from "next/link";
 
 interface Props {
   monthName: string;
@@ -83,13 +84,15 @@ export default function SummaryCards({ monthName, invoices, metrics, isLoading }
             color="blue"
           />
 
-          <SummaryCard
-            title="Próxima Declaración"
-            value={nextDeclaration}
-            subtitle="Fecha límite sugerida"
-            icon={CalendarDays}
-            color="amber"
-          />
+          <Link href="/tax-declarations" className="block transition-opacity hover:opacity-80">
+            <SummaryCard
+              title="Próxima Declaración"
+              value={nextDeclaration}
+              subtitle="Fecha límite sugerida"
+              icon={CalendarDays}
+              color="amber"
+            />
+          </Link>
         </div>
       ) : (
         <Empty className="border border-dashed">

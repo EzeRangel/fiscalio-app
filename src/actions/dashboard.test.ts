@@ -10,7 +10,7 @@ jest.mock("@/lib/session");
 jest.mock("@/lib/safe-action", () => ({
   actionClient: {
     inputSchema: jest.fn().mockReturnThis(),
-    action: jest.fn((callback) => (input) => callback({ parsedInput: input })),
+    action: jest.fn((callback) => (input: any) => callback({ parsedInput: input })),
   },
 }));
 

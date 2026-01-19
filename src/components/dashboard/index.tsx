@@ -1,7 +1,7 @@
 "use client";
 
 import { getLatestInvoicesAction } from "@/actions/get-latest-invoices";
-import { getDashboardMetricsAction } from "@/actions/dashboard";
+import { getDashboardMetricsAction, getInvoicesByPeriodAction } from "@/actions/dashboard";
 import { useQuery } from "@tanstack/react-query";
 import SummaryCards from "./summary-cards";
 import { InvoicesList } from "../invoices/invoices-list";
@@ -23,8 +23,12 @@ export default function Dashboard() {
     data: invoices,
     isLoading: isLoadingInvoices,
   } = useQuery({
-    queryKey: ["latest-invoices"],
-    queryFn: () => getLatestInvoicesAction(),
+    queryKey: ["dashboard-invoices", period],
+    queryFn: async () => {
+      const result = await getInvoicesByPeriodAction(period);
+      if (result?.data) return result.data;
+      throw new Error("Failed to fetch invoices");
+    },
   });
 
   const {

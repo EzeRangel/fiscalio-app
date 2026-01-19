@@ -11,7 +11,10 @@ export function roundDecimals(x: number, decimals: number = 2): number {
   return Math.round(x * off) / 100;
 }
 
-export default function usePrice(amount: number) {
+export const formatPrice = (amount: number | string, decimals?: number) =>
+  formatCurrency(amount);
+
+export default function usePrice(amount: number, decimals: number = 2) {
   const value = useMemo(() => {
     if (typeof amount !== "number") {
       return "";
