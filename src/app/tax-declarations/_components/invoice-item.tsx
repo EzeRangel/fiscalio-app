@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { DeclarationInvoice } from "@/types/declaration-invoices";
-import { formatCurrency } from "../_utils/formatCurrency";
+import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { getIvaTypeLabel } from "../_utils/getIvaTypeLabel";
 import { AlertCircle } from "lucide-react";

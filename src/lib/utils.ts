@@ -14,11 +14,13 @@ export function getTaxName(code: keyof typeof TAX_NAMES): string {
   return TAX_NAMES[code];
 }
 
-export function formatCurrency(amount: number) {
+export function formatCurrency(amount: string | number) {
+  const numericAmount =
+    typeof amount === "string" ? parseFloat(amount) : amount;
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
-  }).format(amount);
+  }).format(numericAmount);
 }
 
 export function formatCompactNumber(number: number) {

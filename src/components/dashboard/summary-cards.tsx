@@ -1,16 +1,14 @@
 "use client";
 
 import { Invoice } from "@/types/invoices";
-import { Card } from "../ui/card";
 import {
-  FileText,
+  CalendarDays,
   Inbox,
-  Receipt,
   TrendingDown,
   TrendingUp,
+  Wallet,
 } from "lucide-react";
 import usePrice from "@/hooks/usePrice";
-import { PrivacyBlur } from "../privacy-blur";
 import {
   Empty,
   EmptyDescription,
@@ -18,112 +16,80 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "../ui/empty";
+import { SummaryCard } from "../summary-card";
+import { DashboardMetrics } from "@/types/dashboard";
+import { Skeleton } from "../ui/skeleton";
 
 interface Props {
   monthName: string;
   invoices?: Invoice[];
+  metrics?: DashboardMetrics;
+  isLoading?: boolean;
 }
 
-export default function SummaryCards({ monthName, invoices }: Props) {
+export default function SummaryCards({ monthName, invoices, metrics, isLoading }: Props) {
   const hasInvoices = !!invoices && invoices?.length > 0;
-
-  const income =
-    invoices
-      ?.filter((inv) => inv.cfdiType === "I")
-      ?.reduce((sum, inv) => sum + Number(inv.total), 0) ?? 0;
-
-  const expense =
-    invoices
-      ?.filter((inv) => inv.cfdiType === "E")
-      ?.reduce((sum, inv) => sum + Math.abs(Number(inv.total)), 0) ?? 0;
-
+  
+  const income = metrics?.income ?? 0;
+  const expense = metrics?.expenses ?? 0;
   const net = income - expense;
-
-  // TODO: Calculate IVA amounts by invoice taxes
-  const ivaRate = 0.16;
-  const ivaCobrado = income * (ivaRate / (1 + ivaRate));
-  const ivaPagado = expense * (ivaRate / (1 + ivaRate));
-  const ivaAPagar = ivaCobrado - ivaPagado;
 
   const formattedIncome = usePrice(income);
   const formattedExpense = usePrice(expense);
   const formattedNet = usePrice(net);
 
-  const formattedIVAToPay = usePrice(ivaAPagar);
-  const formattedIVAToCharge = usePrice(ivaCobrado);
+  const nextDeclaration = metrics?.nextDeclarationDate 
+    ? new Date(metrics.nextDeclarationDate).toLocaleDateString("es-MX", {
+        day: "numeric",
+        month: "long",
+      })
+    : "Pendiente";
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-32 w-full rounded-xl" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">
-      {hasInvoices ? (
+      {hasInvoices || metrics ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-6 space-y-4 bg-linear-to-br from-emerald-500/5 via-background to-background border-emerald-500/20">
-            <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                Ingresos
-              </div>
-              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-mono font-medium text-emerald-600 dark:text-emerald-400">
-                <PrivacyBlur>{formattedIncome}</PrivacyBlur>
-              </div>
-              <div className="text-xs text-muted-foreground font-mono">
-                {invoices.filter((inv) => inv.cfdiType === "I").length} facturas
-              </div>
-            </div>
-          </Card>
+          <SummaryCard
+            title="Ingresos"
+            value={formattedIncome}
+            subtitle={`${invoices?.filter((inv) => inv.cfdiType === "I").length || 0} facturas`}
+            icon={TrendingUp}
+            color="green"
+          />
 
-          <Card className="p-6 space-y-4 bg-linear-to-br from-red-500/5 via-background to-background border-red-500/20">
-            <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                Egresos
-              </div>
-              <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-mono font-medium text-red-600 dark:text-red-400">
-                <PrivacyBlur>{formattedExpense}</PrivacyBlur>
-              </div>
-              <div className="text-xs text-muted-foreground font-mono">
-                {invoices.filter((inv) => inv.cfdiType === "E").length} notas de
-                crédito
-              </div>
-            </div>
-          </Card>
+          <SummaryCard
+            title="Egresos"
+            value={formattedExpense}
+            subtitle={`${invoices?.filter((inv) => inv.cfdiType === "E").length || 0} facturas`}
+            icon={TrendingDown}
+            color="red"
+          />
 
-          <Card className="p-6 space-y-4 bg-linear-to-br from-primary/5 via-background to-background border-primary/20">
-            <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                Neto
-              </div>
-              <FileText className="h-4 w-4 text-primary" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-mono font-medium">
-                <PrivacyBlur>{formattedNet}</PrivacyBlur>
-              </div>
-              <div className="text-xs text-muted-foreground font-mono">
-                {invoices.length} documentos totales
-              </div>
-            </div>
-          </Card>
+          <SummaryCard
+            title="Neto"
+            value={formattedNet}
+            subtitle="Balance del periodo"
+            icon={Wallet}
+            color="blue"
+          />
 
-          <Card className="p-6 space-y-4 bg-linear-to-br from-amber-500/5 via-background to-background border-amber-500/20">
-            <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                IVA a Pagar
-              </div>
-              <Receipt className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-mono font-medium text-amber-600 dark:text-amber-400">
-                <PrivacyBlur>{formattedIVAToPay}</PrivacyBlur>
-              </div>
-              <div className="text-xs text-muted-foreground font-mono">
-                Cobrado: <PrivacyBlur>{formattedIVAToCharge}</PrivacyBlur>
-              </div>
-            </div>
-          </Card>
+          <SummaryCard
+            title="Próxima Declaración"
+            value={nextDeclaration}
+            subtitle="Fecha límite sugerida"
+            icon={CalendarDays}
+            color="amber"
+          />
         </div>
       ) : (
         <Empty className="border border-dashed">
