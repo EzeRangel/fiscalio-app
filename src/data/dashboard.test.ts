@@ -1,0 +1,46 @@
+import { getDashboardMetrics } from "./dashboard";
+import { getDB } from "@/db";
+
+jest.mock("@/db", () => ({
+  getDB: jest.fn(),
+  invoices: {
+    organizationId: { name: 'organization_id' },
+    invoiceType: { name: 'invoice_type' },
+    invoiceDate: { name: 'invoice_date' },
+    total: { name: 'total' },
+  }
+}));
+
+// Mock drizzle-orm
+jest.mock("drizzle-orm", () => ({
+  ...jest.requireActual("drizzle-orm"),
+  eq: jest.fn((col, val) => ({ type: 'eq', col, val })),
+  and: jest.fn((...conds) => ({ type: 'and', conds })),
+  gte: jest.fn((col, val) => ({ type: 'gte', col, val })),
+  lte: jest.fn((col, val) => ({ type: 'lte', col, val })),
+  sql: jest.fn((strings, ...values) => ({ type: 'sql', strings, values })),
+}));
+
+describe("getDashboardMetrics", () => {
+  it("should calculate income and expenses for the period", async () => {
+    const mockDb = {
+      select: jest.fn().mockReturnThis(),
+      from: jest.fn().mockReturnThis(),
+      where: jest.fn()
+        .mockResolvedValueOnce([{ total: "1000.50" }]) // Income
+        .mockResolvedValueOnce([{ total: "500.25" }]), // Expenses
+    };
+    (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
+
+    const result = await getDashboardMetrics(1, { month: 0, year: 2024 });
+
+    expect(result.income).toBe(1000.50);
+    expect(result.expenses).toBe(500.25);
+    expect(result.nextDeclarationDate).toEqual(new Date(2024, 1, 17));
+
+    // Verify select was called with sum(total)
+    expect(mockDb.select).toHaveBeenCalledWith({
+      total: expect.objectContaining({ type: 'sql' })
+    });
+  });
+});
