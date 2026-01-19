@@ -1,9 +1,9 @@
 # Implementation Plan - Dashboard Metrics & Period Selection
 
 ## Phase 1: Setup & Types
-- [~] Task: Create or Update Dashboard Types
-    - [ ] Define types for Dashboard Metrics (income, expenses, declaration date).
-    - [ ] Define types for Period Selection state (month, year).
+- [x] Task: Create or Update Dashboard Types 028d1aa
+    - [x] Define types for Dashboard Metrics (income, expenses, declaration date).
+    - [x] Define types for Period Selection state (month, year).
 - [ ] Task: Conductor - User Manual Verification 'Setup & Types' (Protocol in workflow.md)
 
 ## Phase 2: Data Fetching Logic (TDD)
