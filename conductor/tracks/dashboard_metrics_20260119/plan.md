@@ -35,3 +35,11 @@
 - [x] Task: Loading States
     - [x] Add Suspense boundaries or Skeleton loaders for the new dashboard sections.
 - [x] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+
+## Phase 5: User Feedback Improvements [checkpoint: 84bcaf0]
+- [x] Task: Filter Dashboard Invoices by Period
+    - [x] Update `getLatestInvoicesAction` (or create new) to accept `month` and `year`.
+    - [x] Update `Dashboard` component to refetch invoices when period changes.
+- [x] Task: Add Link to Tax Declarations
+    - [x] Make the "Next Tax Declaration" summary card clickable or add a link to `/tax-declarations`.
+- [x] Task: Conductor - User Manual Verification 'User Feedback Improvements' (Protocol in workflow.md)
