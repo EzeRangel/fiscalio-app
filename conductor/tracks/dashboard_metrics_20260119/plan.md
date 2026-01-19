@@ -1,6 +1,6 @@
 # Implementation Plan - Dashboard Metrics & Period Selection
 
-## Phase 1: Setup & Types
+## Phase 1: Setup & Types [checkpoint: 0cc18de]
 - [x] Task: Create or Update Dashboard Types 028d1aa
     - [x] Define types for Dashboard Metrics (income, expenses, declaration date).
     - [x] Define types for Period Selection state (month, year).
