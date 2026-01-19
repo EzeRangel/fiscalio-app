@@ -15,23 +15,23 @@
 - [ ] Task: Conductor - User Manual Verification 'Data Fetching Logic' (Protocol in workflow.md)
 
 ## Phase 3: UI Implementation
-- [ ] Task: Create Period Selector Component
-    - [ ] Create `PeriodSelector` component using `shadcn/ui` Select/Dropdown.
-    - [ ] Ensure it accepts `value` (month/year) and `onChange` props.
-- [ ] Task: Update Dashboard Page Structure
-    - [ ] Integrate `PeriodSelector` into `src/app/dashboard/page.tsx` (or equivalent).
-    - [ ] Manage local state or URL search params for the selected period.
-    - [ ] Fetch data using the new server action based on the selected period.
-- [ ] Task: Implement Summary Cards
-    - [ ] Use `SummaryCard` to display "Total Income".
-    - [ ] Use `SummaryCard` to display "Total Expenses".
-    - [ ] Use `SummaryCard` to display "Next Tax Declaration".
-    - [ ] Connect real data to these cards.
-- [ ] Task: Conductor - User Manual Verification 'UI Implementation' (Protocol in workflow.md)
+- [x] Task: Create Period Selector Component
+    - [x] Create `PeriodSelector` component using `shadcn/ui` Select/Dropdown.
+    - [x] Ensure it accepts `value` (month/year) and `onChange` props.
+- [x] Task: Update Dashboard Page Structure
+    - [x] Integrate `PeriodSelector` into `src/app/dashboard/page.tsx` (or equivalent).
+    - [x] Manage local state or URL search params for the selected period.
+    - [x] Fetch data using the new server action based on the selected period.
+- [x] Task: Implement Summary Cards
+    - [x] Use `SummaryCard` to display "Total Income".
+    - [x] Use `SummaryCard` to display "Total Expenses".
+    - [x] Use `SummaryCard` to display "Next Tax Declaration".
+    - [x] Connect real data to these cards.
+- [x] Task: Conductor - User Manual Verification 'UI Implementation' (Protocol in workflow.md)
 
-## Phase 4: Final Polish & Verification
-- [ ] Task: Mobile Responsiveness Check
-    - [ ] Verify layout on small screens (stacking order, padding).
-- [ ] Task: Loading States
-    - [ ] Add Suspense boundaries or Skeleton loaders for the new dashboard sections.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
+## Phase 4: Final Polish & Verification [checkpoint: 41dfc04]
+- [x] Task: Mobile Responsiveness Check
+    - [x] Verify layout on small screens (stacking order, padding).
+- [x] Task: Loading States
+    - [x] Add Suspense boundaries or Skeleton loaders for the new dashboard sections.
+- [x] Task: Conductor - User Manual Verification 'Final Polish & Verification' (Protocol in workflow.md)
