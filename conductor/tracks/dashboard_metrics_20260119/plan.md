@@ -6,7 +6,7 @@
     - [x] Define types for Period Selection state (month, year).
 - [ ] Task: Conductor - User Manual Verification 'Setup & Types' (Protocol in workflow.md)
 
-## Phase 2: Data Fetching Logic (TDD)
+## Phase 2: Data Fetching Logic (TDD) [checkpoint: 5b91747]
 - [x] Task: Update/Create Server Action for Dashboard Data 1f985ed
     - [x] Write failing test: `dashboard.test.ts` - Ensure `getDashboardMetrics` accepts month/year and returns correct aggregates.
     - [x] Implement `getDashboardMetrics` server action to query DB with date filters.
