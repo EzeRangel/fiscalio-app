@@ -1,0 +1,8 @@
+{
+  "track_id": "dashboard_metrics_20260119",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-19T00:00:00Z",
+  "updated_at": "2026-01-19T00:00:00Z",
+  "description": "Implement better metrics for the Dashboard (Period selection, Income/Expenses, Next Tax Declaration)."
+}
