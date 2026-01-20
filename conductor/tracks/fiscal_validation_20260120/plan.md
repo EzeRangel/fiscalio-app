@@ -38,7 +38,7 @@
 - [x] Task: Implement Migration/Cleanup Strategy 4bbdf64
     - [x] Based on the spec, implement a migration to flag or fix invalid records.
     - [x] (Optional) Create "placeholder" payments for historic data if confirmed by user.
-- [ ] Task: Conductor - User Manual Verification 'Legacy Data Migration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Legacy Data Migration' (Protocol in workflow.md)
 
 ## Phase 5: UI Feedback
 - [ ] Task: Enhance UI Error Handling
