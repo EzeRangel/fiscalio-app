@@ -16,9 +16,9 @@
 - [x] Task: Conductor - User Manual Verification 'Foundation & Shared Logic' (Protocol in workflow.md)
 
 ## Phase 2: Database Constraints & Schema
-- [ ] Task: Add DB constraints for key invariants
-    - [ ] Create a new Drizzle migration to add check constraints where possible (e.g., positive amounts).
-    - [ ] Add application-level schema validation (Zod) in `src/db/schema` to mirror the rules.
+- [x] Task: Add DB constraints for key invariants ad481b6
+    - [x] Create a new Drizzle migration to add check constraints where possible (e.g., positive amounts).
+    - [x] Add application-level schema validation (Zod) in `src/db/schema` to mirror the rules.
 - [ ] Task: Conductor - User Manual Verification 'Database Constraints & Schema' (Protocol in workflow.md)
 
 ## Phase 3: Integration with Server Actions
