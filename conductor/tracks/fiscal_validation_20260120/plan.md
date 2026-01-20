@@ -1,6 +1,6 @@
 # Implementation Plan - Fiscal Validation Layer
 
-## Phase 1: Foundation & Shared Logic
+## Phase 1: Foundation & Shared Logic [checkpoint: c85f2cd]
 - [x] Task: Create `src/lib/fiscal-validation` directory and define types 30e015a
     - [x] Create `src/lib/fiscal-validation/types.ts` with error types and validation result interfaces.
     - [x] Create `src/lib/fiscal-validation/constants.ts` with validation rule codes (INV-01, etc.).
