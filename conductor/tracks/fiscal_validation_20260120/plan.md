@@ -21,7 +21,7 @@
     - [x] Add application-level schema validation (Zod) in `src/db/schema` to mirror the rules.
 - [ ] Task: Conductor - User Manual Verification 'Database Constraints & Schema' (Protocol in workflow.md)
 
-## Phase 3: Integration with Server Actions
+## Phase 3: Integration with Server Actions [checkpoint: b1c3cb6]
 - [x] Task: Integrate Validation into Invoice Actions ed6b0e3
     - [x] Update `src/actions/invoices.ts` (or relevant file) to call `validateInvoice` before mutations.
     - [x] Ensure proper error handling (returning `ActionState` with error messages).
