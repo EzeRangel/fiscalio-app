@@ -45,3 +45,11 @@
     - [x] Update forms to display validation errors via Toast/Notification as per spec.
     - [x] Disable specific UI actions (e.g., "Add Allocation" on cancelled invoices) where appropriate for better UX (preventative).
 - [x] Task: Conductor - User Manual Verification 'UI Feedback' (Protocol in workflow.md)
+
+## Phase 6: PUE Auto-Payment Generation
+- [ ] Task: Implement PUE Payment Generation in `saveNewInvoice`
+    - [ ] In `src/data/invoices.ts`, detect if `MetodoPago` is "PUE".
+    - [ ] If PUE, automatically create a `Payment` record (Date = Invoice Date, Amount = Total).
+    - [ ] Create a `PaymentAllocation` linking the new Payment to the Invoice.
+    - [ ] Ensure `validateInvoice` and `validatePayment` pass for this auto-generated data.
+- [ ] Task: Conductor - User Manual Verification 'PUE Auto-Payment Generation' (Protocol in workflow.md)
