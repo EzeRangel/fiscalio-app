@@ -33,11 +33,11 @@
 - [x] Task: Conductor - User Manual Verification 'Integration with Server Actions' (Protocol in workflow.md)
 
 ## Phase 4: Legacy Data Migration
-- [ ] Task: Create Analysis Script
-    - [ ] Write a script `src/scripts/analyze-fiscal-integrity.ts` to report on existing data violations.
-- [ ] Task: Implement Migration/Cleanup Strategy
-    - [ ] Based on the spec, implement a migration to flag or fix invalid records.
-    - [ ] (Optional) Create "placeholder" payments for historic data if confirmed by user.
+- [x] Task: Create Analysis Script 4bbdf64
+    - [x] Write a script `src/scripts/analyze-fiscal-integrity.ts` to report on existing data violations.
+- [x] Task: Implement Migration/Cleanup Strategy 4bbdf64
+    - [x] Based on the spec, implement a migration to flag or fix invalid records.
+    - [x] (Optional) Create "placeholder" payments for historic data if confirmed by user.
 - [ ] Task: Conductor - User Manual Verification 'Legacy Data Migration' (Protocol in workflow.md)
 
 ## Phase 5: UI Feedback
