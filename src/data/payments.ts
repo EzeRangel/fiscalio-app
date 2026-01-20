@@ -4,6 +4,14 @@ import { and, eq } from "drizzle-orm";
 import { getDB, invoices, paymentAllocations, payments } from "@/db";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { logAction } from "@/lib/audit-service";
+import {
+  validatePayment,
+  validateAllocation,
+  validateInvoice,
+  FiscalPayment,
+  FiscalAllocationContext,
+  FiscalInvoice,
+} from "@/lib/fiscal-validation";
 
 export async function savePaymentComplement(
   tx: any,
@@ -29,6 +37,19 @@ export async function savePaymentComplement(
   const pagos = pagosNode.Pago;
 
   for (const pago of pagos) {
+    const fiscalPaymentToCheck: FiscalPayment = {
+      id: 0,
+      amount: pago.Monto,
+      paymentDate: new Date(pago.FechaPago),
+      allocations: [],
+    };
+    const paymentValidation = validatePayment(fiscalPaymentToCheck);
+    if (!paymentValidation.isValid) {
+      throw new Error(
+        `Error validando pago: ${paymentValidation.errors[0].message}`
+      );
+    }
+
     const [newPayment] = await tx
       .insert(payments)
       .values({
@@ -57,6 +78,7 @@ export async function savePaymentComplement(
       tx,
     });
 
+    let currentPaymentAllocatedSum = 0;
     const docs = pago.DoctoRelacionado;
 
     for (const doc of docs) {
@@ -69,6 +91,36 @@ export async function savePaymentComplement(
       });
 
       if (linkedInvoice) {
+        // Validation
+        const allocationContext: FiscalAllocationContext = {
+          allocation: {
+            amount: doc.ImpPagado,
+            invoiceId: linkedInvoice.id,
+            paymentId: newPayment.id,
+          },
+          invoice: {
+            id: linkedInvoice.id,
+            total: linkedInvoice.total,
+            amountPaid: linkedInvoice.amountPaid || "0",
+            paymentStatus: linkedInvoice.paymentStatus || "pending",
+            status: linkedInvoice.status || "active",
+          },
+          payment: { ...fiscalPaymentToCheck, id: newPayment.id },
+          existingAllocationsForInvoice: [
+            { amount: linkedInvoice.amountPaid || "0" },
+          ],
+          existingAllocationsForPayment: [
+            { amount: currentPaymentAllocatedSum },
+          ],
+        };
+
+        const allocValidation = validateAllocation(allocationContext);
+        if (!allocValidation.isValid) {
+          throw new Error(
+            `Error validando asignación: ${allocValidation.errors[0].message}`
+          );
+        }
+
         await tx.insert(paymentAllocations).values({
           paymentId: newPayment.id,
           invoiceId: linkedInvoice.id,
@@ -76,6 +128,8 @@ export async function savePaymentComplement(
           exchangeRate: doc.EquivalenciaDR || "1.0",
           installmentNumber: parseInt(doc.NumParcialidad),
         });
+
+        currentPaymentAllocatedSum += parseFloat(doc.ImpPagado);
 
         // Update the linked invoice status and amount paid
         const currentPaid = parseFloat(linkedInvoice.amountPaid || "0");
@@ -86,6 +140,22 @@ export async function savePaymentComplement(
         let status = "partial";
         if (totalPaid >= totalAmount - 0.01) {
           status = "paid";
+        }
+
+        const updatedInvoiceState: FiscalInvoice = {
+          id: linkedInvoice.id,
+          total: linkedInvoice.total,
+          amountPaid: totalPaid,
+          paymentStatus: status,
+          status: linkedInvoice.status || "active",
+          allocations: [],
+        };
+
+        const invValidation = validateInvoice(updatedInvoiceState);
+        if (!invValidation.isValid) {
+          throw new Error(
+            `Error validando factura actualizada: ${invValidation.errors[0].message}`
+          );
         }
 
         await tx

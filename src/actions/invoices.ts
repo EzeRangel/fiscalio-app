@@ -20,6 +20,8 @@ import { getDB } from "@/db";
 import { ActionError } from "@/lib/errors";
 import { getTaxName } from "@/lib/utils";
 import { logAction } from "@/lib/audit-service";
+import { validateInvoice } from "@/lib/fiscal-validation/invoice-rules";
+import { FiscalInvoice } from "@/lib/fiscal-validation/types";
 
 const insertInvoiceSchema = zfd.formData({
   cfdi: zfd.file(),
@@ -121,6 +123,23 @@ export const saveInvoice = actionClient
 
       if (!complement?.TimbreFiscalDigital?.FechaTimbrado) {
         throw new ActionError(`El CFDI no tiene una fecha de timbrado`);
+      }
+
+      // Validate Invoice Invariants
+      const fiscalInvoiceToCheck: FiscalInvoice = {
+        id: 0, // Not yet created
+        total: parsedCFDI.Total,
+        amountPaid: 0,
+        paymentStatus: "pending", // Default
+        status: "active",
+        allocations: [],
+      };
+
+      const validation = validateInvoice(fiscalInvoiceToCheck);
+      if (!validation.isValid) {
+        throw new ActionError(
+          `Error de validación fiscal: ${validation.errors[0].message}`
+        );
       }
 
       // 4. Insert the main invoice
