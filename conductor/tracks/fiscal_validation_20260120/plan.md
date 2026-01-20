@@ -41,7 +41,7 @@
 - [x] Task: Conductor - User Manual Verification 'Legacy Data Migration' (Protocol in workflow.md)
 
 ## Phase 5: UI Feedback
-- [ ] Task: Enhance UI Error Handling
-    - [ ] Update forms to display validation errors via Toast/Notification as per spec.
-    - [ ] Disable specific UI actions (e.g., "Add Allocation" on cancelled invoices) where appropriate for better UX (preventative).
-- [ ] Task: Conductor - User Manual Verification 'UI Feedback' (Protocol in workflow.md)
+- [x] Task: Enhance UI Error Handling 519cd45
+    - [x] Update forms to display validation errors via Toast/Notification as per spec.
+    - [x] Disable specific UI actions (e.g., "Add Allocation" on cancelled invoices) where appropriate for better UX (preventative).
+- [x] Task: Conductor - User Manual Verification 'UI Feedback' (Protocol in workflow.md)
