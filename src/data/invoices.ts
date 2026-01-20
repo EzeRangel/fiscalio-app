@@ -15,6 +15,7 @@ import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { getTaxName } from "@/lib/utils";
 import { savePaymentComplement } from "./payments";
 import { GENERIC_RFC_LIST } from "@/lib/constants";
+import { validateInvoice, FiscalInvoice } from "@/lib/fiscal-validation";
 
 export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
   const { db } = await getDB();
@@ -113,6 +114,22 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 
     if (!certificationDate) {
       throw new Error("El CFDI no contiene una fecha de timbrado.");
+    }
+
+    const fiscalInvoiceToCheck: FiscalInvoice = {
+      id: 0,
+      total: parsedCFDI.Total,
+      amountPaid: 0,
+      paymentStatus: "pending",
+      status: "active",
+      allocations: [],
+    };
+
+    const validation = validateInvoice(fiscalInvoiceToCheck);
+    if (!validation.isValid) {
+      throw new Error(
+        `Error de validación fiscal: ${validation.errors[0].message}`
+      );
     }
 
     const [newInvoice] = await tx

@@ -34,7 +34,9 @@ export async function savePaymentComplement(
     return;
   }
 
-  const pagos = pagosNode.Pago;
+  const pagos = Array.isArray(pagosNode.Pago)
+    ? pagosNode.Pago
+    : [pagosNode.Pago];
 
   for (const pago of pagos) {
     const fiscalPaymentToCheck: FiscalPayment = {
@@ -79,7 +81,11 @@ export async function savePaymentComplement(
     });
 
     let currentPaymentAllocatedSum = 0;
-    const docs = pago.DoctoRelacionado;
+    const docs = Array.isArray(pago.DoctoRelacionado)
+      ? pago.DoctoRelacionado
+      : pago.DoctoRelacionado
+      ? [pago.DoctoRelacionado]
+      : [];
 
     for (const doc of docs) {
       // Find the original invoice being paid

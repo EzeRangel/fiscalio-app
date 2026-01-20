@@ -30,7 +30,7 @@
 - [x] Task: Integrate Validation into Allocation Actions ed6b0e3
     - [x] Update `src/actions/allocations.ts` to call `validateAllocation`.
     - [x] Enforce the "Fiscal Period Attribution" rule during allocation creation.
-- [ ] Task: Conductor - User Manual Verification 'Integration with Server Actions' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Integration with Server Actions' (Protocol in workflow.md)
 
 ## Phase 4: Legacy Data Migration
 - [ ] Task: Create Analysis Script
