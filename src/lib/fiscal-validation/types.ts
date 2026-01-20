@@ -17,6 +17,14 @@ export interface FiscalAllocation {
   invoiceId?: number;
 }
 
+export interface FiscalAllocationContext {
+  allocation: FiscalAllocation;
+  invoice: FiscalInvoice;
+  payment: FiscalPayment;
+  existingAllocationsForInvoice?: FiscalAllocation[];
+  existingAllocationsForPayment?: FiscalAllocation[];
+}
+
 export interface FiscalPayment {
   id: number;
   amount: number | string;
