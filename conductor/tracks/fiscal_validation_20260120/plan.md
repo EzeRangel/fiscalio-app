@@ -40,7 +40,7 @@
     - [x] (Optional) Create "placeholder" payments for historic data if confirmed by user.
 - [x] Task: Conductor - User Manual Verification 'Legacy Data Migration' (Protocol in workflow.md)
 
-## Phase 5: UI Feedback
+## Phase 5: UI Feedback [checkpoint: 6dccb6f]
 - [x] Task: Enhance UI Error Handling 519cd45
     - [x] Update forms to display validation errors via Toast/Notification as per spec.
     - [x] Disable specific UI actions (e.g., "Add Allocation" on cancelled invoices) where appropriate for better UX (preventative).
