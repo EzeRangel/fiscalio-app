@@ -35,7 +35,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 
     if (organization.rfc !== emitterRfc && organization.rfc !== receiverRfc) {
       throw new Error(
-        "Ningún RFC del CFDI coincide con el de su organización."
+        "Ningún RFC del CFDI coincide con el de su organización.",
       );
     }
 
@@ -75,7 +75,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 
     if (!partnerTaxRegime) {
       throw new Error(
-        `Régimen Fiscal ${partnerTaxRegimeCode} del socio no encontrado.`
+        `Régimen Fiscal ${partnerTaxRegimeCode} del socio no encontrado.`,
       );
     }
 
@@ -97,14 +97,14 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 
     // 4. Insert the main invoice record
     const timbreComplement = parsedCFDI.Complemento.find(
-      (c) => c.TimbreFiscalDigital
+      (c) => c.TimbreFiscalDigital,
     );
 
     const uuid = timbreComplement?.TimbreFiscalDigital?.UUID;
 
     if (!uuid) {
       throw new Error(
-        "El CFDI no contiene un UUID válido (TimbreFiscalDigital)."
+        "El CFDI no contiene un UUID válido (TimbreFiscalDigital).",
       );
     }
 
@@ -153,9 +153,11 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
         parsedCFDI,
         organizationId,
         partner.id,
-        invoiceType as "income" | "expense"
+        invoiceType as "income" | "expense",
       );
     } else {
+      // TODO: If its a PUE CFDI create a new payment record.
+
       // Standard invoice: Insert items and their taxes
       for (const [index, c] of conceptos.entries()) {
         const [newItem] = await tx
@@ -179,16 +181,16 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
           Array.isArray(c.Impuestos.Traslados.Traslado)
             ? c.Impuestos.Traslados.Traslado
             : c.Impuestos?.Traslados?.Traslado
-            ? [c.Impuestos.Traslados.Traslado]
-            : [];
+              ? [c.Impuestos.Traslados.Traslado]
+              : [];
 
         const retenciones =
           c.Impuestos?.Retenciones &&
           Array.isArray(c.Impuestos.Retenciones.Retencion)
             ? c.Impuestos.Retenciones.Retencion
             : c.Impuestos?.Retenciones?.Retencion
-            ? [c.Impuestos.Retenciones.Retencion]
-            : [];
+              ? [c.Impuestos.Retenciones.Retencion]
+              : [];
 
         const taxesToInsert = [
           ...traslados.map((t: any) => ({
@@ -228,7 +230,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 // TODO: Mejorar la función para obtener todas las facturas, enviar filtros como parámetros.
 export const getInvoicesByOrganization = async (
   organizationId: number,
-  filters?: { partnerId?: number }
+  filters?: { partnerId?: number },
 ) => {
   const { db } = await getDB();
 
@@ -258,7 +260,7 @@ export const getLatestInvoices = async (organizationId: number) => {
     0,
     0,
     0,
-    0
+    0,
   );
   const endOfMonth = new Date(
     now.getFullYear(),
@@ -267,14 +269,14 @@ export const getLatestInvoices = async (organizationId: number) => {
     23,
     59,
     59,
-    999
+    999,
   );
 
   return db.query.invoices.findMany({
     where: and(
       eq(invoices.organizationId, organizationId),
       gte(invoices.invoiceDate, startOfMonth),
-      lte(invoices.invoiceDate, endOfMonth)
+      lte(invoices.invoiceDate, endOfMonth),
     ),
     orderBy: [desc(invoices.invoiceDate)],
     with: {
@@ -285,7 +287,7 @@ export const getLatestInvoices = async (organizationId: number) => {
 
 export const getInvoicesByPeriod = async (
   organizationId: number,
-  period: { month: number; year: number }
+  period: { month: number; year: number },
 ) => {
   const { db } = await getDB();
 
@@ -297,14 +299,14 @@ export const getInvoicesByPeriod = async (
     23,
     59,
     59,
-    999
+    999,
   );
 
   return db.query.invoices.findMany({
     where: and(
       eq(invoices.organizationId, organizationId),
       gte(invoices.invoiceDate, startOfMonth),
-      lte(invoices.invoiceDate, endOfMonth)
+      lte(invoices.invoiceDate, endOfMonth),
     ),
     orderBy: [desc(invoices.invoiceDate)],
     with: {
@@ -319,7 +321,7 @@ export const getInvoiceById = async (id: number) => {
   return db.query.invoices.findFirst({
     where: and(
       eq(invoices.id, id),
-      eq(invoices.organizationId, organizationId)
+      eq(invoices.organizationId, organizationId),
     ),
     with: {
       account: true,

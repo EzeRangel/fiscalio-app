@@ -13,7 +13,7 @@
 - [x] Task: Implement Allocation Validation Logic (TDD) 28b5a4b
     - [x] Create `src/lib/fiscal-validation/allocation-rules.test.ts`.
     - [x] Implement `validateAllocation` in `src/lib/fiscal-validation/allocation-rules.ts` covering ALL-01 to ALL-06.
-- [ ] Task: Conductor - User Manual Verification 'Foundation & Shared Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Foundation & Shared Logic' (Protocol in workflow.md)
 
 ## Phase 2: Database Constraints & Schema
 - [ ] Task: Add DB constraints for key invariants
