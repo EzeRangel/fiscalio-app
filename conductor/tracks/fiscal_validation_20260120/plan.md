@@ -10,9 +10,9 @@
 - [x] Task: Implement Payment Validation Logic (TDD) 8361047
     - [x] Create `src/lib/fiscal-validation/payment-rules.test.ts`.
     - [x] Implement `validatePayment` in `src/lib/fiscal-validation/payment-rules.ts` covering PAY-01 to PAY-03.
-- [ ] Task: Implement Allocation Validation Logic (TDD)
-    - [ ] Create `src/lib/fiscal-validation/allocation-rules.test.ts`.
-    - [ ] Implement `validateAllocation` in `src/lib/fiscal-validation/allocation-rules.ts` covering ALL-01 to ALL-06.
+- [x] Task: Implement Allocation Validation Logic (TDD) 28b5a4b
+    - [x] Create `src/lib/fiscal-validation/allocation-rules.test.ts`.
+    - [x] Implement `validateAllocation` in `src/lib/fiscal-validation/allocation-rules.ts` covering ALL-01 to ALL-06.
 - [ ] Task: Conductor - User Manual Verification 'Foundation & Shared Logic' (Protocol in workflow.md)
 
 ## Phase 2: Database Constraints & Schema
