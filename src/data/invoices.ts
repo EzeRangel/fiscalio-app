@@ -9,11 +9,13 @@ import {
   invoiceTaxes,
   organizations,
   taxRegimes,
+  payments,
+  paymentAllocations,
 } from "@/db";
 import { getActiveOrganizationId } from "@/lib/session";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { getTaxName } from "@/lib/utils";
-import { savePaymentComplement } from "./payments";
+import { savePaymentComplement, savePUEPayment } from "./payments";
 import { GENERIC_RFC_LIST } from "@/lib/constants";
 import { validateInvoice, FiscalInvoice } from "@/lib/fiscal-validation";
 
@@ -173,7 +175,29 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
         invoiceType as "income" | "expense",
       );
     } else {
-      // TODO: If its a PUE CFDI create a new payment record.
+      // Auto-generate Payment for PUE
+      if (parsedCFDI.MetodoPago === "PUE") {
+        await savePUEPayment(
+          tx,
+          parsedCFDI.Total,
+          parsedCFDI.Moneda,
+          parsedCFDI.TipoCambio || "1.0",
+          new Date(parsedCFDI.Fecha),
+          parsedCFDI.FormaPago || "99",
+          organizationId,
+          partner.id,
+          newInvoice.id,
+          invoiceType as "income" | "expense"
+        );
+
+        await tx
+          .update(invoices)
+          .set({
+            amountPaid: parsedCFDI.Total,
+            paymentStatus: "paid",
+          })
+          .where(eq(invoices.id, newInvoice.id));
+      }
 
       // Standard invoice: Insert items and their taxes
       for (const [index, c] of conceptos.entries()) {

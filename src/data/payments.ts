@@ -192,3 +192,104 @@ export async function getPaymentsByFolio(folio: string) {
 
   return relatedPayments;
 }
+
+export async function savePUEPayment(
+  tx: any,
+  amount: string,
+  currency: string,
+  exchangeRate: string,
+  paymentDate: Date,
+  paymentMethod: string,
+  organizationId: number,
+  partnerId: number,
+  invoiceId: number,
+  paymentType: "income" | "expense"
+) {
+  const allocationToCreate = {
+    amount,
+    invoiceId,
+    paymentId: 0,
+  };
+
+  const fiscalPaymentToCheck: FiscalPayment = {
+    id: 0,
+    amount,
+    paymentDate,
+    allocations: [allocationToCreate],
+  };
+
+  const paymentValidation = validatePayment(fiscalPaymentToCheck);
+  if (!paymentValidation.isValid) {
+    throw new Error(
+      `Error validando pago PUE: ${paymentValidation.errors[0].message}`
+    );
+  }
+
+  // We also need the invoice context for validateAllocation
+  // Since savePUEPayment is called from saveNewInvoice, we assume the invoice 
+  // was just created with 0 amountPaid and is active.
+  const linkedInvoice = await tx.query.invoices.findFirst({
+    where: eq(invoices.id, invoiceId),
+  });
+
+  if (!linkedInvoice) {
+    throw new Error("Factura no encontrada para asignar pago PUE.");
+  }
+
+  const allocationContext: FiscalAllocationContext = {
+    allocation: allocationToCreate,
+    invoice: {
+      id: linkedInvoice.id,
+      total: linkedInvoice.total,
+      amountPaid: linkedInvoice.amountPaid || "0",
+      paymentStatus: linkedInvoice.paymentStatus || "pending",
+      status: linkedInvoice.status || "active",
+    },
+    payment: fiscalPaymentToCheck,
+    existingAllocationsForInvoice: [], // New invoice
+    existingAllocationsForPayment: [], // New payment
+  };
+
+  const allocValidation = validateAllocation(allocationContext);
+  if (!allocValidation.isValid) {
+    throw new Error(
+      `Error validando asignación PUE: ${allocValidation.errors[0].message}`
+    );
+  }
+
+  const [payment] = await tx
+    .insert(payments)
+    .values({
+      organizationId,
+      partnerId,
+      paymentType,
+      paymentDate,
+      paymentMethod,
+      currency,
+      exchangeRate,
+      amount,
+      notes: "Auto-generated for PUE Invoice",
+    })
+    .returning();
+
+  await logAction({
+    organizationId,
+    entityType: "payment",
+    entityId: payment.id,
+    action: "created",
+    metadata: {
+      source: "system",
+      reason: "PUE Invoice Auto-Payment",
+    },
+    tx,
+  });
+
+  await tx.insert(paymentAllocations).values({
+    paymentId: payment.id,
+    invoiceId,
+    amountAllocated: amount,
+    installmentNumber: 1,
+  });
+
+  return payment;
+}
