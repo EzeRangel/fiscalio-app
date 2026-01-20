@@ -17,6 +17,13 @@ export interface FiscalAllocation {
   invoiceId?: number;
 }
 
+export interface FiscalPayment {
+  id: number;
+  amount: number | string;
+  paymentDate: Date;
+  allocations?: FiscalAllocation[];
+}
+
 export interface FiscalInvoice {
   id: number;
   total: number | string;
