@@ -47,9 +47,15 @@
 - [x] Task: Conductor - User Manual Verification 'UI Feedback' (Protocol in workflow.md)
 
 ## Phase 6: PUE Auto-Payment Generation
-- [ ] Task: Implement PUE Payment Generation in `saveNewInvoice`
-    - [ ] In `src/data/invoices.ts`, detect if `MetodoPago` is "PUE".
-    - [ ] If PUE, automatically create a `Payment` record (Date = Invoice Date, Amount = Total).
-    - [ ] Create a `PaymentAllocation` linking the new Payment to the Invoice.
-    - [ ] Ensure `validateInvoice` and `validatePayment` pass for this auto-generated data.
-- [ ] Task: Conductor - User Manual Verification 'PUE Auto-Payment Generation' (Protocol in workflow.md)
+
+- [x] Task: Implement PUE Payment Generation in `saveNewInvoice` 9aed162
+
+    - [x] In `src/data/invoices.ts`, detect if `MetodoPago` is "PUE".
+
+    - [x] If PUE, automatically create a `Payment` record (Date = Invoice Date, Amount = Total).
+
+    - [x] Create a `PaymentAllocation` linking the new Payment to the Invoice.
+
+    - [x] Ensure `validateInvoice` and `validatePayment` pass for this auto-generated data.
+
+- [x] Task: Conductor - User Manual Verification 'PUE Auto-Payment Generation' (Protocol in workflow.md)
