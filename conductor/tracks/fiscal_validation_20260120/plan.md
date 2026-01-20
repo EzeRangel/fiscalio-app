@@ -4,9 +4,9 @@
 - [x] Task: Create `src/lib/fiscal-validation` directory and define types 30e015a
     - [x] Create `src/lib/fiscal-validation/types.ts` with error types and validation result interfaces.
     - [x] Create `src/lib/fiscal-validation/constants.ts` with validation rule codes (INV-01, etc.).
-- [ ] Task: Implement Invoice Validation Logic (TDD)
-    - [ ] Create `src/lib/fiscal-validation/invoice-rules.test.ts`.
-    - [ ] Implement `validateInvoice` in `src/lib/fiscal-validation/invoice-rules.ts` covering INV-01 to INV-04.
+- [x] Task: Implement Invoice Validation Logic (TDD) 3d54366
+    - [x] Create `src/lib/fiscal-validation/invoice-rules.test.ts`.
+    - [x] Implement `validateInvoice` in `src/lib/fiscal-validation/invoice-rules.ts` covering INV-01 to INV-04.
 - [ ] Task: Implement Payment Validation Logic (TDD)
     - [ ] Create `src/lib/fiscal-validation/payment-rules.test.ts`.
     - [ ] Implement `validatePayment` in `src/lib/fiscal-validation/payment-rules.ts` covering PAY-01 to PAY-03.
