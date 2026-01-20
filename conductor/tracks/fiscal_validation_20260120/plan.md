@@ -7,9 +7,9 @@
 - [x] Task: Implement Invoice Validation Logic (TDD) 3d54366
     - [x] Create `src/lib/fiscal-validation/invoice-rules.test.ts`.
     - [x] Implement `validateInvoice` in `src/lib/fiscal-validation/invoice-rules.ts` covering INV-01 to INV-04.
-- [ ] Task: Implement Payment Validation Logic (TDD)
-    - [ ] Create `src/lib/fiscal-validation/payment-rules.test.ts`.
-    - [ ] Implement `validatePayment` in `src/lib/fiscal-validation/payment-rules.ts` covering PAY-01 to PAY-03.
+- [x] Task: Implement Payment Validation Logic (TDD) 8361047
+    - [x] Create `src/lib/fiscal-validation/payment-rules.test.ts`.
+    - [x] Implement `validatePayment` in `src/lib/fiscal-validation/payment-rules.ts` covering PAY-01 to PAY-03.
 - [ ] Task: Implement Allocation Validation Logic (TDD)
     - [ ] Create `src/lib/fiscal-validation/allocation-rules.test.ts`.
     - [ ] Implement `validateAllocation` in `src/lib/fiscal-validation/allocation-rules.ts` covering ALL-01 to ALL-06.
