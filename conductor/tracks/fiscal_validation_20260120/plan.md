@@ -32,7 +32,7 @@
     - [x] Enforce the "Fiscal Period Attribution" rule during allocation creation.
 - [x] Task: Conductor - User Manual Verification 'Integration with Server Actions' (Protocol in workflow.md)
 
-## Phase 4: Legacy Data Migration
+## Phase 4: Legacy Data Migration [checkpoint: ed53e14]
 - [x] Task: Create Analysis Script 4bbdf64
     - [x] Write a script `src/scripts/analyze-fiscal-integrity.ts` to report on existing data violations.
 - [x] Task: Implement Migration/Cleanup Strategy 4bbdf64
