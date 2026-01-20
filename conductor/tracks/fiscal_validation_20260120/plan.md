@@ -22,14 +22,14 @@
 - [ ] Task: Conductor - User Manual Verification 'Database Constraints & Schema' (Protocol in workflow.md)
 
 ## Phase 3: Integration with Server Actions
-- [ ] Task: Integrate Validation into Invoice Actions
-    - [ ] Update `src/actions/invoices.ts` (or relevant file) to call `validateInvoice` before mutations.
-    - [ ] Ensure proper error handling (returning `ActionState` with error messages).
-- [ ] Task: Integrate Validation into Payment Actions
-    - [ ] Update `src/actions/payments.ts` to call `validatePayment` before creation/update.
-- [ ] Task: Integrate Validation into Allocation Actions
-    - [ ] Update `src/actions/allocations.ts` to call `validateAllocation`.
-    - [ ] Enforce the "Fiscal Period Attribution" rule during allocation creation.
+- [x] Task: Integrate Validation into Invoice Actions ed6b0e3
+    - [x] Update `src/actions/invoices.ts` (or relevant file) to call `validateInvoice` before mutations.
+    - [x] Ensure proper error handling (returning `ActionState` with error messages).
+- [x] Task: Integrate Validation into Payment Actions ed6b0e3
+    - [x] Update `src/actions/payments.ts` to call `validatePayment` before creation/update.
+- [x] Task: Integrate Validation into Allocation Actions ed6b0e3
+    - [x] Update `src/actions/allocations.ts` to call `validateAllocation`.
+    - [x] Enforce the "Fiscal Period Attribution" rule during allocation creation.
 - [ ] Task: Conductor - User Manual Verification 'Integration with Server Actions' (Protocol in workflow.md)
 
 ## Phase 4: Legacy Data Migration
