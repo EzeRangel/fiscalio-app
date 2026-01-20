@@ -12,7 +12,9 @@ import {
   timestamp,
   uuid,
   varchar,
+  check,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { organizations } from "./organizations";
 import { businessPartners } from "./businessPartners";
 import { relations } from "drizzle-orm";
@@ -127,6 +129,7 @@ export const invoices = pgTable(
       folioFiscalIndex: index("idx_invoices_folio_fiscal").on(
         table.folioFiscal
       ),
+      amountPaidLimit: check("amount_paid_limit", sql`${table.amountPaid} <= ${table.total}`),
     };
   }
 );

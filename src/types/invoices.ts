@@ -1,5 +1,7 @@
 import { invoices } from "@/db";
 import { InferResultType } from "./orm";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export type Invoice = typeof invoices.$inferSelect;
 export type InvoiceDetails = InferResultType<
@@ -11,6 +13,20 @@ export type InvoiceDetails = InferResultType<
     allocations: { with: { payment: true; invoice: true } };
   }
 >;
+
+export const insertInvoiceSchema = createInsertSchema(invoices, {
+  amountPaid: (schema) => schema.amountPaid.optional().refine((v) => !v || parseFloat(v) >= 0, {
+    message: "Amount paid cannot be negative",
+  }),
+}).refine((data) => {
+    if (data.amountPaid && data.total) {
+        return parseFloat(data.amountPaid) <= parseFloat(data.total);
+    }
+    return true;
+}, {
+    message: "Amount paid cannot exceed total",
+    path: ["amountPaid"],
+});
 
 export type ProcessingInvoice =
   | {

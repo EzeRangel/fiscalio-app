@@ -5,7 +5,9 @@ import {
   pgTable,
   serial,
   timestamp,
+  check,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { payments } from './payments';
 import { invoices } from './invoices';
 import { relations } from 'drizzle-orm';
@@ -35,6 +37,7 @@ export const paymentAllocations = pgTable(
     return {
       paymentIdIndex: index('idx_allocations_payment').on(table.paymentId),
       invoiceIdIndex: index('idx_allocations_invoice').on(table.invoiceId),
+      amountAllocatedPositive: check('amount_allocated_positive', sql`${table.amountAllocated} > 0`),
     };
   },
 );

@@ -8,7 +8,9 @@ import {
   timestamp,
   uuid,
   varchar,
+  check,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { organizations } from './organizations';
 import { businessPartners } from './businessPartners';
 import { bankAccounts } from './bankAccounts';
@@ -48,6 +50,7 @@ export const payments = pgTable(
     return {
       organizationIdIndex: index('idx_payments_org').on(table.organizationId),
       partnerIdIndex: index('idx_payments_partner').on(table.partnerId),
+      amountPositive: check('amount_positive', sql`${table.amount} > 0`),
     };
   },
 );
