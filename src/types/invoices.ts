@@ -15,7 +15,7 @@ export type InvoiceDetails = InferResultType<
 >;
 
 export const insertInvoiceSchema = createInsertSchema(invoices, {
-  amountPaid: (schema) => schema.amountPaid.optional().refine((v) => !v || parseFloat(v) >= 0, {
+  amountPaid: (schema) => schema.refine((v) => !v || parseFloat(v) >= 0, {
     message: "Amount paid cannot be negative",
   }),
 }).refine((data) => {

@@ -12,7 +12,7 @@ export type PaymentAllocation = InferResultType<
 >;
 
 export const insertPaymentSchema = createInsertSchema(payments, {
-  amount: (schema) => schema.amount.refine((v) => parseFloat(v) > 0, {
+  amount: (schema) => schema.refine((v) => parseFloat(v) > 0, {
     message: "Amount must be positive",
   }),
   paymentDate: z.date().refine((d) => d <= new Date(), {
