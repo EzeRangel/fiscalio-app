@@ -26,13 +26,13 @@
 - [x] Task: Update Dashboard Charts (N/A - No charts currently implemented)
 - [x] Task: Conductor - User Manual Verification 'Dashboard UI & Visualizations' (Protocol in workflow.md)
 
-## Phase 4: Invoice Lists & Partner UI
+## Phase 4: Invoice Lists & Partner UI [checkpoint: c48c206]
 - [x] Task: Enhance Invoice Data Table dbb0451
     - [x] Add "Paid Amount" and "Status" (Unpaid, Partial, Paid) columns to the invoices table.
     - [x] Add visual indicators/badges for payment status.
 - [x] Task: Update Partner Detail Views e568c7f
     - [x] Update the balance displays in partner profiles to reflect the cash-basis reality.
-- [ ] Task: Conductor - User Manual Verification 'Invoice Lists & Partner UI' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Invoice Lists & Partner UI' (Protocol in workflow.md)
 
 ## Phase 5: Tax Declarations & Final Review
 - [ ] Task: Update Tax Declaration Generation
