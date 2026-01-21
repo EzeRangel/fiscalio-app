@@ -27,7 +27,7 @@ import { CFDI_TYPE } from "@/lib/constants";
 
 type InvoiceWithContacts = InferResultType<
   "invoices",
-  { businessPartner: true }
+  { businessPartner: true; allocations: true }
 >;
 
 interface Props {
@@ -36,6 +36,16 @@ interface Props {
   periodGroup?: "month" | "year" | "none";
   invoices: InvoiceWithContacts[];
 }
+
+const getPaymentStatus = (total: number, paid: number) => {
+  if (paid <= 0) return { label: "Pendiente", color: "bg-red-500/10 text-red-700 border-red-500/20" };
+  if (paid >= total) return { label: "Pagado", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20" };
+  return { label: "Parcial", color: "bg-amber-500/10 text-amber-700 border-amber-500/20" };
+};
+
+const calculateInvoicePaid = (invoice: InvoiceWithContacts) => {
+  return (invoice.allocations || []).reduce((sum, alloc) => sum + Number(alloc.amountAllocated), 0);
+};
 
 export default function List({
   invoices,
@@ -80,13 +90,20 @@ export default function List({
           return acc;
         }, {} as Record<string, InvoiceWithContacts[]>);
 
-  const calculatePeriodTotals = (invoices: Invoice[]) => {
-    const income = invoices
-      .filter((inv) => inv.cfdiType === "Ingreso")
-      .reduce((sum, inv) => sum + Number(inv.total), 0);
-    const expense = invoices
-      .filter((inv) => inv.cfdiType === "Egreso")
-      .reduce((sum, inv) => sum + Math.abs(Number(inv.total)), 0);
+  const calculatePeriodTotals = (periodInvoices: InvoiceWithContacts[]) => {
+    // Cash-basis totals for the period
+    let income = 0;
+    let expense = 0;
+    
+    periodInvoices.forEach(inv => {
+        const paid = calculateInvoicePaid(inv);
+        if (inv.invoiceType === "income") {
+            income += paid;
+        } else if (inv.invoiceType === "expense") {
+            expense += paid;
+        }
+    });
+
     return { income, expense, net: income - expense };
   };
 
@@ -144,7 +161,7 @@ export default function List({
                   <div className="flex gap-8 text-sm">
                     <div className="text-right">
                       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                        Ingresos
+                        Ingresos (Cobrado)
                       </div>
                       <div className="font-mono text-lg font-medium text-emerald-600 dark:text-emerald-400">
                         <PrivacyBlur>
@@ -154,7 +171,7 @@ export default function List({
                     </div>
                     <div className="text-right">
                       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                        Egresos
+                        Egresos (Pagado)
                       </div>
                       <div className="font-mono text-lg font-medium text-red-600 dark:text-red-400">
                         <PrivacyBlur>
@@ -164,7 +181,7 @@ export default function List({
                     </div>
                     <div className="text-right">
                       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                        Neto
+                        Efectivo Neto
                       </div>
                       <div className="font-mono text-lg font-medium">
                         <PrivacyBlur>{formatPrice(totals.net, 2)}</PrivacyBlur>
@@ -183,7 +200,7 @@ export default function List({
                         Folio
                       </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium">
-                        Emisor
+                        Emisor / Receptor
                       </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium w-[140px]">
                         Fecha
@@ -192,83 +209,97 @@ export default function List({
                         Tipo
                       </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
-                        Total
+                        Facturado
+                      </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
+                        Cobrado/Pagado
                       </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium w-[120px]">
-                        Estado
+                        Estado Pago
                       </TableHead>
                       <TableHead className="w-[60px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {invoices.map((invoice) => (
-                      <TableRow
-                        key={invoice.id}
-                        className="group cursor-pointer"
-                      >
-                        <TableCell className="font-mono text-sm font-medium">
-                          {invoice.internalFolio}
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-sm font-medium leading-none">
-                              {invoice.businessPartner?.legalName}
+                    {invoices.map((invoice) => {
+                      const totalPaid = calculateInvoicePaid(invoice);
+                      const status = getPaymentStatus(Number(invoice.total), totalPaid);
+
+                      return (
+                        <TableRow
+                          key={invoice.id}
+                          className="group cursor-pointer"
+                        >
+                          <TableCell className="font-mono text-sm font-medium">
+                            {invoice.internalFolio}
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="text-sm font-medium leading-none">
+                                {invoice.businessPartner?.legalName}
+                              </div>
+                              <div className="text-xs text-muted-foreground font-mono">
+                                <PrivacyBlur>
+                                  {invoice.businessPartner?.rfc}
+                                </PrivacyBlur>
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground font-mono">
+                          </TableCell>
+                          <TableCell className="text-sm font-mono">
+                            <time
+                              dateTime={new Date(
+                                invoice.invoiceDate
+                              ).toISOString()}
+                            >
+                              {new Date(invoice.invoiceDate).toLocaleDateString(
+                                "es-MX",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </time>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={
+                                invoice.cfdiType === "I"
+                                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+                                  : "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                              }
+                            >
+                              {getCFDIType(
+                                invoice.cfdiType as keyof typeof CFDI_TYPE
+                              )}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="font-mono text-xs text-muted-foreground">
                               <PrivacyBlur>
-                                {invoice.businessPartner?.rfc}
+                                {formatPrice(Number(invoice.total), 2)}
                               </PrivacyBlur>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm font-mono">
-                          <time
-                            dateTime={new Date(
-                              invoice.invoiceDate
-                            ).toISOString()}
-                          >
-                            {new Date(invoice.invoiceDate).toLocaleDateString(
-                              "es-MX",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )}
-                          </time>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={
-                              invoice.cfdiType === "I"
-                                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
-                                : "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                            }
-                          >
-                            {getCFDIType(
-                              invoice.cfdiType as keyof typeof CFDI_TYPE
-                            )}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-mono text-sm font-medium">
-                            <PrivacyBlur>
-                              {formatPrice(Number(invoice.total), 2)}
-                            </PrivacyBlur>
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            {invoice.currency}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className="font-mono text-xs"
-                          >
-                            {invoice.status}
-                          </Badge>
-                        </TableCell>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="font-mono text-sm font-medium">
+                              <PrivacyBlur>
+                                {formatPrice(totalPaid, 2)}
+                              </PrivacyBlur>
+                            </div>
+                            <div className="text-xs text-muted-foreground font-mono">
+                              {invoice.currency}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={`font-mono text-xs ${status.color}`}
+                            >
+                              {status.label}
+                            </Badge>
+                          </TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
