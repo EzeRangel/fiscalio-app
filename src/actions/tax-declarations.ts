@@ -6,9 +6,10 @@ import {
   declarationInvoices,
   organizations,
   payments,
+  paymentAllocations,
 } from "@/db";
 import { getDB } from "@/db";
-import { and, eq, gte, isNotNull, lt } from "drizzle-orm";
+import { and, eq, gte, lt } from "drizzle-orm";
 import { actionClient } from "@/lib/safe-action";
 import { z } from "zod";
 import { calculateISR_RESICO } from "@/lib/tax-calculations";
@@ -16,6 +17,7 @@ import { getActiveOrganizationId } from "@/lib/session";
 import { zfd } from "zod-form-data";
 import { revalidatePath } from "next/cache";
 import { calculateDiff, logAction } from "@/lib/audit-service";
+import { calculateCashBasisSummary } from "@/lib/cash-basis-utils";
 
 const createTaxDeclarationDraftSchema = z.object({
   fiscalPeriod: z
@@ -64,41 +66,23 @@ export const createTaxDeclarationDraft = actionClient
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    // 2. Fetch relevant data for the period (Cash Flow based)
-
-    // 2a. Fetch PUE invoices (Paid in full at issuance)
-    const pueInvoices = await db.query.invoices.findMany({
-      where: and(
-        eq(invoices.organizationId, organizationId),
-        gte(invoices.invoiceDate, startDate),
-        lt(invoices.invoiceDate, endDate),
-        eq(invoices.paymentMethod, "PUE"),
-        isNotNull(invoices.accountId)
-      ),
-      with: {
-        account: true,
-      },
-    });
-
-    // 2b. Fetch Payments in the period (for PPD invoices)
-    const periodPayments = await db.query.payments.findMany({
-      where: and(
-        eq(payments.organizationId, organizationId),
-        gte(payments.paymentDate, startDate),
-        lt(payments.paymentDate, endDate)
-      ),
-      with: {
-        allocations: {
-          with: {
-            invoice: {
-              with: {
-                account: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    // 2. Fetch all payment allocations in the period (Cash-Basis source of truth)
+    const rawAllocations = await db
+      .select({
+        allocation: paymentAllocations,
+        payment: payments,
+        invoice: invoices,
+      })
+      .from(paymentAllocations)
+      .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
+      .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
+      .where(
+        and(
+          eq(payments.organizationId, organizationId),
+          gte(payments.paymentDate, startDate),
+          lt(payments.paymentDate, endDate)
+        )
+      );
 
     // 3. Create initial taxDeclaration entry
     const [newDeclaration] = await db
@@ -133,114 +117,112 @@ export const createTaxDeclarationDraft = actionClient
     let deductibleExpenses = 0;
     let ivaCharged = 0;
     let ivaCreditable = 0;
-    const isrWithheld = 0;
+    let totalIsrWithheld = 0;
+
+    // Group rawAllocations by invoice to process them with full context
+    const allocationsByInvoice = new Map<number, any[]>();
+    for (const item of rawAllocations) {
+      if (!allocationsByInvoice.has(item.invoice.id)) {
+        allocationsByInvoice.set(item.invoice.id, []);
+      }
+      allocationsByInvoice.get(item.invoice.id)!.push(item);
+    }
 
     const declarationInvoicesBatch: any[] = [];
 
-    // Process PUE Invoices
-    for (const invoice of pueInvoices) {
-      const isDeductible = invoice.account?.isDeductible || false;
-      const deductionPercentage = parseFloat(
-        invoice.account?.deductionPercentage || "100.00"
+    for (const [invoiceId, items] of allocationsByInvoice.entries()) {
+      // Fetch full invoice details for accurate tax calculation
+      const fullInvoice = await db.query.invoices.findFirst({
+        where: eq(invoices.id, invoiceId),
+        with: {
+          account: true,
+          items: {
+            with: {
+              taxes: true,
+            },
+          },
+        },
+      });
+
+      if (!fullInvoice) continue;
+
+      // Flatten taxes for the utility
+      const allTaxes = fullInvoice.items.flatMap((item) =>
+        item.taxes.map((t) => ({
+          taxType: t.taxType,
+          taxCode: t.taxCode,
+          rate: t.rate,
+          amount: t.taxAmount,
+        }))
       );
-      const includedAmount = parseFloat(invoice.total);
+
+      // Prepare allocations for this invoice in this period
+      const invoiceAllocations = items.map((i: any) => ({
+        amountAllocated: i.allocation.amountAllocated,
+        invoice: {
+          total: fullInvoice.total,
+          subtotal: fullInvoice.subtotal,
+          taxes: allTaxes,
+        },
+      }));
+
+      const summary = calculateCashBasisSummary(invoiceAllocations);
+
+      const isDeductible = fullInvoice.account?.isDeductible || false;
+      const deductionPercentage = parseFloat(
+        fullInvoice.account?.deductionPercentage || "100.00"
+      );
+
+      const includedAmount = summary.totalPaid;
       const deductibleAmount = isDeductible
-        ? includedAmount * (deductionPercentage / 100)
+        ? summary.subtotalPaid * (deductionPercentage / 100)
         : 0;
 
-      if (invoice.invoiceType === "income") {
-        totalIncome += includedAmount;
-      } else if (invoice.invoiceType === "expense") {
-        totalExpenses += includedAmount;
+      if (fullInvoice.invoiceType === "income") {
+        totalIncome += summary.subtotalPaid;
+      } else if (fullInvoice.invoiceType === "expense") {
+        totalExpenses += summary.subtotalPaid;
         if (isDeductible) {
           deductibleExpenses += deductibleAmount;
         }
       }
 
-      const invoiceIvaAmount = parseFloat(invoice.totalTaxes || "0");
+      // Classify taxes
+      let periodIvaAmount = 0;
       let ivaType: string | null = null;
-      if (invoiceIvaAmount > 0) {
-        if (invoice.invoiceType === "income") {
-          ivaCharged += invoiceIvaAmount;
-          ivaType = "charged";
-        } else if (invoice.invoiceType === "expense" && isDeductible) {
-          ivaCreditable += invoiceIvaAmount;
-          ivaType = "creditable";
+
+      for (const tax of summary.taxBreakdown) {
+        if (tax.taxCode === "002") { // IVA
+          if (tax.taxType === "transferred") {
+            periodIvaAmount += tax.amount;
+            if (fullInvoice.invoiceType === "income") {
+              ivaCharged += tax.amount;
+              ivaType = "charged";
+            } else if (fullInvoice.invoiceType === "expense" && isDeductible) {
+              ivaCreditable += tax.amount;
+              ivaType = "creditable";
+            }
+          }
+        } else if (tax.taxCode === "001" && tax.taxType === "withheld") { // ISR Withheld
+            if (fullInvoice.invoiceType === "income") {
+                totalIsrWithheld += tax.amount;
+            }
         }
       }
 
       declarationInvoicesBatch.push({
         declarationId: newDeclaration.id,
-        invoiceId: invoice.id,
-        appliedAccountCode: invoice.account?.accountCode || null,
-        appliedAccountName: invoice.account?.accountName || null,
+        invoiceId: fullInvoice.id,
+        appliedAccountCode: fullInvoice.account?.accountCode || null,
+        appliedAccountName: fullInvoice.account?.accountName || null,
         isDeductible: isDeductible,
         deductionPercentage: deductionPercentage.toString(),
         includedAmount: includedAmount.toString(),
         deductibleAmount: deductibleAmount.toString(),
-        ivaAmount: invoiceIvaAmount.toString(),
+        ivaAmount: periodIvaAmount.toFixed(2),
         ivaType: ivaType,
         wasManuallyAdjusted: false,
       });
-    }
-
-    // Process Payments (PPD Allocations)
-    for (const payment of periodPayments) {
-      for (const allocation of payment.allocations) {
-        const invoice = allocation.invoice;
-        if (!invoice || !invoice.accountId) continue;
-
-        const isDeductible = invoice.account?.isDeductible || false;
-        const deductionPercentage = parseFloat(
-          invoice.account?.deductionPercentage || "100.00"
-        );
-        const includedAmount = parseFloat(allocation.amountAllocated);
-        const deductibleAmount = isDeductible
-          ? includedAmount * (deductionPercentage / 100)
-          : 0;
-
-        if (invoice.invoiceType === "income") {
-          totalIncome += includedAmount;
-        } else if (invoice.invoiceType === "expense") {
-          totalExpenses += includedAmount;
-          if (isDeductible) {
-            deductibleExpenses += deductibleAmount;
-          }
-        }
-
-        // Calculate proportional IVA
-        const invoiceTotal = parseFloat(invoice.total);
-        const invoiceTotalTaxes = parseFloat(invoice.totalTaxes || "0");
-        const proportionalIva =
-          invoiceTotal > 0
-            ? (includedAmount / invoiceTotal) * invoiceTotalTaxes
-            : 0;
-
-        let ivaType: string | null = null;
-        if (proportionalIva > 0) {
-          if (invoice.invoiceType === "income") {
-            ivaCharged += proportionalIva;
-            ivaType = "charged";
-          } else if (invoice.invoiceType === "expense" && isDeductible) {
-            ivaCreditable += proportionalIva;
-            ivaType = "creditable";
-          }
-        }
-
-        declarationInvoicesBatch.push({
-          declarationId: newDeclaration.id,
-          invoiceId: invoice.id,
-          appliedAccountCode: invoice.account?.accountCode || null,
-          appliedAccountName: invoice.account?.accountName || null,
-          isDeductible: isDeductible,
-          deductionPercentage: deductionPercentage.toString(),
-          includedAmount: includedAmount.toString(),
-          deductibleAmount: deductibleAmount.toString(),
-          ivaAmount: proportionalIva.toFixed(2),
-          ivaType: ivaType,
-          wasManuallyAdjusted: false,
-        });
-      }
     }
 
     if (declarationInvoicesBatch.length > 0) {
@@ -248,12 +230,13 @@ export const createTaxDeclarationDraft = actionClient
     }
 
     // 5. Final totals calculation
-    const isrBase = totalIncome - deductibleExpenses;
+    // Note: ISR Base in RESICO is strictly Gross Income (Total collected subtotal)
+    const isrBase = totalIncome;
     const ivaBalance = ivaCharged - ivaCreditable;
 
     const isrCalculatedValue = calculateISR_RESICO(isrBase, declarationType);
     const isrRateValue = isrBase > 0 ? isrCalculatedValue / isrBase : 0;
-    const isrBalance = isrCalculatedValue - isrWithheld;
+    const isrBalance = isrCalculatedValue - totalIsrWithheld;
 
     await db
       .update(taxDeclarations)
@@ -267,7 +250,7 @@ export const createTaxDeclarationDraft = actionClient
         isrBase: isrBase.toString(),
         isrRate: isrRateValue.toFixed(4).toString(),
         isrCalculated: isrCalculatedValue.toString(),
-        isrWithheld: isrWithheld.toString(),
+        isrWithheld: totalIsrWithheld.toString(),
         isrProvisional: "0",
         isrBalance: isrBalance.toString(),
         updatedAt: new Date(),

@@ -1,7 +1,7 @@
 import "server-only";
 import { getDB } from "@/db";
-import { and, eq, gte, lt, desc } from "drizzle-orm";
-import { invoices, taxDeclarations } from "@/db/schema";
+import { and, eq, gte, lt, desc, sql } from "drizzle-orm";
+import { invoices, taxDeclarations, paymentAllocations, payments } from "@/db/schema";
 
 export async function getTaxDeclarationsDashboardData(organizationId: number) {
   const { db } = await getDB();
@@ -23,41 +23,46 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
     ),
   });
 
-  // 3. Get Income/Expense data for that period
+  // 3. Get Cash-Basis Income/Expense data for that period
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 1);
 
-  const periodInvoices = await db
+  // We calculate paid amounts proportionally based on subtotal for reporting
+  const periodResults = await db
     .select({
       invoiceType: invoices.invoiceType,
-      total: invoices.total,
+      paidAmount: sql<number>`sum(${paymentAllocations.amountAllocated})`.mapWith(Number),
+      // For a simplified preview, we use the amountAllocated. 
+      // In the real declaration creation, we use the proportional subtotal.
+      // To keep preview consistent, let's try to get a better approximation if possible, 
+      // or just show the paid total.
     })
-    .from(invoices)
+    .from(paymentAllocations)
+    .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
+    .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
     .where(
       and(
-        eq(invoices.organizationId, organizationId),
-        gte(invoices.invoiceDate, startDate),
-        lt(invoices.invoiceDate, endDate)
+        eq(payments.organizationId, organizationId),
+        gte(payments.paymentDate, startDate),
+        lt(payments.paymentDate, endDate)
       )
-    );
+    )
+    .groupBy(invoices.invoiceType);
 
   let totalIncome = 0;
-  let incomeInvoiceCount = 0;
   let totalExpenses = 0;
-  let expenseInvoiceCount = 0;
+
+  periodResults.forEach(row => {
+    if (row.invoiceType === "income") {
+        totalIncome = row.paidAmount || 0;
+    } else if (row.invoiceType === "expense") {
+        totalExpenses = row.paidAmount || 0;
+    }
+  });
+
   const netAmount =
     (Number(declarationForPeriod?.totalIncome) || 0) -
     (Number(declarationForPeriod?.deductibleExpenses) || 0);
-
-  for (const invoice of periodInvoices) {
-    if (invoice.invoiceType === "income") {
-      totalIncome += parseFloat(invoice.total);
-      incomeInvoiceCount++;
-    } else if (invoice.invoiceType === "expense") {
-      totalExpenses += parseFloat(invoice.total);
-      expenseInvoiceCount++;
-    }
-  }
 
   // 4. Get History
   const history = await db.query.taxDeclarations.findMany({
@@ -74,9 +79,7 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
       period: fiscalPeriodToDeclare,
       declaration: declarationForPeriod, // Pass the whole object (or null)
       totalIncome,
-      incomeInvoiceCount,
       totalExpenses,
-      expenseInvoiceCount,
       netAmount,
     },
     history,
@@ -110,13 +113,6 @@ export async function getTaxDeclarationById(
   if (!declaration) {
     return null;
   }
-
-  // AI Validations placeholder
-  // const aiValidations = [
-  //   { severity: "warning", message: "12 facturas sin clasificar" },
-  //   { severity: "warning", message: "IVA difiere 3% del esperado" },
-  //   { severity: "error", message: "Gastos de comida exceden límite" },
-  // ];
 
   return {
     ...declaration,
