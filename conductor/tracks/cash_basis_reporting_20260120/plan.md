@@ -10,9 +10,9 @@
 - [x] Task: Conductor - User Manual Verification 'Core Calculation Logic' (Protocol in workflow.md)
 
 ## Phase 2: Data Access Layer Updates
-- [ ] Task: Update Invoice Data Fetching
-    - [ ] Update `src/data/invoices.ts` to include payment allocation aggregates in `getInvoices`.
-    - [ ] Ensure `getInvoiceById` returns detailed payment status and remaining balance.
+- [x] Task: Update Invoice Data Fetching f68222e
+    - [x] Update `src/data/invoices.ts` to include payment allocation aggregates in `getInvoices`.
+    - [x] Ensure `getInvoiceById` returns detailed payment status and remaining balance.
 - [ ] Task: Update Dashboard Data Logic
     - [ ] Refactor `src/data/dashboard.ts` (or `src/actions/dashboard.ts`) to query `paymentAllocations` instead of `invoices` for KPI totals.
     - [ ] Implement TDD for the new dashboard queries.
