@@ -30,8 +30,8 @@
 - [x] Task: Enhance Invoice Data Table dbb0451
     - [x] Add "Paid Amount" and "Status" (Unpaid, Partial, Paid) columns to the invoices table.
     - [x] Add visual indicators/badges for payment status.
-- [ ] Task: Update Partner Detail Views
-    - [ ] Update the balance displays in partner profiles to reflect the cash-basis reality.
+- [x] Task: Update Partner Detail Views e568c7f
+    - [x] Update the balance displays in partner profiles to reflect the cash-basis reality.
 - [ ] Task: Conductor - User Manual Verification 'Invoice Lists & Partner UI' (Protocol in workflow.md)
 
 ## Phase 5: Tax Declarations & Final Review
