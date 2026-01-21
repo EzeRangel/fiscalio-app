@@ -1,13 +1,13 @@
 # Implementation Plan - Cash-Basis Financial Reporting
 
-## Phase 1: Core Calculation Logic (TDD)
+## Phase 1: Core Calculation Logic (TDD) [checkpoint: 9c4728a]
 - [x] Task: Create Financial Summary Utilities a3bc878
     - [x] Create `src/lib/cash-basis-utils.ts` for shared calculation logic.
     - [x] Implement `calculateCashBasisTotal(allocations)` with support for tax breakdowns.
 - [x] Task: Unit Tests for Cash-Basis Calculations a3bc878
     - [x] Create `src/lib/cash-basis-utils.test.ts`.
     - [x] Test cases: Empty allocations, single payment, partial payments, multiple payments for one invoice.
-- [ ] Task: Conductor - User Manual Verification 'Core Calculation Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Core Calculation Logic' (Protocol in workflow.md)
 
 ## Phase 2: Data Access Layer Updates
 - [ ] Task: Update Invoice Data Fetching
