@@ -1,7 +1,7 @@
 # Implementation Plan - Cash-Basis Financial Reporting
 
 ## Phase 1: Core Calculation Logic (TDD)
-- [x] Task: Create Financial Summary Utilities 0bd9599
+- [x] Task: Create Financial Summary Utilities a3bc878
     - [x] Create `src/lib/cash-basis-utils.ts` for shared calculation logic.
     - [x] Implement `calculateCashBasisTotal(allocations)` with support for tax breakdowns.
 - [ ] Task: Unit Tests for Cash-Basis Calculations
