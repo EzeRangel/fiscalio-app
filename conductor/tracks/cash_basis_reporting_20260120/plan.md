@@ -35,7 +35,7 @@
 - [x] Task: Conductor - User Manual Verification 'Invoice Lists & Partner UI' (Protocol in workflow.md)
 
 ## Phase 5: Tax Declarations & Final Review
-- [ ] Task: Update Tax Declaration Generation
-    - [ ] Ensure `src/actions/tax-declarations.ts` uses the new cash-basis calculation engine.
-    - [ ] Add tests for period-specific tax calculations based on payment dates.
+- [x] Task: Update Tax Declaration Generation a0b49ca
+    - [x] Ensure `src/actions/tax-declarations.ts` uses the new cash-basis calculation engine.
+    - [x] Add tests for period-specific tax calculations based on payment dates.
 - [ ] Task: Conductor - User Manual Verification 'Tax Declarations & Final Review' (Protocol in workflow.md)
