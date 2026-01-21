@@ -9,7 +9,7 @@
     - [x] Test cases: Empty allocations, single payment, partial payments, multiple payments for one invoice.
 - [x] Task: Conductor - User Manual Verification 'Core Calculation Logic' (Protocol in workflow.md)
 
-## Phase 2: Data Access Layer Updates
+## Phase 2: Data Access Layer Updates [checkpoint: 69f9b21]
 - [x] Task: Update Invoice Data Fetching f68222e
     - [x] Update `src/data/invoices.ts` to include payment allocation aggregates in `getInvoices`.
     - [x] Ensure `getInvoiceById` returns detailed payment status and remaining balance.
@@ -18,7 +18,7 @@
     - [x] Implement TDD for the new dashboard queries.
 - [x] Task: Update Partner Analytics Data logic 15bcaf5
     - [x] Refactor `src/data/partners-analytics.ts` to differentiate between Invoiced vs. Paid totals.
-- [ ] Task: Conductor - User Manual Verification 'Data Access Layer Updates' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Data Access Layer Updates' (Protocol in workflow.md)
 
 ## Phase 3: Dashboard UI & Visualizations
 - [ ] Task: Update KPI Cards to Cash-Basis
