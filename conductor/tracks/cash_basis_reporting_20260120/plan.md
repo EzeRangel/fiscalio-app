@@ -4,9 +4,9 @@
 - [x] Task: Create Financial Summary Utilities a3bc878
     - [x] Create `src/lib/cash-basis-utils.ts` for shared calculation logic.
     - [x] Implement `calculateCashBasisTotal(allocations)` with support for tax breakdowns.
-- [ ] Task: Unit Tests for Cash-Basis Calculations
-    - [ ] Create `src/lib/cash-basis-utils.test.ts`.
-    - [ ] Test cases: Empty allocations, single payment, partial payments, multiple payments for one invoice.
+- [x] Task: Unit Tests for Cash-Basis Calculations a3bc878
+    - [x] Create `src/lib/cash-basis-utils.test.ts`.
+    - [x] Test cases: Empty allocations, single payment, partial payments, multiple payments for one invoice.
 - [ ] Task: Conductor - User Manual Verification 'Core Calculation Logic' (Protocol in workflow.md)
 
 ## Phase 2: Data Access Layer Updates
