@@ -20,12 +20,11 @@
     - [x] Refactor `src/data/partners-analytics.ts` to differentiate between Invoiced vs. Paid totals.
 - [x] Task: Conductor - User Manual Verification 'Data Access Layer Updates' (Protocol in workflow.md)
 
-## Phase 3: Dashboard UI & Visualizations
+## Phase 3: Dashboard UI & Visualizations [checkpoint: f81da69]
 - [x] Task: Update KPI Cards to Cash-Basis c4e0478
     - [x] Modify `SummaryCard` or specific dashboard components to display "Collected Income" and "Paid Expenses".
-- [ ] Task: Update Dashboard Charts
-    - [ ] Ensure charts use the payment date for temporal distribution of income/expenses.
-- [ ] Task: Conductor - User Manual Verification 'Dashboard UI & Visualizations' (Protocol in workflow.md)
+- [x] Task: Update Dashboard Charts (N/A - No charts currently implemented)
+- [x] Task: Conductor - User Manual Verification 'Dashboard UI & Visualizations' (Protocol in workflow.md)
 
 ## Phase 4: Invoice Lists & Partner UI
 - [ ] Task: Enhance Invoice Data Table
