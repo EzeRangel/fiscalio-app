@@ -13,9 +13,9 @@
 - [x] Task: Update Invoice Data Fetching f68222e
     - [x] Update `src/data/invoices.ts` to include payment allocation aggregates in `getInvoices`.
     - [x] Ensure `getInvoiceById` returns detailed payment status and remaining balance.
-- [ ] Task: Update Dashboard Data Logic
-    - [ ] Refactor `src/data/dashboard.ts` (or `src/actions/dashboard.ts`) to query `paymentAllocations` instead of `invoices` for KPI totals.
-    - [ ] Implement TDD for the new dashboard queries.
+- [x] Task: Update Dashboard Data Logic a3f4267
+    - [x] Refactor `src/data/dashboard.ts` (or `src/actions/dashboard.ts`) to query `paymentAllocations` instead of `invoices` for KPI totals.
+    - [x] Implement TDD for the new dashboard queries.
 - [ ] Task: Update Partner Analytics Data logic
     - [ ] Refactor `src/data/partners-analytics.ts` to differentiate between Invoiced vs. Paid totals.
 - [ ] Task: Conductor - User Manual Verification 'Data Access Layer Updates' (Protocol in workflow.md)
