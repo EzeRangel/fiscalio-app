@@ -4,10 +4,21 @@ import { getDB } from "@/db";
 jest.mock("@/db", () => ({
   getDB: jest.fn(),
   invoices: {
+    id: { name: 'id' },
     organizationId: { name: 'organization_id' },
     invoiceType: { name: 'invoice_type' },
     invoiceDate: { name: 'invoice_date' },
     total: { name: 'total' },
+  },
+  payments: {
+    id: { name: 'id' },
+    organizationId: { name: 'organization_id' },
+    paymentDate: { name: 'payment_date' },
+  },
+  paymentAllocations: {
+    paymentId: { name: 'payment_id' },
+    invoiceId: { name: 'invoice_id' },
+    amountAllocated: { name: 'amount_allocated' },
   }
 }));
 
@@ -22,10 +33,11 @@ jest.mock("drizzle-orm", () => ({
 }));
 
 describe("getDashboardMetrics", () => {
-  it("should calculate income and expenses for the period", async () => {
+  it("should calculate income and expenses for the period based on payment allocations", async () => {
     const mockDb = {
       select: jest.fn().mockReturnThis(),
       from: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
       where: jest.fn()
         .mockResolvedValueOnce([{ total: "1000.50" }]) // Income
         .mockResolvedValueOnce([{ total: "500.25" }]), // Expenses
@@ -38,9 +50,13 @@ describe("getDashboardMetrics", () => {
     expect(result.expenses).toBe(500.25);
     expect(result.nextDeclarationDate).toEqual(new Date(2024, 1, 17));
 
-    // Verify select was called with sum(total)
-    expect(mockDb.select).toHaveBeenCalledWith({
-      total: expect.objectContaining({ type: 'sql' })
-    });
+    // Verify it queries paymentAllocations
+    expect(mockDb.from).toHaveBeenCalledWith(expect.objectContaining({
+        paymentId: expect.anything(),
+        invoiceId: expect.anything()
+    }));
+    
+    // Verify joins
+    expect(mockDb.innerJoin).toHaveBeenCalledTimes(4); // 2 joins per query, 2 queries
   });
 });

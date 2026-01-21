@@ -1,44 +1,58 @@
 import "server-only";
 
 import { and, eq, gte, lte, sql } from "drizzle-orm";
-import { getDB, invoices } from "@/db";
+import { getDB, invoices, paymentAllocations, payments } from "@/db";
 import { DashboardMetrics, PeriodSelection } from "@/types/dashboard";
 
 export async function getDashboardMetrics(
   organizationId: number,
-  period: PeriodSelection
+  period: PeriodSelection,
 ): Promise<DashboardMetrics> {
   const { db } = await getDB();
 
   const startOfMonth = new Date(period.year, period.month, 1, 0, 0, 0, 0);
-  const endOfMonth = new Date(period.year, period.month + 1, 0, 23, 59, 59, 999);
+  const endOfMonth = new Date(
+    period.year,
+    period.month + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
 
+  // Cash-Basis Income: sum of payment_allocations where invoice_type = 'income'
   const incomeResult = await db
     .select({
-      total: sql<string>`sum(${invoices.total})`,
+      total: sql<string>`sum(${paymentAllocations.amountAllocated})`,
     })
-    .from(invoices)
+    .from(paymentAllocations)
+    .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
+    .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
     .where(
       and(
-        eq(invoices.organizationId, organizationId),
+        eq(payments.organizationId, organizationId),
         eq(invoices.invoiceType, "income"),
-        gte(invoices.invoiceDate, startOfMonth),
-        lte(invoices.invoiceDate, endOfMonth)
-      )
+        gte(payments.paymentDate, startOfMonth),
+        lte(payments.paymentDate, endOfMonth),
+      ),
     );
 
+  // Cash-Basis Expenses: sum of payment_allocations where invoice_type = 'expense'
   const expenseResult = await db
     .select({
-      total: sql<string>`sum(${invoices.total})`,
+      total: sql<string>`sum(${paymentAllocations.amountAllocated})`,
     })
-    .from(invoices)
+    .from(paymentAllocations)
+    .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
+    .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
     .where(
       and(
-        eq(invoices.organizationId, organizationId),
+        eq(payments.organizationId, organizationId),
         eq(invoices.invoiceType, "expense"),
-        gte(invoices.invoiceDate, startOfMonth),
-        lte(invoices.invoiceDate, endOfMonth)
-      )
+        gte(payments.paymentDate, startOfMonth),
+        lte(payments.paymentDate, endOfMonth),
+      ),
     );
 
   const income = Number(incomeResult[0]?.total || 0);
