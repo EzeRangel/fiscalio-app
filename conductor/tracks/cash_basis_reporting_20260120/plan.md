@@ -16,8 +16,8 @@
 - [x] Task: Update Dashboard Data Logic a3f4267
     - [x] Refactor `src/data/dashboard.ts` (or `src/actions/dashboard.ts`) to query `paymentAllocations` instead of `invoices` for KPI totals.
     - [x] Implement TDD for the new dashboard queries.
-- [ ] Task: Update Partner Analytics Data logic
-    - [ ] Refactor `src/data/partners-analytics.ts` to differentiate between Invoiced vs. Paid totals.
+- [x] Task: Update Partner Analytics Data logic 15bcaf5
+    - [x] Refactor `src/data/partners-analytics.ts` to differentiate between Invoiced vs. Paid totals.
 - [ ] Task: Conductor - User Manual Verification 'Data Access Layer Updates' (Protocol in workflow.md)
 
 ## Phase 3: Dashboard UI & Visualizations
