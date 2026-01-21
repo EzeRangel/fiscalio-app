@@ -18,6 +18,18 @@ export const fetchBusinessPartnersWithAnalytics = async (
 ) => {
   const { db } = await getDB();
 
+  // Subquery for paid amounts per invoice
+  const paidPerInvoice = db
+    .select({
+      invoiceId: paymentAllocations.invoiceId,
+      paidAmount: sql<number>`sum(${paymentAllocations.amountAllocated})`
+        .mapWith(Number)
+        .as("paid_amount"),
+    })
+    .from(paymentAllocations)
+    .groupBy(paymentAllocations.invoiceId)
+    .as("paid_per_invoice");
+
   // Aggregate invoice stats per partner
   const statsQuery = db
     .select({
@@ -25,11 +37,15 @@ export const fetchBusinessPartnersWithAnalytics = async (
       invoiceCount: sql<number>`count(${invoices.id})`
         .mapWith(Number)
         .as("invoice_count"),
-      totalVolume: sql<number>`sum(${invoices.subtotal})`
+      totalVolume: sql<number>`sum(${invoices.total})`
         .mapWith(Number)
         .as("total_volume"),
+      paidVolume: sql<number>`sum(COALESCE(${paidPerInvoice.paidAmount}, 0))`
+        .mapWith(Number)
+        .as("paid_volume"),
     })
     .from(invoices)
+    .leftJoin(paidPerInvoice, eq(invoices.id, paidPerInvoice.invoiceId))
     .where(eq(invoices.organizationId, organizationId))
     .groupBy(invoices.partnerId)
     .as("stats");
@@ -50,6 +66,9 @@ export const fetchBusinessPartnersWithAnalytics = async (
       totalVolume: sql<number>`COALESCE(${statsQuery.totalVolume}, 0)`.mapWith(
         Number
       ),
+      paidVolume: sql<number>`COALESCE(${statsQuery.paidVolume}, 0)`.mapWith(
+        Number
+      ),
     })
     .from(businessPartners)
     .leftJoin(statsQuery, eq(businessPartners.id, statsQuery.partnerId))
@@ -61,25 +80,43 @@ export const fetchBusinessPartnersWithAnalytics = async (
 export const fetchGlobalPartnerStats = async (organizationId: number) => {
   const { db } = await getDB();
 
+  // Subquery for paid amounts per invoice
+  const paidPerInvoice = db
+    .select({
+      invoiceId: paymentAllocations.invoiceId,
+      paidAmount: sql<number>`sum(${paymentAllocations.amountAllocated})`
+        .mapWith(Number)
+        .as("paid_amount"),
+    })
+    .from(paymentAllocations)
+    .groupBy(paymentAllocations.invoiceId)
+    .as("paid_per_invoice");
+
   const results = await db
     .select({
       type: invoices.invoiceType,
-      volume: sql<number>`sum(${invoices.subtotal})`.mapWith(Number),
+      volume: sql<number>`sum(${invoices.total})`.mapWith(Number),
+      paidVolume: sql<number>`sum(COALESCE(${paidPerInvoice.paidAmount}, 0))`.mapWith(Number),
     })
     .from(invoices)
+    .leftJoin(paidPerInvoice, eq(invoices.id, paidPerInvoice.invoiceId))
     .where(eq(invoices.organizationId, organizationId))
     .groupBy(invoices.invoiceType);
 
   const stats = {
     totalClientVolume: 0,
     totalProviderVolume: 0,
+    totalClientPaidVolume: 0,
+    totalProviderPaidVolume: 0,
   };
 
   results.forEach((row) => {
     if (row.type === "income") {
       stats.totalClientVolume = row.volume || 0;
+      stats.totalClientPaidVolume = row.paidVolume || 0;
     } else if (row.type === "expense") {
       stats.totalProviderVolume = row.volume || 0;
+      stats.totalProviderPaidVolume = row.paidVolume || 0;
     }
   });
 

@@ -26,4 +26,5 @@ export type BusinessPartner = typeof businessPartners.$inferSelect;
 export type BusinessPartnerWithStats = {
   invoiceCount: number;
   totalVolume: number;
+  paidVolume: number;
 } & Partial<BusinessPartner>;
