@@ -34,8 +34,8 @@
     - [x] Update the balance displays in partner profiles to reflect the cash-basis reality.
 - [x] Task: Conductor - User Manual Verification 'Invoice Lists & Partner UI' (Protocol in workflow.md)
 
-## Phase 5: Tax Declarations & Final Review
+## Phase 5: Tax Declarations & Final Review [checkpoint: 0c68c64]
 - [x] Task: Update Tax Declaration Generation a0b49ca
     - [x] Ensure `src/actions/tax-declarations.ts` uses the new cash-basis calculation engine.
     - [x] Add tests for period-specific tax calculations based on payment dates.
-- [ ] Task: Conductor - User Manual Verification 'Tax Declarations & Final Review' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Tax Declarations & Final Review' (Protocol in workflow.md)
