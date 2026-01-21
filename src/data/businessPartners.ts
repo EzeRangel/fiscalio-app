@@ -1,4 +1,4 @@
-import { businessPartners, invoices, getDB } from "@/db";
+import { businessPartners, invoices, paymentAllocations, getDB } from "@/db";
 import { eq, sql } from "drizzle-orm";
 import "server-only";
 
