@@ -27,9 +27,9 @@
 - [x] Task: Conductor - User Manual Verification 'Dashboard UI & Visualizations' (Protocol in workflow.md)
 
 ## Phase 4: Invoice Lists & Partner UI
-- [ ] Task: Enhance Invoice Data Table
-    - [ ] Add "Paid Amount" and "Status" (Unpaid, Partial, Paid) columns to the invoices table.
-    - [ ] Add visual indicators/badges for payment status.
+- [x] Task: Enhance Invoice Data Table dbb0451
+    - [x] Add "Paid Amount" and "Status" (Unpaid, Partial, Paid) columns to the invoices table.
+    - [x] Add visual indicators/badges for payment status.
 - [ ] Task: Update Partner Detail Views
     - [ ] Update the balance displays in partner profiles to reflect the cash-basis reality.
 - [ ] Task: Conductor - User Manual Verification 'Invoice Lists & Partner UI' (Protocol in workflow.md)
