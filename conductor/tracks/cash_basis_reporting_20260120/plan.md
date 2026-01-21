@@ -21,8 +21,8 @@
 - [x] Task: Conductor - User Manual Verification 'Data Access Layer Updates' (Protocol in workflow.md)
 
 ## Phase 3: Dashboard UI & Visualizations
-- [ ] Task: Update KPI Cards to Cash-Basis
-    - [ ] Modify `SummaryCard` or specific dashboard components to display "Collected Income" and "Paid Expenses".
+- [x] Task: Update KPI Cards to Cash-Basis c4e0478
+    - [x] Modify `SummaryCard` or specific dashboard components to display "Collected Income" and "Paid Expenses".
 - [ ] Task: Update Dashboard Charts
     - [ ] Ensure charts use the payment date for temporal distribution of income/expenses.
 - [ ] Task: Conductor - User Manual Verification 'Dashboard UI & Visualizations' (Protocol in workflow.md)
