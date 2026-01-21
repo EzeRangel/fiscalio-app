@@ -286,6 +286,7 @@ export const getInvoicesByOrganization = async (
     orderBy: [desc(invoices.invoiceDate)],
     with: {
       businessPartner: true,
+      allocations: true,
     },
   });
 };
@@ -322,6 +323,7 @@ export const getLatestInvoices = async (organizationId: number) => {
     orderBy: [desc(invoices.invoiceDate)],
     with: {
       businessPartner: true,
+      allocations: true,
     },
   });
 };
@@ -352,6 +354,7 @@ export const getInvoicesByPeriod = async (
     orderBy: [desc(invoices.invoiceDate)],
     with: {
       businessPartner: true,
+      allocations: true,
     },
   });
 };

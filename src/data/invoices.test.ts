@@ -40,4 +40,23 @@ describe("getInvoicesByOrganization", () => {
     const whereStr = JSON.stringify(lastCall.where);
     expect(whereStr).toContain('"val":123');
   });
+
+  it("should include businessPartner and allocations in 'with' clause", async () => {
+    const mockDb = {
+      query: {
+        invoices: {
+          findMany: jest.fn().mockResolvedValue([]),
+        },
+      },
+    };
+    (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
+
+    await getInvoicesByOrganization(1);
+
+    const lastCall = (mockDb.query.invoices.findMany as jest.Mock).mock.calls[0][0];
+    expect(lastCall.with).toEqual({
+      businessPartner: true,
+      allocations: true,
+    });
+  });
 });
