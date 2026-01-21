@@ -61,23 +61,23 @@ export default function SummaryCards({ monthName, invoices, metrics, isLoading }
       {hasInvoices || metrics ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <SummaryCard
-            title="Ingresos"
+            title="Ingresos (Cobrado)"
             value={formattedIncome}
-            subtitle={`${invoices?.filter((inv) => inv.cfdiType === "I").length || 0} facturas`}
+            subtitle={`${invoices?.filter((inv) => inv.invoiceType === "income").length || 0} facturas`}
             icon={TrendingUp}
             color="green"
           />
 
           <SummaryCard
-            title="Egresos"
+            title="Egresos (Pagado)"
             value={formattedExpense}
-            subtitle={`${invoices?.filter((inv) => inv.cfdiType === "E").length || 0} facturas`}
+            subtitle={`${invoices?.filter((inv) => inv.invoiceType === "expense").length || 0} facturas`}
             icon={TrendingDown}
             color="red"
           />
 
           <SummaryCard
-            title="Neto"
+            title="Flujo de Efectivo"
             value={formattedNet}
             subtitle="Balance del periodo"
             icon={Wallet}
