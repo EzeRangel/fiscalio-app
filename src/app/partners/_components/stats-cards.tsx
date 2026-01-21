@@ -10,6 +10,8 @@ interface Props {
   globalStats?: {
     totalClientVolume: number;
     totalProviderVolume: number;
+    totalClientPaidVolume: number;
+    totalProviderPaidVolume: number;
   };
 }
 
@@ -24,6 +26,8 @@ export function StatsCards({ partners, globalStats }: Props) {
     ).length,
     clientVolume: globalStats?.totalClientVolume ?? 0,
     providerVolume: globalStats?.totalProviderVolume ?? 0,
+    clientPaid: globalStats?.totalClientPaidVolume ?? 0,
+    providerPaid: globalStats?.totalProviderPaidVolume ?? 0,
   };
 
   return (
@@ -31,33 +35,20 @@ export function StatsCards({ partners, globalStats }: Props) {
       <div className="grid gap-4 md:grid-cols-4">
         <div className="bg-card border border-border rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-primary/10 p-2.5">
-              <UsersIcon className="h-5 w-5 text-primary" />
-            </div>
-            <div className="space-y-0.5">
-              <div className="text-2xl font-mono font-medium">
-                {stats.total}
-              </div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
-                Socios Totales
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-lg p-5 shadow-sm">
-          <div className="flex items-center gap-3">
             <div className="rounded-full bg-emerald-500/10 p-2.5">
               <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
-                <PrivacyBlur>{formatCurrency(stats.clientVolume)}</PrivacyBlur>
+                <PrivacyBlur>{formatCurrency(stats.clientPaid)}</PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
-                Volumen Clientes
+                Cobrado (Clientes)
               </div>
             </div>
+          </div>
+          <div className="mt-2 text-[10px] text-muted-foreground font-mono">
+            de {formatCurrency(stats.clientVolume)} facturado
           </div>
         </div>
 
@@ -69,13 +60,16 @@ export function StatsCards({ partners, globalStats }: Props) {
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
                 <PrivacyBlur>
-                  {formatCurrency(stats.providerVolume)}
+                  {formatCurrency(stats.providerPaid)}
                 </PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
-                Volumen Proveedores
+                Pagado (Proveedores)
               </div>
             </div>
+          </div>
+          <div className="mt-2 text-[10px] text-muted-foreground font-mono">
+            de {formatCurrency(stats.providerVolume)} facturado
           </div>
         </div>
 
@@ -87,11 +81,30 @@ export function StatsCards({ partners, globalStats }: Props) {
             <div className="space-y-0.5">
               <div className="text-2xl font-mono font-medium">
                 <PrivacyBlur>
-                  {formatCurrency(stats.clientVolume - stats.providerVolume)}
+                  {formatCurrency(stats.clientPaid - stats.providerPaid)}
                 </PrivacyBlur>
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
-                Balance Neto
+                Flujo Neto
+              </div>
+            </div>
+          </div>
+          <div className="mt-2 text-[10px] text-muted-foreground font-mono">
+             Balance de efectivo real
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-lg p-5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-primary/10 p-2.5">
+              <UsersIcon className="h-5 w-5 text-primary" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="text-2xl font-mono font-medium">
+                {stats.total}
+              </div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
+                Socios Totales
               </div>
             </div>
           </div>

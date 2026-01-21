@@ -107,7 +107,7 @@ export const getColumns = (
   },
   {
     id: "invoices",
-    header: () => <div className="text-center">Facturas</div>,
+    header: () => <div className="text-center">Docs</div>,
     accessorKey: "invoiceCount",
     cell: ({ row: { original: partner } }) => {
       return (
@@ -121,22 +121,42 @@ export const getColumns = (
   },
   {
     id: "volume",
-    header: () => <div className="text-right">Volumen</div>,
+    header: () => <div className="text-right">Facturado</div>,
     accessorKey: "totalVolume",
     cell: ({ row: { original: partner } }) => {
       return (
         <div className="text-right">
-          <div className="font-mono text-sm font-medium">
+          <div className="font-mono text-xs text-muted-foreground">
             <PrivacyBlur>{formatCurrency(partner.totalVolume)}</PrivacyBlur>
           </div>
-          {partner.creditLimit && Number(partner.creditLimit) > 0 && (
-            <div className="text-[10px] text-muted-foreground font-mono uppercase">
-              Límite:{" "}
-              <PrivacyBlur>
-                {formatCurrency(Number(partner.creditLimit))}
-              </PrivacyBlur>
-            </div>
-          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: "paid",
+    header: () => <div className="text-right">Cobrado/Pagado</div>,
+    accessorKey: "paidVolume",
+    cell: ({ row: { original: partner } }) => {
+      return (
+        <div className="text-right">
+          <div className="font-mono text-sm font-medium">
+            <PrivacyBlur>{formatCurrency(partner.paidVolume || 0)}</PrivacyBlur>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    id: "balance",
+    header: () => <div className="text-right">Pendiente</div>,
+    cell: ({ row: { original: partner } }) => {
+      const balance = (partner.totalVolume || 0) - (partner.paidVolume || 0);
+      return (
+        <div className="text-right">
+          <div className={`font-mono text-sm font-medium ${balance > 0 ? "text-amber-600 dark:text-amber-400" : ""}`}>
+            <PrivacyBlur>{formatCurrency(balance)}</PrivacyBlur>
+          </div>
         </div>
       );
     },
