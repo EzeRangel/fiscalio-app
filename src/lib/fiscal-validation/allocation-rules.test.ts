@@ -182,5 +182,19 @@ describe("Allocation Validation Rules", () => {
       const result = validateAllocation(validContext);
       expect(result.isValid).toBe(true);
     });
+
+    it("should pass if payment is same day but earlier time than invoice", () => {
+      const invoiceDate = new Date("2024-01-10T15:00:00Z");
+      const paymentDate = new Date("2024-01-10T09:00:00Z"); // Same day, earlier time
+
+      const validContext = {
+        ...context,
+        invoice: { ...invoice, invoiceDate },
+        payment: { ...payment, paymentDate },
+      };
+
+      const result = validateAllocation(validContext);
+      expect(result.isValid).toBe(true);
+    });
   });
 });
