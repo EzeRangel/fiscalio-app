@@ -6,6 +6,7 @@ import { logAction } from "@/lib/audit-service";
 jest.mock("@/lib/safe-action", () => ({
   actionClient: {
     schema: jest.fn().mockReturnThis(),
+    inputSchema: jest.fn().mockReturnThis(),
     action: jest.fn((callback) => async (input: any) => {
       try {
         const result = await callback({ parsedInput: input });
@@ -82,7 +83,7 @@ describe("updatePaymentAction", () => {
     });
 
     expect(result?.serverError).toBeDefined();
-    expect(result?.serverError).toContain("Payment not found");
+    expect(result?.serverError).toContain("Pago no encontrado");
   });
 
   it("should fail if new date is before invoice date", async () => {
@@ -95,6 +96,8 @@ describe("updatePaymentAction", () => {
       organizationId: 123,
       allocations: [
         {
+          invoiceId: 10,
+          amountAllocated: "100",
           invoice: {
             id: 10,
             invoiceDate: invoiceDate,
@@ -125,6 +128,8 @@ describe("updatePaymentAction", () => {
       organizationId: 123,
       allocations: [
         {
+          invoiceId: 10,
+          amountAllocated: "100",
           invoice: {
             id: 10,
             invoiceDate: invoiceDate,
@@ -155,11 +160,25 @@ describe("updatePaymentAction", () => {
     expect(result?.data?.success).toBe(true);
 
     // Verify Audit Log
+    expect(logAction).toHaveBeenCalledTimes(2);
+    
+    // Log for Payment
     expect(logAction).toHaveBeenCalledWith(expect.objectContaining({
-      action: "modified",
+      action: "updated",
       entityType: "payment",
       entityId: 1,
       organizationId: 123,
+    }));
+
+    // Log for Linked Invoice
+    expect(logAction).toHaveBeenCalledWith(expect.objectContaining({
+      action: "modified",
+      entityType: "invoice",
+      entityId: 10,
+      organizationId: 123,
+      metadata: expect.objectContaining({
+        reason: "Linked payment details corrected",
+      }),
     }));
   });
 });

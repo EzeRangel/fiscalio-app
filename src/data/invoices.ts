@@ -377,7 +377,15 @@ export const getInvoiceById = async (id: number) => {
       },
       allocations: {
         with: {
-          payment: true,
+          payment: {
+            with: {
+              allocations: {
+                with: {
+                  invoice: true,
+                },
+              },
+            },
+          },
           invoice: true,
         },
       },

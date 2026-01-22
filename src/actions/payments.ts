@@ -2,8 +2,8 @@
 
 import { z } from "zod";
 import { actionClient } from "@/lib/safe-action";
-import { getDB, payments, invoices, paymentAllocations } from "@/db";
-import { eq, and } from "drizzle-orm";
+import { getDB, payments } from "@/db";
+import { eq } from "drizzle-orm";
 import { logAction } from "@/lib/audit-service";
 import { revalidatePath } from "next/cache";
 import { ActionError } from "@/lib/errors";
@@ -13,15 +13,16 @@ import {
   FiscalAllocationContext,
   FISCAL_VALIDATION_RULES,
 } from "@/lib/fiscal-validation";
+import { zfd } from "zod-form-data";
 
-export const updatePaymentSchema = z.object({
-  paymentId: z.number(),
-  paymentDate: z.date(),
+const updatePaymentSchema = zfd.formData({
+  paymentId: zfd.numeric(),
+  paymentDate: zfd.text(z.date()),
   notes: z.string().optional(),
 });
 
 export const updatePaymentAction = actionClient
-  .schema(updatePaymentSchema)
+  .inputSchema(updatePaymentSchema)
   .action(async ({ parsedInput: { paymentId, paymentDate, notes } }) => {
     const { db } = await getDB();
 
@@ -39,7 +40,7 @@ export const updatePaymentAction = actionClient
       });
 
       if (!existingPayment) {
-        throw new ActionError("Payment not found");
+        throw new ActionError("Pago no encontrado");
       }
 
       // 2. Validate Payment Rules (e.g. Future Date)
@@ -52,7 +53,7 @@ export const updatePaymentAction = actionClient
 
       const paymentValidation = validatePayment(fiscalPayment);
       const futureDateError = paymentValidation.errors.find(
-        (e) => e.code === FISCAL_VALIDATION_RULES.PAYMENT.NO_FUTURE_DATE
+        (e) => e.code === FISCAL_VALIDATION_RULES.PAYMENT.NO_FUTURE_DATE,
       );
       if (futureDateError) {
         throw new ActionError(futureDateError.message);
@@ -83,13 +84,13 @@ export const updatePaymentAction = actionClient
 
         const result = validateAllocation(validationContext);
         const dateError = result.errors.find(
-          (e) => e.code === FISCAL_VALIDATION_RULES.ALLOCATION.DATE_MISMATCH
+          (e) => e.code === FISCAL_VALIDATION_RULES.ALLOCATION.DATE_MISMATCH,
         );
         if (dateError) {
           throw new ActionError(
             `Payment date cannot be earlier than invoice date (${
               allocation.invoice.internalFolio || allocation.invoice.folioFiscal
-            }).`
+            }).`,
           );
         }
       }
@@ -107,12 +108,12 @@ export const updatePaymentAction = actionClient
 
       // 5. Log the action
       await logAction({
-        action: "modified",
+        action: "updated",
         entityType: "payment",
         entityId: paymentId,
         organizationId: existingPayment.organizationId,
         metadata: {
-          reason: "Manual correction of payment details",
+          reason: "Confirmación de fecha de pago",
           source: "manual",
           diff: {
             paymentDate: {
@@ -128,8 +129,28 @@ export const updatePaymentAction = actionClient
         tx,
       });
 
-      // 6. Revalidate path
+      // 6. Revalidate path and log for linked invoices
       for (const allocation of existingPayment.allocations) {
+        if (allocation.invoiceId) {
+          await logAction({
+            action: "modified",
+            entityType: "invoice",
+            entityId: allocation.invoiceId,
+            organizationId: existingPayment.organizationId,
+            metadata: {
+              reason: "Linked payment details corrected",
+              source: "manual",
+              paymentId,
+              diff: {
+                paymentDate: {
+                  old: existingPayment.paymentDate,
+                  new: updatedPayment.paymentDate,
+                },
+              },
+            },
+            tx,
+          });
+        }
         revalidatePath(`/invoices/${allocation.invoiceId}`);
       }
 

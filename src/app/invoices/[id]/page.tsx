@@ -29,7 +29,13 @@ export default async function InvoiceDetailPage({
     notFound();
   }
 
-  const relatedPayments = await getPaymentsByFolio(invoice.folioFiscal);
+  // Derive payments from allocations (PUE/PPD Invoices)
+  // For Payment Complements (Type P), this might need specific handling if not linked via allocations
+  let relatedPayments = invoice.allocations.map((a) => a.payment);
+
+  if (invoice.cfdiType === "P" && relatedPayments.length === 0) {
+     relatedPayments = await getPaymentsByFolio(invoice.folioFiscal);
+  }
 
   return (
     <div className="min-h-screen bg-background">
