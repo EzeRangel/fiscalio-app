@@ -23,10 +23,10 @@
 - [x] Task: Create `EditPaymentDialog` Component 6a2722f
     - [x] Build a Shadcn-based dialog for editing payment date and notes.
     - [x] Implement client-side validation (date >= invoice date).
-- [ ] Task: Integrate Edit Flow in Invoice Details
-    - [ ] Add "Edit" button to the payment list items.
-    - [ ] Connect the button to the `EditPaymentDialog`.
-    - [ ] Handle success state with `toast` and router refresh.
+- [x] Task: Integrate Edit Flow in Invoice Details 91271b3
+    - [x] Add "Edit" button to the payment list items.
+    - [x] Connect the button to the `EditPaymentDialog`.
+    - [x] Handle success state with `toast` and router refresh.
 - [ ] Task: Conductor - User Manual Verification 'UI Components & Visual Cues' (Protocol in workflow.md)
 
 ## Phase 3: Final Integration & Audit Review
