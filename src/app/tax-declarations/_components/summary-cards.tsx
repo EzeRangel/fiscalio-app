@@ -45,7 +45,7 @@ export function SummaryCards({ data, currentPeriod }: Props) {
       <SummaryCard
         title="Ingresos"
         value={formatCurrency(totalIncome)}
-        subtitle={`${currentPeriod.incomeInvoiceCount} facturas emitidas`}
+        subtitle={`${currentPeriod.incomeInvoiceCount} facturas`}
         icon={TrendingUp}
         color="green"
       />
@@ -54,7 +54,7 @@ export function SummaryCards({ data, currentPeriod }: Props) {
       <SummaryCard
         title="Egresos"
         value={formatCurrency(totalExpenses)}
-        subtitle={`${currentPeriod.expenseInvoiceCount} facturas recibidas`}
+        subtitle={`${currentPeriod.expenseInvoiceCount} facturas`}
         icon={TrendingDown}
         color="red"
       />

@@ -193,7 +193,7 @@ export function AuditLogPane({
                       ? sourceConfig[log.metadata.source]
                       : null;
                     const hasChanges = Object.keys(log.changes).length > 0;
-                    const ActionIcon = action.icon;
+                    const ActionIcon = action?.icon ?? null;
 
                     return (
                       <div key={log.id} className="flex gap-6">
@@ -213,9 +213,12 @@ export function AuditLogPane({
                           <div className="bg-muted/20 border border-border rounded-lg p-4 hover:border-primary/20 transition-colors">
                             {/* Action Label with Icon */}
                             <div className="flex items-center gap-2 mb-2">
-                              <ActionIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                              {ActionIcon && (
+                                <ActionIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                              )}
+
                               <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                                {action.label}
+                                {action?.label ?? ""}
                               </span>
 
                               {source && (
@@ -275,7 +278,7 @@ export function AuditLogPane({
                                         </span>
                                       </div>
                                     </div>
-                                  )
+                                  ),
                                 )}
                               </div>
                             )}

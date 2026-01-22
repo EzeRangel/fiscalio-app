@@ -55,7 +55,7 @@ interface Actions {
 }
 
 export const getColumns = (
-  actions: Actions
+  actions: Actions,
 ): ColumnDef<BusinessPartnerWithStats>[] => [
   {
     accessorKey: "businessName",
@@ -126,7 +126,7 @@ export const getColumns = (
     cell: ({ row: { original: partner } }) => {
       return (
         <div className="text-right">
-          <div className="font-mono text-xs text-muted-foreground">
+          <div className="font-mono text-muted-foreground">
             <PrivacyBlur>{formatCurrency(partner.totalVolume)}</PrivacyBlur>
           </div>
         </div>
@@ -142,20 +142,6 @@ export const getColumns = (
         <div className="text-right">
           <div className="font-mono text-sm font-medium">
             <PrivacyBlur>{formatCurrency(partner.paidVolume || 0)}</PrivacyBlur>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    id: "balance",
-    header: () => <div className="text-right">Pendiente</div>,
-    cell: ({ row: { original: partner } }) => {
-      const balance = (partner.totalVolume || 0) - (partner.paidVolume || 0);
-      return (
-        <div className="text-right">
-          <div className={`font-mono text-sm font-medium ${balance > 0 ? "text-amber-600 dark:text-amber-400" : ""}`}>
-            <PrivacyBlur>{formatCurrency(balance)}</PrivacyBlur>
           </div>
         </div>
       );

@@ -38,13 +38,27 @@ interface Props {
 }
 
 const getPaymentStatus = (total: number, paid: number) => {
-  if (paid <= 0) return { label: "Pendiente", color: "bg-red-500/10 text-red-700 border-red-500/20" };
-  if (paid >= total) return { label: "Pagado", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20" };
-  return { label: "Parcial", color: "bg-amber-500/10 text-amber-700 border-amber-500/20" };
+  if (paid <= 0)
+    return {
+      label: "Pendiente",
+      color: "bg-red-500/10 text-red-700 border-red-500/20",
+    };
+  if (paid >= total)
+    return {
+      label: "Pagado",
+      color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+    };
+  return {
+    label: "Parcial",
+    color: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+  };
 };
 
 const calculateInvoicePaid = (invoice: InvoiceWithContacts) => {
-  return (invoice.allocations || []).reduce((sum, alloc) => sum + Number(alloc.amountAllocated), 0);
+  return (invoice.allocations || []).reduce(
+    (sum, alloc) => sum + Number(alloc.amountAllocated),
+    0,
+  );
 };
 
 export default function List({
@@ -78,30 +92,33 @@ export default function List({
   const groupedInvoices =
     periodGroup === "none"
       ? { all: filteredInvoices }
-      : filteredInvoices.reduce((acc, invoice) => {
-          let key = "";
-          if (periodGroup === "month") {
-            key = invoice.accountingPeriod || "Sin periodo";
-          } else if (periodGroup === "year") {
-            key = invoice.accountingPeriod?.substring(0, 4) || "Sin periodo";
-          }
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(invoice);
-          return acc;
-        }, {} as Record<string, InvoiceWithContacts[]>);
+      : filteredInvoices.reduce(
+          (acc, invoice) => {
+            let key = "";
+            if (periodGroup === "month") {
+              key = invoice.accountingPeriod || "Sin periodo";
+            } else if (periodGroup === "year") {
+              key = invoice.accountingPeriod?.substring(0, 4) || "Sin periodo";
+            }
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(invoice);
+            return acc;
+          },
+          {} as Record<string, InvoiceWithContacts[]>,
+        );
 
   const calculatePeriodTotals = (periodInvoices: InvoiceWithContacts[]) => {
     // Cash-basis totals for the period
     let income = 0;
     let expense = 0;
-    
-    periodInvoices.forEach(inv => {
-        const paid = calculateInvoicePaid(inv);
-        if (inv.invoiceType === "income") {
-            income += paid;
-        } else if (inv.invoiceType === "expense") {
-            expense += paid;
-        }
+
+    periodInvoices.forEach((inv) => {
+      const paid = calculateInvoicePaid(inv);
+      if (inv.invoiceType === "income") {
+        income += paid;
+      } else if (inv.invoiceType === "expense") {
+        expense += paid;
+      }
     });
 
     return { income, expense, net: income - expense };
@@ -208,14 +225,14 @@ export default function List({
                       <TableHead className="text-xs uppercase tracking-widest font-medium w-[100px]">
                         Tipo
                       </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium w-[120px]">
+                        Pago
+                      </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
                         Facturado
                       </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
                         Cobrado/Pagado
-                      </TableHead>
-                      <TableHead className="text-xs uppercase tracking-widest font-medium w-[120px]">
-                        Estado Pago
                       </TableHead>
                       <TableHead className="w-[60px]"></TableHead>
                     </TableRow>
@@ -223,7 +240,10 @@ export default function List({
                   <TableBody>
                     {invoices.map((invoice) => {
                       const totalPaid = calculateInvoicePaid(invoice);
-                      const status = getPaymentStatus(Number(invoice.total), totalPaid);
+                      const status = getPaymentStatus(
+                        Number(invoice.total),
+                        totalPaid,
+                      );
 
                       return (
                         <TableRow
@@ -248,7 +268,7 @@ export default function List({
                           <TableCell className="text-sm font-mono">
                             <time
                               dateTime={new Date(
-                                invoice.invoiceDate
+                                invoice.invoiceDate,
                               ).toISOString()}
                             >
                               {new Date(invoice.invoiceDate).toLocaleDateString(
@@ -257,7 +277,7 @@ export default function List({
                                   year: "numeric",
                                   month: "short",
                                   day: "numeric",
-                                }
+                                },
                               )}
                             </time>
                           </TableCell>
@@ -271,15 +291,26 @@ export default function List({
                               }
                             >
                               {getCFDIType(
-                                invoice.cfdiType as keyof typeof CFDI_TYPE
+                                invoice.cfdiType as keyof typeof CFDI_TYPE,
                               )}
                             </Badge>
                           </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={`font-mono text-xs ${status.color}`}
+                            >
+                              {status.label}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="text-right">
-                            <div className="font-mono text-xs text-muted-foreground">
+                            <div className="font-mono text-muted-foreground">
                               <PrivacyBlur>
                                 {formatPrice(Number(invoice.total), 2)}
                               </PrivacyBlur>
+                            </div>
+                            <div className="text-xs text-muted-foreground font-mono">
+                              {invoice.currency}
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
@@ -293,40 +324,33 @@ export default function List({
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={`font-mono text-xs ${status.color}`}
-                            >
-                              {status.label}
-                            </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                  <Eye className="h-4 w-4" />
+                                  <Link href={`/invoices/${invoice.id}`}>
+                                    Ver detalles
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <FileText className="h-4 w-4" />
+                                  Descargar XML
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
-                                <Eye className="h-4 w-4" />
-                                <Link href={`/invoices/${invoice.id}`}>
-                                  Ver detalles
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <FileText className="h-4 w-4" />
-                                Descargar XML
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

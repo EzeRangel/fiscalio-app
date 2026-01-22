@@ -15,6 +15,7 @@ import {
   CircleDotDashed,
   CircleCheck,
   ClockFading,
+  FileCheckCornerIcon,
 } from "lucide-react";
 import { getTaxDeclarationsDashboardData } from "@/data/tax-declarations";
 import { getActiveOrganizationId } from "@/lib/session";
@@ -82,8 +83,46 @@ export default async function TaxDeclarationsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-gradient-to-br from-muted/30 via-background to-background">
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5">
+                <FileCheckCornerIcon className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-mono uppercase tracking-widest text-primary">
+                  {`Periodo ${formatPeriod(currentPeriod.period)}`}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
+                  Reporte de declaraciones
+                  <span className="block text-muted-foreground text-2xl mt-2">
+                    Referencias estimadas
+                  </span>
+                </h1>
+                <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+                  Crea borradores, encuentra inconsistencias y revisa que todo
+                  vaya bien para tus declaraciones
+                </p>
+              </div>
+            </div>
+            <div
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg border font-mono text-xs",
+                currentStatusInfo.className,
+              )}
+            >
+              {currentStatusInfo.icon}
+              {currentStatusInfo.text}
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* Technical Header */}
-      <header className="border-b border-border">
+      {/* <header className="border-b border-border">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
@@ -117,7 +156,7 @@ export default async function TaxDeclarationsPage() {
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <section className="container mx-auto px-6 py-8">
         <div className="grid gap-6">

@@ -44,9 +44,8 @@ const CFDI_TYPE_COLOR = {
 
 export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
   const isPaymentComplement = invoice.cfdiType === "P";
-  const [editingPayment, setEditingPayment] = useState<PaymentAllocation | null>(
-    null
-  );
+  const [editingPayment, setEditingPayment] =
+    useState<PaymentAllocation | null>(null);
 
   return (
     <div className="container mx-auto px-6 py-12 max-w-7xl">
@@ -59,7 +58,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 className={cn(
                   "font-mono text-xs tracking-wider",
                   // @ts-expect-error Incorrect type
-                  CFDI_TYPE_COLOR[invoice.cfdiType] || "bg-gray-500/10"
+                  CFDI_TYPE_COLOR[invoice.cfdiType] || "bg-gray-500/10",
                 )}
               >
                 {/* @ts-expect-error No se puede asignar un argumento de tipo "string" al parámetro de tipo ""I" | "E" | "T" */}
@@ -100,8 +99,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
               </h2>
               <div className="flex gap-6 text-sm text-muted-foreground font-mono">
                 <span>
-                  RFC:{" "}
-                  <PrivacyBlur>{invoice.businessPartner?.rfc}</PrivacyBlur>
+                  RFC: <PrivacyBlur>{invoice.businessPartner?.rfc}</PrivacyBlur>
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
@@ -228,12 +226,12 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
-                  }
+                  },
                 )}
               </p>
               <p className="text-xs text-muted-foreground font-mono">
                 {new Date(invoice.certificationDate).toLocaleTimeString(
-                  "es-MX"
+                  "es-MX",
                 )}
               </p>
             </div>
@@ -279,7 +277,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
 
       {/* Pagos Relacionados (For Payment Complements OR Standard PUE Invoices) */}
       {relatedPayments.length > 0 && (
-        <div className="space-y-8">
+        <div className="space-y-8 mb-8">
           <div>
             <h3 className="text-xs uppercase tracking-widest text-muted-foreground mb-2 font-medium">
               {isPaymentComplement ? "Pagos Realizados" : "Historial de Pagos"}
@@ -341,7 +339,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -390,7 +388,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                               <PrivacyBlur>
                                 {formatPrice(
                                   Number(allocation.amountAllocated),
-                                  2
+                                  2,
                                 )}
                               </PrivacyBlur>
                             </div>
