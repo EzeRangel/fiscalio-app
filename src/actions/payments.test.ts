@@ -22,19 +22,19 @@ jest.mock("@/lib/safe-action", () => ({
 jest.mock("@/db", () => ({
   getDB: jest.fn(),
   payments: {
-    id: { name: 'id' },
-    paymentDate: { name: 'payment_date' },
-    notes: { name: 'notes' },
-    organizationId: { name: 'organization_id' },
+    id: { name: "id" },
+    paymentDate: { name: "payment_date" },
+    notes: { name: "notes" },
+    organizationId: { name: "organization_id" },
   },
   invoices: {
-    id: { name: 'id' },
-    invoiceDate: { name: 'invoice_date' },
+    id: { name: "id" },
+    invoiceDate: { name: "invoice_date" },
   },
   paymentAllocations: {
-    paymentId: { name: 'payment_id' },
-    invoiceId: { name: 'invoice_id' },
-  }
+    paymentId: { name: "payment_id" },
+    invoiceId: { name: "invoice_id" },
+  },
 }));
 
 jest.mock("@/lib/audit-service", () => ({
@@ -113,7 +113,9 @@ describe("updatePaymentAction", () => {
     });
 
     expect(result?.serverError).toBeDefined();
-    expect(result?.serverError).toContain("Payment date cannot be earlier than invoice date");
+    expect(result?.serverError).toContain(
+      "Payment date cannot be earlier than invoice date",
+    );
   });
 
   it("should successfully update payment date and notes and log action", async () => {
@@ -139,15 +141,19 @@ describe("updatePaymentAction", () => {
     };
 
     mockDb.query.payments.findFirst.mockResolvedValue(mockPayment);
-    
+
     // Mock update returning the updated payment
-    const mockUpdateReturning = jest.fn().mockResolvedValue([{ ...mockPayment, paymentDate: newDate, notes: "New note" }]);
+    const mockUpdateReturning = jest
+      .fn()
+      .mockResolvedValue([
+        { ...mockPayment, paymentDate: newDate, notes: "New note" },
+      ]);
     mockDb.update.mockReturnValue({
-        set: jest.fn().mockReturnValue({
-            where: jest.fn().mockReturnValue({
-                returning: mockUpdateReturning
-            })
-        })
+      set: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          returning: mockUpdateReturning,
+        }),
+      }),
     });
 
     const result = await updatePaymentAction({
@@ -161,24 +167,28 @@ describe("updatePaymentAction", () => {
 
     // Verify Audit Log
     expect(logAction).toHaveBeenCalledTimes(2);
-    
+
     // Log for Payment
-    expect(logAction).toHaveBeenCalledWith(expect.objectContaining({
-      action: "updated",
-      entityType: "payment",
-      entityId: 1,
-      organizationId: 123,
-    }));
+    expect(logAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "updated",
+        entityType: "payment",
+        entityId: 1,
+        organizationId: 123,
+      }),
+    );
 
     // Log for Linked Invoice
-    expect(logAction).toHaveBeenCalledWith(expect.objectContaining({
-      action: "modified",
-      entityType: "invoice",
-      entityId: 10,
-      organizationId: 123,
-      metadata: expect.objectContaining({
-        reason: "Linked payment details corrected",
+    expect(logAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "updated",
+        entityType: "invoice",
+        entityId: 10,
+        organizationId: 123,
+        metadata: expect.objectContaining({
+          reason: "Corrección de la fecha de pago",
+        }),
       }),
-    }));
+    );
   });
 });

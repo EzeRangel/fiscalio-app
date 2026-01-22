@@ -133,12 +133,12 @@ export const updatePaymentAction = actionClient
       for (const allocation of existingPayment.allocations) {
         if (allocation.invoiceId) {
           await logAction({
-            action: "modified",
+            action: "updated",
             entityType: "invoice",
             entityId: allocation.invoiceId,
             organizationId: existingPayment.organizationId,
             metadata: {
-              reason: "Linked payment details corrected",
+              reason: "Confirmación de fecha de pago",
               source: "manual",
               paymentId,
               diff: {
