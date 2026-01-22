@@ -14,9 +14,10 @@ async function main() {
   console.log("Seeding test data...");
 
   // Create a test organization
+  const rfc = faker.string.alphanumeric(12).toUpperCase();
   const [organization] = await db.insert(organizations).values({
-    businessName: 'Test Organization',
-    rfc: 'TESTORG12345',
+    businessName: 'Test Organization ' + rfc,
+    rfc: rfc,
     taxRegimeId: 1, // Assuming a tax regime with ID 1 exists
   }).returning();
 
@@ -46,6 +47,7 @@ async function main() {
       invoiceDate: faker.date.past(),
       subtotal: subtotal.toFixed(2),
       total: total.toFixed(2),
+      paymentMethod: i % 2 === 0 ? 'PUE' : 'PPD', // Half PUE, half PPD
     });
   }
 

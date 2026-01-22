@@ -1,4 +1,4 @@
-import { auditLogs } from "@/db";
+import type { auditLogs } from "@/db/schema/auditLogs";
 import z from "zod/v4";
 
 export type AuditLog = typeof auditLogs.$inferSelect;

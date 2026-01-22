@@ -1,5 +1,4 @@
 import { auditLogs } from "@/db/schema/auditLogs";
-import { getDB } from "@/db";
 import { AuditChanges, AuditMetadata } from "@/types/audit-log";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,6 +62,7 @@ export async function logAction(params: LogActionParams) {
   try {
     let database = tx;
     if (!database) {
+      const { getDB } = await import("@/db");
       const { db } = await getDB();
       database = db;
     }
