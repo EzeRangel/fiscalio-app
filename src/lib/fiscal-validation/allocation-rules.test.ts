@@ -151,4 +151,36 @@ describe("Allocation Validation Rules", () => {
   // For now, there's nothing to validate on the object itself regarding period unless we pass a target period.
   // I'll skip specific test for ALL-05 unless I add a period field to FiscalAllocation.
 
+  describe("ALL-07: Payment date cannot be earlier than Invoice date", () => {
+    it("should fail if payment date is before invoice date", () => {
+      const invoiceDate = new Date("2024-01-10T12:00:00Z");
+      const paymentDate = new Date("2024-01-09T12:00:00Z"); // Before
+
+      const invalidContext = {
+        ...context,
+        invoice: { ...invoice, invoiceDate },
+        payment: { ...payment, paymentDate },
+      };
+
+      const result = validateAllocation(invalidContext);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          code: FISCAL_VALIDATION_RULES.ALLOCATION.DATE_MISMATCH,
+        })
+      );
+    });
+
+    it("should pass if payment date is same as invoice date", () => {
+      const date = new Date("2024-01-10T12:00:00Z");
+      const validContext = {
+        ...context,
+        invoice: { ...invoice, invoiceDate: date },
+        payment: { ...payment, paymentDate: date },
+      };
+
+      const result = validateAllocation(validContext);
+      expect(result.isValid).toBe(true);
+    });
+  });
 });
