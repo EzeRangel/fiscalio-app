@@ -4,16 +4,16 @@
 - [x] Task: Create Payment Update Action Foundation 83ddcc9
     - [x] Create `src/actions/payments.ts` (if it doesn't exist) or add to it.
     - [x] Define Zod schema for payment updates (date and notes).
-- [ ] Task: Unit Tests for `updatePaymentAction`
-    - [ ] Create `src/actions/payments.test.ts`.
-    - [ ] Test case: Successful update of date and notes.
-    - [ ] Test case: Fail if new date is before invoice date.
-    - [ ] Test case: Fail if payment doesn't exist.
-    - [ ] Test case: Verify audit log entry is created.
-- [ ] Task: Implement `updatePaymentAction`
-    - [ ] Implement logic in `src/actions/payments.ts`.
-    - [ ] Integrate `logAction` from `src/lib/audit-service.ts`.
-    - [ ] Ensure amount remains untouched.
+- [x] Task: Unit Tests for `updatePaymentAction` b14a0d6
+    - [x] Create `src/actions/payments.test.ts`.
+    - [x] Test case: Successful update of date and notes.
+    - [x] Test case: Fail if new date is before invoice date.
+    - [x] Test case: Fail if payment doesn't exist.
+    - [x] Test case: Verify audit log entry is created.
+- [x] Task: Implement `updatePaymentAction` b14a0d6
+    - [x] Implement logic in `src/actions/payments.ts`.
+    - [x] Integrate `logAction` from `src/lib/audit-service.ts`.
+    - [x] Ensure amount remains untouched.
 - [ ] Task: Conductor - User Manual Verification 'Backend Logic & Data Integrity' (Protocol in workflow.md)
 
 ## Phase 2: UI Components & Visual Cues
