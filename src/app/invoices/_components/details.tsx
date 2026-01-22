@@ -10,6 +10,7 @@ import {
   User,
   ArrowRightLeft,
   AlertCircle,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceDetails as CFDI } from "@/types/invoices";
@@ -26,6 +27,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useState } from "react";
+import { EditPaymentDialog } from "./edit-payment-dialog";
 
 interface Props {
   data: CFDI;
@@ -41,6 +44,9 @@ const CFDI_TYPE_COLOR = {
 
 export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
   const isPaymentComplement = invoice.cfdiType === "P";
+  const [editingPayment, setEditingPayment] = useState<PaymentAllocation | null>(
+    null
+  );
 
   return (
     <div className="container mx-auto px-6 py-12 max-w-7xl">
@@ -297,7 +303,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
               return (
                 <div
                   key={payment.id}
-                  className="border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
+                  className="group border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
                 >
                   <div className="flex flex-col md:flex-row gap-6 justify-between mb-4">
                     <div className="space-y-2">
@@ -340,8 +346,18 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                       </p>
                     </div>
                     <div className="space-y-2 text-right">
-                      <div className="text-2xl font-mono font-light">
-                        <PrivacyBlur>${payment.amount}</PrivacyBlur>
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="text-2xl font-mono font-light">
+                          <PrivacyBlur>${payment.amount}</PrivacyBlur>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setEditingPayment(payment)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {payment.currency} • TC: {payment.exchangeRate}
@@ -499,6 +515,15 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
           vigentes del SAT
         </p>
       </div>
+
+      {editingPayment && (
+        <EditPaymentDialog
+          payment={editingPayment}
+          invoiceDate={new Date(invoice.invoiceDate)}
+          open={!!editingPayment}
+          onOpenChange={(open) => !open && setEditingPayment(null)}
+        />
+      )}
     </div>
   );
 }
