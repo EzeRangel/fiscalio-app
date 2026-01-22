@@ -17,9 +17,9 @@
 - [x] Task: Conductor - User Manual Verification 'Backend Logic & Data Integrity' (Protocol in workflow.md) [checkpoint: 923bede]
 
 ## Phase 2: UI Components & Visual Cues
-- [ ] Task: Enhance Payment Item with "Verify" Badge
-    - [ ] Identify payment list component in `src/components/invoices/` or `src/app/invoices/`.
-    - [ ] Add a conditional "Verify" badge (Tooltip: "Auto-generated for PUE. Please verify date.") for system-generated payments.
+- [x] Task: Enhance Payment Item with "Verify" Badge 88da920
+    - [x] Identify payment list component in `src/components/invoices/` or `src/app/invoices/`.
+    - [x] Add a conditional "Verify" badge (Tooltip: "Auto-generated for PUE. Please verify date.") for system-generated payments.
 - [ ] Task: Create `EditPaymentDialog` Component
     - [ ] Build a Shadcn-based dialog for editing payment date and notes.
     - [ ] Implement client-side validation (date >= invoice date).
