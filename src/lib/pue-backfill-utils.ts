@@ -1,10 +1,11 @@
-import { db } from "@/db";
 import { invoices, payments, paymentAllocations } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { logAction } from "@/lib/audit-service";
+import { PgliteDatabase } from "drizzle-orm/pglite";
+import * as schema from "@/db/schema";
 
 export async function backfillPuePayments(
-  dbClient: typeof db,
+  dbClient: PgliteDatabase<typeof schema>,
 ) {
   // 1. Identify PUE invoices that might be missing allocations
   const pueInvoices = await dbClient.query.invoices.findMany({
@@ -16,10 +17,12 @@ export async function backfillPuePayments(
 
   // Filter for those with NO allocations
   const missingPayments = pueInvoices.filter(
-    (inv) => inv.allocations.length === 0
+    (inv) => inv.allocations.length === 0,
   );
 
-  console.log(`Found ${pueInvoices.length} PUE invoices. ${missingPayments.length} are missing payments.`);
+  console.log(
+    `Found ${pueInvoices.length} PUE invoices. ${missingPayments.length} are missing payments.`,
+  );
 
   for (const invoice of missingPayments) {
     await dbClient.transaction(async (tx) => {
@@ -28,8 +31,8 @@ export async function backfillPuePayments(
         .insert(payments)
         .values({
           organizationId: invoice.organizationId,
-          partnerId: invoice.partnerId!, 
-          paymentType: invoice.invoiceType, 
+          partnerId: invoice.partnerId!,
+          paymentType: invoice.invoiceType,
           paymentDate: invoice.invoiceDate,
           paymentMethod: invoice.paymentForm || "99", // Default to 'Por definir' if missing
           currency: invoice.currency || "MXN",
@@ -46,8 +49,8 @@ export async function backfillPuePayments(
         entityId: newPayment.id,
         organizationId: invoice.organizationId,
         metadata: {
-            reason: "PUE Backfill",
-            source: "manual", // or 'system' if added to enum
+          reason: "PUE Backfill",
+          source: "manual", // or 'system' if added to enum
         },
         tx,
       });
@@ -70,18 +73,18 @@ export async function backfillPuePayments(
         entityId: newAllocation.id,
         organizationId: invoice.organizationId,
         metadata: {
-            reason: "PUE Backfill",
-            source: "manual",
+          reason: "PUE Backfill",
+          source: "manual",
         },
         tx,
       });
-      
+
       // Update Invoice Status
       await tx
         .update(invoices)
         .set({
-            amountPaid: invoice.total,
-            paymentStatus: "paid",
+          amountPaid: invoice.total,
+          paymentStatus: "paid",
         })
         .where(eq(invoices.id, invoice.id));
     });
