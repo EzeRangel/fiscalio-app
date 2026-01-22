@@ -12,7 +12,8 @@
     "db:generate": "npx drizzle-kit generate && tsx src/scripts/seed.ts",
     "db:seed:rules": "npx drizzle-kit generate && tsx src/scripts/seed-classification-rules.ts",
     "db:seed:accounts": "tsx src/scripts/backfill-chart-of-accounts.ts",
-    "db:seed:test-data": "tsx src/scripts/seed-test-data.ts"
+    "db:seed:test-data": "tsx src/scripts/seed-test-data.ts",
+    "db:backfill:pue": "tsx src/scripts/backfill-pue-payments.ts"
   },
   "dependencies": {
     "@ai-sdk/rsc": "^2.0.3",

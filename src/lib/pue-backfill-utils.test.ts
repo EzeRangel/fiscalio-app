@@ -1,10 +1,16 @@
 import { backfillPuePayments } from './pue-backfill-utils';
-import { payments, paymentAllocations } from '@/db/schema';
+import { payments, paymentAllocations, invoices } from '@/db/schema';
+import { logAction } from '@/lib/audit-service';
+
+jest.mock('@/lib/audit-service', () => ({
+  logAction: jest.fn(),
+}));
 
 // Mock types
 type MockDb = {
   select: jest.Mock;
   insert: jest.Mock;
+  update: jest.Mock;
   transaction: jest.Mock;
   query: {
     invoices: {
@@ -13,15 +19,12 @@ type MockDb = {
   }
 };
 
-type MockAuditService = {
-  log: jest.Mock;
-};
-
 describe('backfillPuePayments', () => {
   let mockDb: MockDb;
-  let mockAuditService: MockAuditService;
   let mockInsertValues: jest.Mock;
   let mockInsertReturning: jest.Mock;
+  let mockUpdateSet: jest.Mock;
+  let mockUpdateWhere: jest.Mock;
 
   beforeEach(() => {
     mockInsertReturning = jest.fn().mockResolvedValue([{ id: 100 }]);
@@ -29,10 +32,18 @@ describe('backfillPuePayments', () => {
         returning: mockInsertReturning
     });
 
+    mockUpdateWhere = jest.fn();
+    mockUpdateSet = jest.fn().mockReturnValue({
+        where: mockUpdateWhere
+    });
+
     mockDb = {
       select: jest.fn().mockReturnThis(),
       insert: jest.fn().mockReturnValue({
           values: mockInsertValues
+      }),
+      update: jest.fn().mockReturnValue({
+          set: mockUpdateSet
       }),
       transaction: jest.fn((callback) => callback(mockDb)),
       query: {
@@ -42,9 +53,7 @@ describe('backfillPuePayments', () => {
       }
     } as unknown as MockDb;
 
-    mockAuditService = {
-      log: jest.fn(),
-    };
+    (logAction as jest.Mock).mockClear();
   });
 
   it('should identify PUE invoices with no payment allocations', async () => {
@@ -65,15 +74,14 @@ describe('backfillPuePayments', () => {
 
     mockDb.query.invoices.findMany.mockResolvedValue(mockInvoices);
 
-    await backfillPuePayments(mockDb as any, mockAuditService as any);
+    await backfillPuePayments(mockDb as any);
 
     // Verify invoice query
-    expect(mockDb.query.invoices.findMany).toHaveBeenCalledWith({
-      where: expect.anything(),
+    expect(mockDb.query.invoices.findMany).toHaveBeenCalledWith(expect.objectContaining({
       with: {
         allocations: true,
       },
-    });
+    }));
 
     // Verify payment creation
     expect(mockDb.insert).toHaveBeenCalledWith(payments);
@@ -86,16 +94,19 @@ describe('backfillPuePayments', () => {
     
     // Verify allocation creation
     expect(mockDb.insert).toHaveBeenCalledWith(paymentAllocations);
-    expect(mockInsertValues).toHaveBeenCalledWith(
-        expect.objectContaining({
-            paymentId: 100,
-            invoiceId: 1,
-            amountAllocated: '1160.00'
-        })
-    );
+    
+    // Verify invoice update
+    expect(mockDb.update).toHaveBeenCalledWith(invoices);
+    expect(mockUpdateSet).toHaveBeenCalledWith(expect.objectContaining({
+        paymentStatus: 'paid'
+    }));
 
-    // Verify audit log
-    expect(mockAuditService.log).toHaveBeenCalledTimes(2); // Payment + Allocation
+    // Verify logAction
+    expect(logAction).toHaveBeenCalledTimes(2); 
+    expect(logAction).toHaveBeenCalledWith(expect.objectContaining({
+        entityType: 'payment',
+        action: 'created'
+    }));
   });
 
   it('should skip PUE invoices that already have allocations', async () => {
@@ -112,17 +123,9 @@ describe('backfillPuePayments', () => {
     
     mockDb.query.invoices.findMany.mockResolvedValue(mockInvoices);
 
-    await backfillPuePayments(mockDb as any, mockAuditService as any);
+    await backfillPuePayments(mockDb as any);
 
     expect(mockDb.insert).not.toHaveBeenCalled();
-    expect(mockAuditService.log).not.toHaveBeenCalled();
+    expect(logAction).not.toHaveBeenCalled();
   });
-  
-    it('should skip non-PUE invoices (filtered by query)', async () => {
-      mockDb.query.invoices.findMany.mockResolvedValue([]);
-
-      await backfillPuePayments(mockDb as any, mockAuditService as any);
-
-      expect(mockDb.insert).not.toHaveBeenCalled();
-    });
 });

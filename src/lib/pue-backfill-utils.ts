@@ -1,16 +1,12 @@
 import { db } from "@/db";
 import { invoices, payments, paymentAllocations } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { AuditService } from "@/lib/audit-service";
+import { logAction } from "@/lib/audit-service";
 
 export async function backfillPuePayments(
   dbClient: typeof db,
-  auditService: AuditService
 ) {
   // 1. Identify PUE invoices that might be missing allocations
-  // We fetch 'PUE' invoices and include their allocations to check locally
-  // (Alternatively, we could do a more complex SQL query to filter at the DB level, 
-  // but checking array length in code is simpler for this logic)
   const pueInvoices = await dbClient.query.invoices.findMany({
     where: eq(invoices.paymentMethod, "PUE"),
     with: {
@@ -32,10 +28,10 @@ export async function backfillPuePayments(
         .insert(payments)
         .values({
           organizationId: invoice.organizationId,
-          partnerId: invoice.partnerId!, // Assuming partnerId exists for valid invoices
+          partnerId: invoice.partnerId!, 
           paymentType: invoice.invoiceType, 
           paymentDate: invoice.invoiceDate,
-          paymentMethod: invoice.paymentForm || "03", // Default to Transfer if missing, or use paymentForm from invoice
+          paymentMethod: invoice.paymentForm || "99", // Default to 'Por definir' if missing
           currency: invoice.currency || "MXN",
           exchangeRate: invoice.exchangeRate || "1.0",
           amount: invoice.total,
@@ -44,16 +40,17 @@ export async function backfillPuePayments(
         .returning();
 
       // Log Payment Creation
-      await auditService.log(
-        "create",
-        "payment",
-        newPayment.id.toString(),
-        {
-          userId: "system",
-          userName: "Backfill Script",
+      await logAction({
+        action: "created",
+        entityType: "payment",
+        entityId: newPayment.id,
+        organizationId: invoice.organizationId,
+        metadata: {
+            reason: "PUE Backfill",
+            source: "manual", // or 'system' if added to enum
         },
-        newPayment
-      );
+        tx,
+      });
 
       // 3. Create Allocation
       const [newAllocation] = await tx
@@ -67,16 +64,26 @@ export async function backfillPuePayments(
         .returning();
 
       // Log Allocation Creation
-      await auditService.log(
-        "create",
-        "payment_allocation",
-        newAllocation.id.toString(),
-        {
-          userId: "system",
-          userName: "Backfill Script",
+      await logAction({
+        action: "created",
+        entityType: "payment_allocation",
+        entityId: newAllocation.id,
+        organizationId: invoice.organizationId,
+        metadata: {
+            reason: "PUE Backfill",
+            source: "manual",
         },
-        newAllocation
-      );
+        tx,
+      });
+      
+      // Update Invoice Status
+      await tx
+        .update(invoices)
+        .set({
+            amountPaid: invoice.total,
+            paymentStatus: "paid",
+        })
+        .where(eq(invoices.id, invoice.id));
     });
   }
 }
