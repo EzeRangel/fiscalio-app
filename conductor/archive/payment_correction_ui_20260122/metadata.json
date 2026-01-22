@@ -1,0 +1,8 @@
+{
+  "track_id": "payment_correction_ui_20260122",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-22T15:00:00Z",
+  "updated_at": "2026-01-22T15:00:00Z",
+  "description": "Implement the proposed solution with the Payment Correction UI."
+}
