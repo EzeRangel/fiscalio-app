@@ -17,6 +17,7 @@ export const FISCAL_VALIDATION_RULES = {
     PAYMENT_SUM_LIMIT: "ALL-04",
     MATCH_FISCAL_PERIOD: "ALL-05",
     IMMUTABLE: "ALL-06",
+    DATE_MISMATCH: "ALL-07",
   },
 } as const;
 

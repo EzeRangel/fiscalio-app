@@ -69,6 +69,15 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
 
   // ALL-06 is about editability (logic layer check, not valid value check).
 
+  // ALL-07: Payment date cannot be earlier than Invoice date
+  if (invoice.invoiceDate && payment.paymentDate < invoice.invoiceDate) {
+    errors.push({
+      code: FISCAL_VALIDATION_RULES.ALLOCATION.DATE_MISMATCH,
+      message: "Payment date cannot be earlier than invoice date.",
+      field: "payment.paymentDate",
+    });
+  }
+
   return {
     isValid: errors.length === 0,
     errors,

@@ -39,6 +39,7 @@ export interface FiscalInvoice {
   paymentStatus: string;
   status: string; // active, cancelled
   allocations?: FiscalAllocation[];
+  invoiceDate?: Date; // Optional for backward compatibility/simplicity if not always available
 }
 
 // Re-export constants for convenience if needed, or keep them separate.
