@@ -30,8 +30,8 @@
 - [ ] Task: Conductor - User Manual Verification 'UI Components & Visual Cues' (Protocol in workflow.md)
 
 ## Phase 3: Final Integration & Audit Review
-- [ ] Task: End-to-End Verification
-    - [ ] Manually verify a full PUE flow: Upload -> Auto-Payment -> Correction -> Audit Log.
-- [ ] Task: Audit Log Visibility
-    - [ ] Ensure the modification appears correctly in the `EntityAuditLog` component.
-- [ ] Task: Conductor - User Manual Verification 'Final Integration & Audit Review' (Protocol in workflow.md)
+- [x] Task: End-to-End Verification c4c2ffe
+    - [x] Manually verify a full PUE flow: Upload -> Auto-Payment -> Correction -> Audit Log.
+- [x] Task: Audit Log Visibility c4c2ffe
+    - [x] Ensure the modification appears correctly in the `EntityAuditLog` component.
+- [x] Task: Conductor - User Manual Verification 'Final Integration & Audit Review' (Protocol in workflow.md) [checkpoint: c4c2ffe]
