@@ -20,9 +20,9 @@
 - [x] Task: Enhance Payment Item with "Verify" Badge 88da920
     - [x] Identify payment list component in `src/components/invoices/` or `src/app/invoices/`.
     - [x] Add a conditional "Verify" badge (Tooltip: "Auto-generated for PUE. Please verify date.") for system-generated payments.
-- [ ] Task: Create `EditPaymentDialog` Component
-    - [ ] Build a Shadcn-based dialog for editing payment date and notes.
-    - [ ] Implement client-side validation (date >= invoice date).
+- [x] Task: Create `EditPaymentDialog` Component 6a2722f
+    - [x] Build a Shadcn-based dialog for editing payment date and notes.
+    - [x] Implement client-side validation (date >= invoice date).
 - [ ] Task: Integrate Edit Flow in Invoice Details
     - [ ] Add "Edit" button to the payment list items.
     - [ ] Connect the button to the `EditPaymentDialog`.
