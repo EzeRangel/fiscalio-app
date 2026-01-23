@@ -19,7 +19,7 @@
     - [ ] Write tests to verify the disclaimer text presence.
 - [ ] Task: Conductor - User Manual Verification 'Dashboard & Summary Disclaimers' (Protocol in workflow.md)
 
-## Phase 3: Validation Error Messaging Reframing
+## Phase 3: Validation Error Messaging Reframing [checkpoint: 07e3f53]
 - [x] Task: Update FiscalValidator Error Messages d38c033
     - [ ] Identify all error strings in `src/lib/fiscal-validation/` (or wherever `FiscalValidator` resides).
     - [ ] Update tests to expect "Consistency Warning" or "Suggested Correction" instead of "Compliance Violation".
