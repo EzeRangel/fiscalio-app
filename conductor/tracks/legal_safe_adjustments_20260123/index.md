@@ -1,4 +1,4 @@
-# Track fiscal_validation_20260120 Context
+# Track legal_safe_adjustments_20260123 Context
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)

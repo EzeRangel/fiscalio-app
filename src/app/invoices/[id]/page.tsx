@@ -34,7 +34,7 @@ export default async function InvoiceDetailPage({
   let relatedPayments = invoice.allocations.map((a) => a.payment);
 
   if (invoice.cfdiType === "P" && relatedPayments.length === 0) {
-     relatedPayments = await getPaymentsByFolio(invoice.folioFiscal);
+    relatedPayments = await getPaymentsByFolio(invoice.folioFiscal);
   }
 
   return (

@@ -1,0 +1,8 @@
+{
+  "track_id": "cash_basis_reporting_20260120",
+  "type": "feature",
+  "status": "completed",
+  "created_at": "2026-01-20T11:45:00Z",
+  "updated_at": "2026-01-20T11:45:00Z",
+  "description": "Implement the core principle that Issued CFDI ≠ Taxable Income; taxable income is recognized only upon effective cash collection. This feature aims to enforce fiscal correctness, prevent user errors that could lead to incorrect tax reporting, and ensure internal data consistency. Data must always be related to payments and payment allocations."
+}

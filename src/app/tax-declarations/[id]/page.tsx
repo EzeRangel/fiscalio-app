@@ -33,7 +33,7 @@ async function getData(declarationId: number) {
   const organizationId = await getActiveOrganizationId();
   const declaration = await getTaxDeclarationById(
     declarationId,
-    organizationId
+    organizationId,
   );
 
   if (!declaration) {
@@ -68,7 +68,7 @@ function ValidationItem({
         "flex items-start gap-3 p-3 rounded-lg border",
         severity === "error"
           ? "bg-chart-3/5 border-chart-3/20"
-          : "bg-chart-2/5 border-chart-2/20"
+          : "bg-chart-2/5 border-chart-2/20",
       )}
     >
       <div className="mt-0.5">{icon}</div>
@@ -86,9 +86,8 @@ export default async function TaxDeclarationReviewPage({
     notFound();
   }
 
-  const { declaration, invoices: declarationInvoices } = await getData(
-    declarationId
-  );
+  const { declaration, invoices: declarationInvoices } =
+    await getData(declarationId);
 
   const statusInfo =
     declaration.status === null
@@ -108,19 +107,23 @@ export default async function TaxDeclarationReviewPage({
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-light tracking-tight text-foreground">
+            <div className="space-y-3">
+              <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
                 Declaración {formatPeriod(declaration.fiscalPeriod)}
+                <span className="block text-muted-foreground text-2xl mt-2">
+                  {`Resumen informativo para apoyo en tu declaración ${declarationType}`}
+                </span>
               </h1>
-              <p className="text-muted-foreground font-mono text-sm">
-                {`Un detalle profundo sobre tu declaración ${declarationType}`}
+              <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+                Los importes mostrados son estimaciones basadas en la
+                información registrada por el usuario.
               </p>
             </div>
 
             <div
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg border font-mono text-sm",
-                statusInfo.className
+                statusInfo.className,
               )}
             >
               {statusInfo.icon}
@@ -187,7 +190,7 @@ export default async function TaxDeclarationReviewPage({
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between py-2">
                     <span className="text-sm text-muted-foreground font-mono">
-                      ISR Calculado (
+                      ISR estimado (tasa orientativa{" "}
                       {(
                         Number.parseFloat(declaration.isrRate || "0") * 100
                       ).toFixed(2)}
@@ -226,7 +229,7 @@ export default async function TaxDeclarationReviewPage({
                 {/* ISR Balance */}
                 <div className="flex items-center justify-between py-4 bg-chart-3/5 border border-chart-3/20 rounded-lg px-4 mt-4">
                   <span className="text-sm font-semibold font-mono">
-                    ISR a Pagar
+                    ISR estimado a pagar
                   </span>
                   <span className="text-2xl font-mono font-bold text-chart-3">
                     <PrivacyBlur>
@@ -234,6 +237,10 @@ export default async function TaxDeclarationReviewPage({
                     </PrivacyBlur>
                   </span>
                 </div>
+                <span className="text-xs font-mono block text-center text-muted-foreground">
+                  Monto orientativo para validación del usuario antes de
+                  presentar su declaración en el SAT.
+                </span>
               </CardContent>
             </Card>
 
@@ -319,17 +326,10 @@ export default async function TaxDeclarationReviewPage({
               </CardContent>
             </Card>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                variant="outline"
-                disabled
-                className="gap-2 font-mono flex-1 bg-transparent"
-              >
-                <FileDown className="h-4 w-4" />
-                Descargar Archivo SAT
-              </Button>
-            </div>
+            <p className="text-xs font-mono text-muted-foreground text-center">
+              La inclusión de facturas en este resumen no determina su
+              tratamiento fiscal definitivo ante el SAT.
+            </p>
           </div>
 
           {/* Sidebar */}
@@ -366,7 +366,7 @@ export default async function TaxDeclarationReviewPage({
             <Card className="border-border bg-card/50 backdrop-blur">
               <CardHeader>
                 <CardTitle className="text-base font-light tracking-tight">
-                  Resumen de Pago
+                  Resumen
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -394,13 +394,13 @@ export default async function TaxDeclarationReviewPage({
                   <div className="h-px bg-border" />
                   <div className="flex items-center justify-between pt-2">
                     <span className="text-sm font-semibold font-mono">
-                      Total a Pagar
+                      Total estimado
                     </span>
                     <span className="text-xl font-mono font-bold text-chart-3">
                       <PrivacyBlur>
                         {formatCurrency(
                           Number.parseFloat(declaration.isrBalance!) +
-                            Number.parseFloat(declaration.ivaBalance!)
+                            Number.parseFloat(declaration.ivaBalance!),
                         )}
                       </PrivacyBlur>
                     </span>
@@ -433,7 +433,7 @@ export default async function TaxDeclarationReviewPage({
                   <div className="flex items-center gap-2 text-chart-4 mb-2">
                     <CheckCircle2 className="h-4 w-4" />
                     <span className="text-xs font-mono uppercase tracking-wider">
-                      Presentada
+                      Declaración marcada como presentada
                     </span>
                   </div>
                   <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
@@ -449,7 +449,7 @@ export default async function TaxDeclarationReviewPage({
                       {format(
                         new Date(declaration.filedAt),
                         "dd MMM yyyy, HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )}
                     </p>
                   )}

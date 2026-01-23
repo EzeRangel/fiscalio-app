@@ -9,8 +9,6 @@ import {
   invoiceTaxes,
   organizations,
   taxRegimes,
-  payments,
-  paymentAllocations,
 } from "@/db";
 import { getActiveOrganizationId } from "@/lib/session";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
@@ -130,7 +128,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
     const validation = validateInvoice(fiscalInvoiceToCheck);
     if (!validation.isValid) {
       throw new Error(
-        `Error de validación fiscal: ${validation.errors[0].message}`
+        `Error de validación fiscal: ${validation.errors[0].message}`,
       );
     }
 
@@ -187,7 +185,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
           organizationId,
           partner.id,
           newInvoice.id,
-          invoiceType as "income" | "expense"
+          invoiceType as "income" | "expense",
         );
 
         await tx
