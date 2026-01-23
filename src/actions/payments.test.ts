@@ -114,7 +114,7 @@ describe("updatePaymentAction", () => {
 
     expect(result?.serverError).toBeDefined();
     expect(result?.serverError).toContain(
-      "Payment date cannot be earlier than invoice date",
+      "La fecha de pago no puede ser anterior a la de la factura",
     );
   });
 
@@ -186,7 +186,7 @@ describe("updatePaymentAction", () => {
         entityId: 10,
         organizationId: 123,
         metadata: expect.objectContaining({
-          reason: "Corrección de la fecha de pago",
+          reason: "Actualización de fecha de registro de pago",
         }),
       }),
     );
