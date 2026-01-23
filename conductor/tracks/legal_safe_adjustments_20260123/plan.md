@@ -20,7 +20,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Dashboard & Summary Disclaimers' (Protocol in workflow.md)
 
 ## Phase 3: Validation Error Messaging Reframing
-- [ ] Task: Update FiscalValidator Error Messages
+- [x] Task: Update FiscalValidator Error Messages d38c033
     - [ ] Identify all error strings in `src/lib/fiscal-validation/` (or wherever `FiscalValidator` resides).
     - [ ] Update tests to expect "Consistency Warning" or "Suggested Correction" instead of "Compliance Violation".
     - [ ] Refactor the validator to return these new message formats.
