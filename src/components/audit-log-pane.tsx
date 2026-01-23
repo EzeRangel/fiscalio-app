@@ -94,6 +94,13 @@ function formatTimestamp(timestamp: Date): string {
   });
 }
 
+function formatEntityType(type: string): string {
+  if (type === "tax_declaration") return "Estimación Fiscal";
+  if (type === "invoice") return "Factura";
+  if (type === "payment") return "Pago";
+  return type;
+}
+
 export function AuditLogPane({
   logs,
   entityId,
@@ -159,8 +166,10 @@ export function AuditLogPane({
                   </h2>
                   <p className="text-xs text-muted-foreground font-mono">
                     Entidad:{" "}
-                    <span className="text-foreground">{entityType}</span> • ID:{" "}
-                    <span className="text-foreground">{entityId}</span>
+                    <span className="text-foreground">
+                      {formatEntityType(entityType)}
+                    </span>{" "}
+                    • ID: <span className="text-foreground">{entityId}</span>
                   </p>
                 </div>
                 <Button

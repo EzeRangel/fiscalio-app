@@ -240,7 +240,7 @@ export const saveInvoice = actionClient
         action: "created",
         metadata: {
           source: "import",
-          reason: "CFDI Upload",
+          reason: "Carga de CFDI",
         },
         tx,
       });

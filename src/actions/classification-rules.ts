@@ -220,7 +220,7 @@ export const applyClassification = actionClient
         action: "classified",
         metadata: {
           source: "ai",
-          reason: "User accepted AI suggestion",
+          reason: "Usuario aceptó sugerencia de la plataforma",
           aiConfidence: totalScore,
         },
       });
@@ -279,7 +279,7 @@ export const applyClassification = actionClient
         action: "classified",
         metadata: {
           source: "manual",
-          reason: "User manually corrected/selected account",
+          reason: "Usuario seleccionó cuenta manualmente (corrección)",
         },
       });
     } else if (action === "non-correct" && !hasCandidates) {
@@ -303,7 +303,7 @@ export const applyClassification = actionClient
         action: "classified",
         metadata: {
           source: "manual",
-          reason: "Manual classification (no candidates)",
+          reason: "Clasificación manual (sin sugerencias)",
         },
       });
     }

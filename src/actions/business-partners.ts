@@ -124,7 +124,7 @@ export const updateBusinessPartnerTags = actionClient
           entityId: partnerId,
           action: "updated",
           changes,
-          metadata: { source: "manual", reason: "Tags update" },
+          metadata: { source: "manual", reason: "Actualización de etiquetas" },
         });
       }
     }
