@@ -171,7 +171,7 @@ export const AUDIT_ENTITIES = {
   invoice: "Facturas",
   business_partner: "Socio Comercial",
   account: "Cuenta Contable",
-  tax_declaration: "Declaración Fiscal",
+  tax_declaration: "Estimación Fiscal",
   payment: "Pago",
 };
 
