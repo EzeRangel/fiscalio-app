@@ -24,7 +24,7 @@
     - [ ] Identify all error strings in `src/lib/fiscal-validation/` (or wherever `FiscalValidator` resides).
     - [ ] Update tests to expect "Consistency Warning" or "Suggested Correction" instead of "Compliance Violation".
     - [ ] Refactor the validator to return these new message formats.
-- [ ] Task: Update UI Error Displays
+- [x] Task: Update UI Error Displays a647001
     - [ ] Ensure that form error messages and toast notifications reflect the advisory framing.
     - [ ] Write tests for form submission failures to verify the new advisory wording.
 - [ ] Task: Conductor - User Manual Verification 'Validation Error Messaging Reframing' (Protocol in workflow.md)
