@@ -17,7 +17,7 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
   if (amount <= 0) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.ALLOCATION.POSITIVE_AMOUNT,
-      message: "Allocation amount must be positive.",
+      message: "El monto de la aplicación debe ser mayor a cero para mantener registros válidos.",
       field: "amount",
     });
   }
@@ -26,7 +26,7 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
   if (invoice.status === "cancelled") {
     errors.push({
       code: FISCAL_VALIDATION_RULES.ALLOCATION.INVOICE_NOT_CANCELLED,
-      message: "Cannot allocate to a cancelled invoice.",
+      message: "No se sugieren aplicaciones a facturas que figuran como canceladas.",
       field: "invoice.status",
     });
   }
@@ -46,7 +46,7 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
   if (existingInvoiceAllocSum + amount > invoiceTotal + 0.001) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.ALLOCATION.INVOICE_SUM_LIMIT,
-      message: "Total allocations for invoice exceed invoice total.",
+      message: "El total de las aplicaciones registradas excedería el monto total de la factura. Favor de revisar los saldos.",
       field: "amount",
     });
   }
@@ -60,7 +60,7 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
   if (existingPaymentAllocSum + amount > paymentAmount + 0.001) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.ALLOCATION.PAYMENT_SUM_LIMIT,
-      message: "Total allocations for payment exceed payment amount.",
+      message: "El total de las aplicaciones excedería el monto disponible en el pago. Se sugiere verificar los montos.",
       field: "amount",
     });
   }
@@ -82,7 +82,7 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
     if (payDate < invDate) {
       errors.push({
         code: FISCAL_VALIDATION_RULES.ALLOCATION.DATE_MISMATCH,
-        message: "Payment date cannot be earlier than invoice date.",
+        message: "La fecha de pago es anterior a la fecha de la factura. Se sugiere revisar la consistencia de las fechas.",
         field: "payment.paymentDate",
       });
     }

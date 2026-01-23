@@ -16,7 +16,7 @@ export function validatePayment(payment: FiscalPayment): FiscalValidationResult 
   if (amount <= 0) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.PAYMENT.POSITIVE_AMOUNT,
-      message: "Payment amount must be positive.",
+      message: "El monto del pago debe ser mayor a cero para mantener la integridad de los registros.",
       field: "amount",
     });
   }
@@ -37,7 +37,7 @@ export function validatePayment(payment: FiscalPayment): FiscalValidationResult 
   if (payment.paymentDate > now) {
      errors.push({
       code: FISCAL_VALIDATION_RULES.PAYMENT.NO_FUTURE_DATE,
-      message: "Payment date cannot be in the future.",
+      message: "La fecha de pago no puede ser futura para asegurar la precisión de las estimaciones.",
       field: "paymentDate",
     });
   }
@@ -52,7 +52,7 @@ export function validatePayment(payment: FiscalPayment): FiscalValidationResult 
   if (allocatedSum > amount + 0.001) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.PAYMENT.ALLOCATION_SUM_LIMIT,
-      message: "Sum of allocations exceeds payment amount.",
+      message: "La suma de las aplicaciones excede el monto total del pago. Favor de verificar la distribución.",
       field: "allocations",
     });
   }

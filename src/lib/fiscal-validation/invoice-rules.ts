@@ -33,7 +33,7 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   if (amountPaid > total + 0.001) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.INVOICE.ALLOCATION_LIMIT,
-      message: "Amount paid exceeds invoice total.",
+      message: "El monto pagado excede el total de la factura. Favor de revisar la consistencia de los datos registrados.",
       field: "amountPaid",
     });
   }
@@ -44,7 +44,7 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
      if (!alreadyReported) {
         errors.push({
             code: FISCAL_VALIDATION_RULES.INVOICE.ALLOCATION_LIMIT,
-            message: "Sum of allocations exceeds invoice total.",
+            message: "La suma de las aplicaciones excede el total de la factura. Se sugiere verificar los montos.",
             field: "allocations",
         });
      }
@@ -54,7 +54,7 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   if (invoice.paymentStatus === "paid" && amountPaid < total - 0.001) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.INVOICE.PAYMENT_STATUS_DERIVED,
-      message: "Invoice marked as paid but amount paid is less than total.",
+      message: "La factura figura como pagada pero el monto registrado es menor al total. Favor de verificar la información.",
       field: "paymentStatus",
     });
   }
@@ -62,7 +62,7 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   if (invoice.paymentStatus === "pending" && amountPaid > 0.001) {
       errors.push({
         code: FISCAL_VALIDATION_RULES.INVOICE.PAYMENT_STATUS_DERIVED,
-        message: "Invoice marked as pending but has payments.",
+        message: "La factura figura como pendiente pero tiene pagos registrados. Se sugiere revisar el estado de pago.",
         field: "paymentStatus",
       });
   }
@@ -70,7 +70,7 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   if (invoice.paymentStatus === "partial" && Math.abs(amountPaid - total) < 0.001) {
       errors.push({
         code: FISCAL_VALIDATION_RULES.INVOICE.PAYMENT_STATUS_DERIVED,
-        message: "Invoice marked as partial but is fully paid.",
+        message: "La factura figura como parcial pero parece estar pagada en su totalidad.",
         field: "paymentStatus",
       });
   }
@@ -84,7 +84,7 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
     // Assuming passed allocations are "valid" existentially.
     errors.push({
         code: FISCAL_VALIDATION_RULES.INVOICE.CANCELLED_NO_ALLOCATIONS,
-        message: "Cancelled invoice cannot have allocations.",
+        message: "Una factura cancelada no debería tener aplicaciones de pago activas en los registros.",
         field: "status",
     });
   }
