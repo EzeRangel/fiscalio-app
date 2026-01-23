@@ -59,7 +59,7 @@ const navigation = [
         icon: Users,
       },
       {
-        title: "Declaraciones",
+        title: "Estimaciones",
         href: "/tax-declarations",
         icon: FileBarChart,
       },
