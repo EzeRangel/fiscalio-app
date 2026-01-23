@@ -1,6 +1,6 @@
 # Implementation Plan - Legal-Safe Adjustments for RESICO Tax Assistance
 
-## Phase 1: Global Terminology Refactor (UI & Navigation)
+## Phase 1: Global Terminology Refactor (UI & Navigation) [checkpoint: 1605a4d]
 - [x] Task: Update Navigation and Sidebar Labels cd0c6d7
     - [ ] Write unit tests for `AppSidebar` or navigation constants to ensure "Tax Declarations" is not present and "Tax Estimations" is used.
     - [ ] Update labels in `src/components/app-sidebar.tsx` and any relevant navigation config.
