@@ -32,8 +32,12 @@ import { PaymentAllocation } from "@/types/payments";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  paymentDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Fecha inválida"),
+  paymentDate: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), "Fecha inválida"),
   notes: z.string().optional(),
+  referenceNumber: z.string().optional(),
+  authorizationNumber: z.string().optional(),
 });
 
 interface EditPaymentDialogProps {
@@ -59,6 +63,8 @@ export function EditPaymentDialog({
         ? format(new Date(payment.paymentDate), "yyyy-MM-dd")
         : "",
       notes: payment.notes || "",
+      referenceNumber: payment.referenceNumber || "",
+      authorizationNumber: payment.authorizationNumber || "",
     },
   });
 
@@ -86,25 +92,36 @@ export function EditPaymentDialog({
 
     // Basic validation against invoice date
     // Note: invoiceDate might be a Date object or string depending on serialization, but here typed as Date
-    // If it comes from server component props, it might be serialized. 
+    // If it comes from server component props, it might be serialized.
     // Ideally we convert both to timestamps or simplified date strings to compare.
     const invDate = new Date(invoiceDate);
     // Reset times for comparison
-    const newDateOnly = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate());
-    const invDateOnly = new Date(invDate.getFullYear(), invDate.getMonth(), invDate.getDate());
+    const newDateOnly = new Date(
+      newDate.getFullYear(),
+      newDate.getMonth(),
+      newDate.getDate(),
+    );
+    const invDateOnly = new Date(
+      invDate.getFullYear(),
+      invDate.getMonth(),
+      invDate.getDate(),
+    );
 
     if (newDateOnly < invDateOnly) {
-       form.setError("paymentDate", {
-         type: "manual",
-         message: "La fecha de pago no puede ser anterior a la fecha de la factura."
-       });
-       return;
+      form.setError("paymentDate", {
+        type: "manual",
+        message:
+          "La fecha de pago no puede ser anterior a la fecha de la factura.",
+      });
+      return;
     }
 
     execute({
       paymentId: payment.id,
       paymentDate: newDate,
       notes: values.notes,
+      referenceNumber: values.referenceNumber,
+      authorizationNumber: values.authorizationNumber,
     });
   }
 
@@ -123,7 +140,7 @@ export function EditPaymentDialog({
               <div className="flex flex-col space-y-1.5">
                 <FormLabel>Monto</FormLabel>
                 <div className="text-sm font-mono bg-muted p-2 rounded">
-                    ${payment.amount} {payment.currency}
+                  ${payment.amount} {payment.currency}
                 </div>
               </div>
             </div>
@@ -149,7 +166,38 @@ export function EditPaymentDialog({
                 <FormItem>
                   <FormLabel>Notas</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Razón de la corrección..." {...field} />
+                    <Textarea
+                      placeholder="Razón de la corrección..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="referenceNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Referencia</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Referencia bancaria" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="authorizationNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>No. Autorización</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -157,7 +205,11 @@ export function EditPaymentDialog({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={isPending}>

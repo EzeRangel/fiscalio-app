@@ -1,7 +1,5 @@
 import { getInvoiceById } from "@/data/invoices";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { InvoiceDetails } from "../_components/details";
 import { getPaymentsByFolio } from "@/data/payments";
 import { EntityAuditLog } from "@/components/EntityAuditLog";
