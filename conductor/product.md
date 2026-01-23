@@ -9,8 +9,8 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 
 ## Key Features & Goals
 - **Automated Invoice Classification:** An ML Engine that learns from patterns to automatically suggest account classifications based on invoice data and product codes.
-- **Tax Declaration Generation:** Creating preliminary tax declarations and financial reports tailored to the RESICO regime.
-- **Fiscal Integrity Layer:** Enforcing strict RESICO rules, specifically the "Cash-Basis" principle where income is recognized only upon payment collection, ensured by robust domain validation, DB constraints, and tools for manual payment date correction.
+- **Tax Estimation Support:** Creating preliminary tax estimations and financial reports tailored to the RESICO regime for informational purposes.
+- **Data Integrity Layer:** Enforcing strict RESICO-aligned rules (e.g., "Cash-Basis") to ensure data consistency and accuracy in estimations, supported by robust validation and tools for manual data correction.
 - **CFDI Validation:** Automatically validating invoices against official SAT requirements to ensure compliance.
 - **Business Partner Analytics:** Real-time tracking of invoice volumes and financial balance for clients and providers.
 - **System-Wide Audit Log:** Comprehensive traceability for critical operations, tracking changes in invoices, payments, and configurations for compliance and debugging.
@@ -26,4 +26,4 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 ## Success Metrics
 - **High Accuracy:** Maximizing the precision of the ML classification engine.
 - **User Efficiency:** Significantly reducing the time required for manual tax preparation.
-- **Compliance Assurance:** Ensuring 100% adherence to SAT regulations and reporting standards.
+- **Estimation Reliability:** Providing accurate, high-quality data summaries that align with RESICO best practices.

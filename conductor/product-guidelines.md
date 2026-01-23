@@ -1,8 +1,9 @@
 # Product Guidelines: FDI Assistant
 
 ## Tone & Voice
-- **Professional & Trustworthy:** The application communicates with precision, clarity, and authority suitable for a financial compliance tool. Language should be objective and reassuring.
+- **Professional & Trustworthy:** The application communicates with precision, clarity, and authority suitable for a financial assistance tool. Language should be objective, informative, and reassuring.
 - **Transparent:** Always explain *why* a calculation or suggestion was made, specifically regarding tax implications.
+- **Informational & Advisory:** Avoid language that suggests the system determines tax obligations or submits official declarations. Use terms like "Estimación", "Sugerencia", and "Consistencia".
 
 ## Visual Identity & Aesthetic
 - **Refined Editorial UI:** The design draws inspiration from premium financial documents with a modern twist.
