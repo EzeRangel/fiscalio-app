@@ -39,6 +39,7 @@ interface Props {
   subtitle?: string;
   icon?: LucideIcon;
   color?: keyof typeof COLORS;
+  footer?: string;
 }
 
 export function SummaryCard({
@@ -47,6 +48,7 @@ export function SummaryCard({
   subtitle,
   icon: Icon,
   color = "neutral",
+  footer,
 }: Props) {
   const elementColors = COLORS[color];
 
@@ -71,6 +73,13 @@ export function SummaryCard({
           {subtitle}
         </div>
       </div>
+      {footer && (
+        <div className="pt-3 border-t border-border/50">
+          <p className="text-[10px] leading-tight text-muted-foreground/60 italic uppercase tracking-wider">
+            {footer}
+          </p>
+        </div>
+      )}
     </Card>
   );
 }

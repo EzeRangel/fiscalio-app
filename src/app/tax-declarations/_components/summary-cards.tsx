@@ -66,6 +66,7 @@ export function SummaryCards({ data, currentPeriod }: Props) {
         subtitle="Ingresos - Deducibles"
         icon={DollarSign}
         color="neutral"
+        footer="Cálculo informativo"
       />
 
       {/* Estimated Tax Card */}
@@ -75,6 +76,7 @@ export function SummaryCards({ data, currentPeriod }: Props) {
         subtitle={`Tasa del ${(taxRate * 100).toFixed(2)}%`}
         icon={FileText}
         color="blue"
+        footer="Cálculo informativo"
       />
 
       {/* IVA Balance Card */}
@@ -84,6 +86,7 @@ export function SummaryCards({ data, currentPeriod }: Props) {
         subtitle="Cobrado - Acreditable"
         icon={HandCoins}
         color="amber"
+        footer="Cálculo informativo"
       />
     </div>
   );
