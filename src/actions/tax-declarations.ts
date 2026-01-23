@@ -386,27 +386,55 @@ export const fileTaxDeclaration = actionClient
 
     
 
-          await logAction({
+                      await logAction({
 
-            organizationId,
+    
 
-            entityType: "tax_declaration",
+                        organizationId,
 
-            entityId: declarationId,
+    
 
-            action: "updated",
+                        entityType: "tax_declaration",
 
-            changes,
+    
 
-            metadata: {
+                        entityId: declarationId,
 
-              source: "manual",
+    
 
-              reason: "Finalizar revisión de estimación",
+                        action: "updated",
 
-            },
+    
 
-          });
+                        changes,
+
+    
+
+                        metadata: {
+
+    
+
+                          source: "manual",
+
+    
+
+                          reason: "Finalizar revisión de estimación",
+
+    
+
+                        },
+
+    
+
+                      });
+
+    
+
+                
+
+    
+
+          
 
         }
 
