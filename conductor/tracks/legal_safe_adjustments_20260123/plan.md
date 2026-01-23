@@ -9,7 +9,7 @@
     - [ ] Update `src/app/tax-declarations/page.tsx` (and related files) to reflect the new "Estimations" heading.
 - [ ] Task: Conductor - User Manual Verification 'Global Terminology Refactor (UI & Navigation)' (Protocol in workflow.md)
 
-## Phase 2: Dashboard & Summary Disclaimers
+## Phase 2: Dashboard & Summary Disclaimers [checkpoint: b37289e]
 - [x] Task: Implement Persistent Disclaimer on Estimations Page 57b0e97
     - [ ] Create a reusable `DisclaimerBanner` component or similar.
     - [ ] Write tests to ensure the disclaimer is rendered in the `tax-declarations` (Estimations) route.
