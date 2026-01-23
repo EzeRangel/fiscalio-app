@@ -113,7 +113,7 @@ export const updatePaymentAction = actionClient
         entityId: paymentId,
         organizationId: existingPayment.organizationId,
         metadata: {
-          reason: "Confirmación de fecha de pago",
+          reason: "Actualización de fecha de registro de pago",
           source: "manual",
           diff: {
             paymentDate: {
@@ -138,7 +138,7 @@ export const updatePaymentAction = actionClient
             entityId: allocation.invoiceId,
             organizationId: existingPayment.organizationId,
             metadata: {
-              reason: "Confirmación de fecha de pago",
+              reason: "Actualización de fecha de registro de pago",
               source: "manual",
               paymentId,
               diff: {
