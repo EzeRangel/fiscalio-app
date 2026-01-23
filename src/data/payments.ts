@@ -18,14 +18,14 @@ export async function savePaymentComplement(
   parsedCFDI: ParsedCFDI,
   organizationId: number,
   partnerId: number,
-  paymentType: "income" | "expense"
+  paymentType: "income" | "expense",
 ) {
   const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
   const pagosNode = pagosComplement?.Pagos;
   if (!pagosNode) return;
 
   const timbreComplement = parsedCFDI.Complemento.find(
-    (c) => c.TimbreFiscalDigital
+    (c) => c.TimbreFiscalDigital,
   );
 
   const cfdiPaymentUuid = timbreComplement?.TimbreFiscalDigital?.UUID;
@@ -48,7 +48,7 @@ export async function savePaymentComplement(
     const paymentValidation = validatePayment(fiscalPaymentToCheck);
     if (!paymentValidation.isValid) {
       throw new Error(
-        `Error validando pago: ${paymentValidation.errors[0].message}`
+        `Error validando pago: ${paymentValidation.errors[0].message}`,
       );
     }
 
@@ -84,15 +84,15 @@ export async function savePaymentComplement(
     const docs = Array.isArray(pago.DoctoRelacionado)
       ? pago.DoctoRelacionado
       : pago.DoctoRelacionado
-      ? [pago.DoctoRelacionado]
-      : [];
+        ? [pago.DoctoRelacionado]
+        : [];
 
     for (const doc of docs) {
       // Find the original invoice being paid
       const linkedInvoice = await tx.query.invoices.findFirst({
         where: and(
           eq(invoices.folioFiscal, doc.IdDocumento),
-          eq(invoices.organizationId, organizationId)
+          eq(invoices.organizationId, organizationId),
         ),
       });
 
@@ -123,7 +123,7 @@ export async function savePaymentComplement(
         const allocValidation = validateAllocation(allocationContext);
         if (!allocValidation.isValid) {
           throw new Error(
-            `Error validando asignación: ${allocValidation.errors[0].message}`
+            `Error validando asignación: ${allocValidation.errors[0].message}`,
           );
         }
 
@@ -160,7 +160,7 @@ export async function savePaymentComplement(
         const invValidation = validateInvoice(updatedInvoiceState);
         if (!invValidation.isValid) {
           throw new Error(
-            `Error validando factura actualizada: ${invValidation.errors[0].message}`
+            `Error validando factura actualizada: ${invValidation.errors[0].message}`,
           );
         }
 
@@ -203,7 +203,7 @@ export async function savePUEPayment(
   organizationId: number,
   partnerId: number,
   invoiceId: number,
-  paymentType: "income" | "expense"
+  paymentType: "income" | "expense",
 ) {
   const allocationToCreate = {
     amount,
@@ -221,12 +221,12 @@ export async function savePUEPayment(
   const paymentValidation = validatePayment(fiscalPaymentToCheck);
   if (!paymentValidation.isValid) {
     throw new Error(
-      `Error validando pago PUE: ${paymentValidation.errors[0].message}`
+      `Error validando pago PUE: ${paymentValidation.errors[0].message}`,
     );
   }
 
   // We also need the invoice context for validateAllocation
-  // Since savePUEPayment is called from saveNewInvoice, we assume the invoice 
+  // Since savePUEPayment is called from saveNewInvoice, we assume the invoice
   // was just created with 0 amountPaid and is active.
   const linkedInvoice = await tx.query.invoices.findFirst({
     where: eq(invoices.id, invoiceId),
@@ -253,7 +253,7 @@ export async function savePUEPayment(
   const allocValidation = validateAllocation(allocationContext);
   if (!allocValidation.isValid) {
     throw new Error(
-      `Error validando asignación PUE: ${allocValidation.errors[0].message}`
+      `Error validando asignación PUE: ${allocValidation.errors[0].message}`,
     );
   }
 
@@ -268,7 +268,7 @@ export async function savePUEPayment(
       currency,
       exchangeRate,
       amount,
-      notes: "Auto-generated for PUE Invoice",
+      notes: "Autogenerado por el sistema. PUE.",
     })
     .returning();
 
@@ -278,8 +278,8 @@ export async function savePUEPayment(
     entityId: payment.id,
     action: "created",
     metadata: {
-      source: "system",
-      reason: "PUE Invoice Auto-Payment",
+      source: "import",
+      reason: "Pago autogenerado por sistema. PUE.",
     },
     tx,
   });
@@ -289,6 +289,7 @@ export async function savePUEPayment(
     invoiceId,
     amountAllocated: amount,
     installmentNumber: 1,
+    exchangeRate: exchangeRate,
   });
 
   return payment;
