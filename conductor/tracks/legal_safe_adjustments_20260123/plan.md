@@ -33,6 +33,6 @@
 - [x] Task: Refactor Audit Log Action Descriptions c57999f
     - [ ] Update `src/actions/audit-logs.ts` (or similar) to use "Estimation Preferences" instead of "Compliance Settings".
     - [ ] Write unit tests to verify that newly created audit logs use the updated terminology.
-- [ ] Task: Update Internal Constants and Comments
+- [x] Task: Update Internal Constants and Comments 7d069ea
     - [ ] Search and replace "fiscal" or "compliance" in internal constant files (e.g., `src/lib/constants.ts`) where it affects user-facing labels or audit logs.
 - [ ] Task: Conductor - User Manual Verification 'Metadata & Audit Log Updates' (Protocol in workflow.md)
