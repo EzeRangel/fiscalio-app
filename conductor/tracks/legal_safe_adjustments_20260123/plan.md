@@ -4,7 +4,7 @@
 - [x] Task: Update Navigation and Sidebar Labels cd0c6d7
     - [ ] Write unit tests for `AppSidebar` or navigation constants to ensure "Tax Declarations" is not present and "Tax Estimations" is used.
     - [ ] Update labels in `src/components/app-sidebar.tsx` and any relevant navigation config.
-- [ ] Task: Update Main Page Headings and Breadcrumbs
+- [x] Task: Update Main Page Headings and Breadcrumbs 298f715
     - [ ] Write tests for breadcrumb generation to verify renamed segments.
     - [ ] Update `src/app/tax-declarations/page.tsx` (and related files) to reflect the new "Estimations" heading.
 - [ ] Task: Conductor - User Manual Verification 'Global Terminology Refactor (UI & Navigation)' (Protocol in workflow.md)
