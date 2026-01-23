@@ -26,6 +26,7 @@ import { cn, formatCurrency } from "@/lib/utils";
 import { PrivacyBlur } from "@/components/privacy-blur";
 import { SummaryCards } from "./_components/summary-cards";
 import { formatPeriod } from "./_utils/formatPeriod";
+import { DisclaimerBanner } from "@/components/disclaimer-banner";
 
 function getStatusInfo(status: string): {
   text: string;
@@ -160,6 +161,8 @@ export default async function TaxDeclarationsPage() {
 
       <section className="container mx-auto px-6 py-8">
         <div className="grid gap-6">
+          <DisclaimerBanner />
+          
           {/* Metrics Grid */}
           <SummaryCards data={declaration!} currentPeriod={currentPeriod} />
 

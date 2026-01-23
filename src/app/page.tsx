@@ -1,4 +1,5 @@
 import Dashboard from "@/components/dashboard";
+import { DisclaimerBanner } from "@/components/disclaimer-banner";
 
 export default async function Home() {
   return (
@@ -14,14 +15,15 @@ export default async function Home() {
             </h1>
 
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-              Gestión inteligente de comprobantes fiscales digitales. Monitorea
-              tus facturas, analiza tendencias y mantén el control total de tu
-              operación fiscal.
+              Asistencia para la organización de comprobantes fiscales
+              digitales. Monitorea tus facturas, analiza tendencias y mantén el
+              control de tus registros.
             </p>
           </div>
         </div>
       </div>
       <div className="container mx-auto px-6 py-12">
+        <DisclaimerBanner className="mb-8" />
         <Dashboard />
       </div>
     </div>
