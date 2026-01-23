@@ -14,7 +14,7 @@
     - [ ] Create a reusable `DisclaimerBanner` component or similar.
     - [ ] Write tests to ensure the disclaimer is rendered in the `tax-declarations` (Estimations) route.
     - [ ] Add the disclaimer to the main estimation summary view.
-- [ ] Task: Add Footer Disclaimers to Summary Cards
+- [x] Task: Add Footer Disclaimers to Summary Cards 6a4f89f
     - [ ] Update `SummaryCard` or specific dashboard components to include a small informational footer.
     - [ ] Write tests to verify the disclaimer text presence.
 - [ ] Task: Conductor - User Manual Verification 'Dashboard & Summary Disclaimers' (Protocol in workflow.md)
