@@ -24,7 +24,7 @@ export async function getDashboardMetrics(
   // Cash-Basis Income: sum of payment_allocations where invoice_type = 'income'
   const incomeResult = await db
     .select({
-      total: sql<string>`sum(${paymentAllocations.amountAllocated})`,
+      total: sql<string>`sum(${paymentAllocations.amountAllocated} * ${paymentAllocations.exchangeRate})`,
     })
     .from(paymentAllocations)
     .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
@@ -41,7 +41,7 @@ export async function getDashboardMetrics(
   // Cash-Basis Expenses: sum of payment_allocations where invoice_type = 'expense'
   const expenseResult = await db
     .select({
-      total: sql<string>`sum(${paymentAllocations.amountAllocated})`,
+      total: sql<string>`sum(${paymentAllocations.amountAllocated} * ${paymentAllocations.exchangeRate})`,
     })
     .from(paymentAllocations)
     .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
