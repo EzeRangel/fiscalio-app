@@ -56,10 +56,10 @@ export const createTaxDeclarationDraft = actionClient
     if (existingDeclaration) {
       if (existingDeclaration.status === "draft") {
         throw new Error(
-          "Ya existe un borrador de declaración para este período y tipo."
+          "Ya existe un borrador de estimación para este período y tipo."
         );
       }
-      throw new Error("Ya existe una declaración para este período y tipo.");
+      throw new Error("Ya existe una estimación para este período y tipo.");
     }
 
     const [year, month] = fiscalPeriod.split("-").map(Number);
@@ -108,7 +108,7 @@ export const createTaxDeclarationDraft = actionClient
       .returning();
 
     if (!newDeclaration) {
-      throw new Error("Error al crear la declaración de impuestos.");
+      throw new Error("Error al generar la estimación de impuestos.");
     }
 
     // 4. Aggregate data and create snapshot entries
@@ -279,12 +279,12 @@ export const validateTaxDeclaration = actionClient
     });
 
     if (!declaration) {
-      throw new Error("Declaración no encontrada.");
+      throw new Error("Estimación no encontrada.");
     }
 
     if (declaration.status !== "draft") {
       throw new Error(
-        "Solo se pueden validar declaraciones en estado de borrador."
+        "Solo se pueden verificar estimaciones en estado de borrador."
       );
     }
 
@@ -302,7 +302,7 @@ export const validateTaxDeclaration = actionClient
     // revalidatePath might be needed here depending on UI implementation
     // revalidatePath(`/declarations/${declarationId}`);
 
-    return { success: true, message: "Declaración validada exitosamente." };
+    return { success: true, message: "Cálculos verificados exitosamente." };
   });
 
 // New schema for filing a declaration
@@ -326,51 +326,100 @@ export const fileTaxDeclaration = actionClient
       ),
     });
 
-    if (!declaration) {
-      throw new Error("Declaración no encontrada.");
-    }
+        if (!declaration) {
 
-    if (declaration.status !== "validated") {
-      throw new Error(
-        "Solo se pueden presentar declaraciones en estado 'validada'."
-      );
-    }
+          throw new Error("Estimación no encontrada.");
 
-    await db
-      .update(taxDeclarations)
-      .set({
-        status: "filed",
-        acknowledgmentNumber: acknowledgmentNumber,
-        filedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(taxDeclarations.id, declarationId))
-      .returning();
+        }
 
-    if (declaration) {
-      const changes = calculateDiff(
-        {
-          status: declaration.status,
-          acknowledgmentNumber: declaration.acknowledgmentNumber,
-        },
-        { status: "filed", acknowledgmentNumber: acknowledgmentNumber }
-      );
+    
 
-      await logAction({
-        organizationId,
-        entityType: "tax_declaration",
-        entityId: declarationId,
-        action: "updated",
-        changes,
-        metadata: {
-          source: "manual",
-          reason: "Presentar declaración",
-        },
+        if (declaration.status !== "validated") {
+
+          throw new Error(
+
+            "Solo se pueden marcar como finalizadas las estimaciones en estado 'verificado'."
+
+          );
+
+        }
+
+    
+
+        await db
+
+          .update(taxDeclarations)
+
+          .set({
+
+            status: "filed",
+
+            acknowledgmentNumber: acknowledgmentNumber,
+
+            filedAt: new Date(),
+
+            updatedAt: new Date(),
+
+          })
+
+          .where(eq(taxDeclarations.id, declarationId))
+
+          .returning();
+
+    
+
+        if (declaration) {
+
+          const changes = calculateDiff(
+
+            {
+
+              status: declaration.status,
+
+              acknowledgmentNumber: declaration.acknowledgmentNumber,
+
+            },
+
+            { status: "filed", acknowledgmentNumber: acknowledgmentNumber }
+
+          );
+
+    
+
+          await logAction({
+
+            organizationId,
+
+            entityType: "tax_declaration",
+
+            entityId: declarationId,
+
+            action: "updated",
+
+            changes,
+
+            metadata: {
+
+              source: "manual",
+
+              reason: "Finalizar revisión de estimación",
+
+            },
+
+          });
+
+        }
+
+    
+
+        // revalidatePath might be needed here depending on UI implementation
+
+        revalidatePath(`/tax-declarations/${declarationId}`);
+
+    
+
+        return { success: true, message: "Revisión finalizada exitosamente." };
+
       });
-    }
 
-    // revalidatePath might be needed here depending on UI implementation
-    revalidatePath(`/tax-declarations/${declarationId}`);
-
-    return { success: true, message: "Declaración presentada exitosamente." };
-  });
+    

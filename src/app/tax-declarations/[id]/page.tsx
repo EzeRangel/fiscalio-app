@@ -109,9 +109,9 @@ export default async function TaxDeclarationReviewPage({
           <div className="flex items-start justify-between">
             <div className="space-y-3">
               <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
-                Declaración {formatPeriod(declaration.fiscalPeriod)}
+                Estimación {formatPeriod(declaration.fiscalPeriod)}
                 <span className="block text-muted-foreground text-2xl mt-2">
-                  {`Resumen informativo para apoyo en tu declaración ${declarationType}`}
+                  {`Resumen informativo de apoyo para tu estimación ${declarationType}`}
                 </span>
               </h1>
               <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
@@ -433,7 +433,7 @@ export default async function TaxDeclarationReviewPage({
                   <div className="flex items-center gap-2 text-chart-4 mb-2">
                     <CheckCircle2 className="h-4 w-4" />
                     <span className="text-xs font-mono uppercase tracking-wider">
-                      Declaración marcada como presentada
+                      Estimación marcada como finalizada
                     </span>
                   </div>
                   <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
@@ -465,7 +465,7 @@ export default async function TaxDeclarationReviewPage({
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-xs text-muted-foreground font-mono leading-relaxed">
-                  Una vez validada, la declaración no podrá ser modificada.
+                  Una vez verificada, la estimación no podrá ser modificada.
                   Asegúrate de revisar todos los datos antes de continuar.
                 </p>
 

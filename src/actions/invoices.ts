@@ -138,7 +138,7 @@ export const saveInvoice = actionClient
       const validation = validateInvoice(fiscalInvoiceToCheck);
       if (!validation.isValid) {
         throw new ActionError(
-          `Error de validación fiscal: ${validation.errors[0].message}`
+          `Inconsistencia detectada en los registros: ${validation.errors[0].message}`
         );
       }
 

@@ -36,13 +36,13 @@ function getStatusInfo(status: string): {
   switch (status) {
     case "filed":
       return {
-        text: "Presentada",
+        text: "Finalizada",
         icon: <CircleCheck className="h-4 w-4" />,
         className: "text-chart-4 bg-chart-4/10 border-chart-4/20",
       };
     case "validated":
       return {
-        text: "Validada",
+        text: "Verificada",
         icon: <CircleDotDashed className="h-4 w-4" />,
         className: "text-chart-1 bg-chart-1/10 border-chart-1/20",
       };

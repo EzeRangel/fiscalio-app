@@ -88,9 +88,9 @@ export const updatePaymentAction = actionClient
         );
         if (dateError) {
           throw new ActionError(
-            `Payment date cannot be earlier than invoice date (${
+            `La fecha de pago no puede ser anterior a la de la factura (${
               allocation.invoice.internalFolio || allocation.invoice.folioFiscal
-            }).`,
+            }). Favor de revisar los datos registrados para asegurar la consistencia.`,
           );
         }
       }

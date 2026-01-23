@@ -18,12 +18,12 @@ export function ValidateDeclarationButton({
   const router = useRouter();
   const { execute, status } = useAction(validateTaxDeclaration, {
     onSuccess: () => {
-      toast.success("La declaración ha sido validada exitosamente.");
+      toast.success("Los cálculos han sido verificados exitosamente.");
       router.refresh();
     },
     onError: ({ error }) => {
       toast.error(
-        error.serverError || "Hubo un error al validar la declaración."
+        error.serverError || "Hubo un error al verificar los cálculos."
       );
     },
   });
@@ -42,7 +42,7 @@ export function ValidateDeclarationButton({
       ) : (
         <ShieldCheck className="mr-2 h-4 w-4" />
       )}
-      {isExecuting ? "Validando..." : "Validar y Bloquear Declaración"}
+      {isExecuting ? "Verificando..." : "Verificar y Bloquear Estimación"}
     </Button>
   );
 }

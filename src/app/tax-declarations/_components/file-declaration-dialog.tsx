@@ -28,14 +28,14 @@ export function FileDeclarationDialog({
 
   const { execute } = useAction(fileTaxDeclaration, {
     onSuccess: () => {
-      toast.success("Se guardó el acuse de la declaración correctamente.");
+      toast.success("Se guardó el acuse correctamente.");
       queryClient.invalidateQueries({
         queryKey: ["auditLogs", "tax_declaration", declarationId],
       });
     },
     onError: ({ error }) => {
       toast.error(
-        error.serverError || "Hubo un error al enviar la información."
+        error.serverError || "Hubo un error al guardar la información."
       );
     },
   });
@@ -45,18 +45,18 @@ export function FileDeclarationDialog({
       <DialogTrigger asChild>
         <Button size="lg" className="w-full gap-2 font-mono text-background">
           <Send className="h-4 w-4" />
-          Presentar al SAT
+          Registrar Acuse SAT
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md bg-card border-border">
         <form action={execute}>
           <DialogHeader>
             <DialogTitle className="text-xl font-light tracking-tight">
-              Presentar Declaración
+              Registrar Acuse de Estimación
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
               Ingresa el número de acuse proporcionado por el SAT después de
-              presentar la declaración.
+              realizar tu declaración oficial.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -76,14 +76,14 @@ export function FileDeclarationDialog({
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Este número identifica tu declaración presentada ante el SAT.
+                Este número identifica tu registro oficial ante el SAT.
               </p>
             </div>
           </div>
           <DialogFooter>
             <SubmitButton className="w-full gap-2 font-mono">
               <CheckCircle2 className="h-4 w-4" />
-              Confirmar Presentación
+              Confirmar Registro
             </SubmitButton>
           </DialogFooter>
         </form>
