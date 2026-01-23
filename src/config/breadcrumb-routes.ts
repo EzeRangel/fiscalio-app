@@ -4,5 +4,5 @@ export const BREADCRUMB_ROUTES: Record<string, string> = {
   partners: "Socios Comerciales",
   settings: "Configuración",
   "chart-of-accounts": "Catálogo de Cuentas",
-  "tax-declarations": "Declaraciones Fiscales",
+  "tax-declarations": "Estimaciones Fiscales",
 };

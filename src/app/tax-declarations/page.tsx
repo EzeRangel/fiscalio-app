@@ -97,14 +97,14 @@ export default async function TaxDeclarationsPage() {
 
               <div className="space-y-3">
                 <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
-                  Reporte de declaraciones
+                  Estimaciones Fiscales
                   <span className="block text-muted-foreground text-2xl mt-2">
-                    Referencias estimadas
+                    Cálculos informativos
                   </span>
                 </h1>
                 <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
                   Crea borradores, encuentra inconsistencias y revisa que todo
-                  vaya bien para tus declaraciones
+                  vaya bien para tus estimaciones
                 </p>
               </div>
             </div>
@@ -253,10 +253,10 @@ export default async function TaxDeclarationsPage() {
                         </div>
                         <div className="space-y-2">
                           <p className="text-sm font-medium">
-                            Declaración Generada
+                            Estimación Generada
                           </p>
                           <p className="text-xs text-muted-foreground font-mono">
-                            Lista para revisión y presentación
+                            Lista para revisión
                           </p>
                         </div>
                         <Link
@@ -264,7 +264,7 @@ export default async function TaxDeclarationsPage() {
                         >
                           <Button size="lg" className="gap-2 font-mono">
                             <Eye className="h-4 w-4" />
-                            Revisar Declaración
+                            Revisar Estimación
                           </Button>
                         </Link>
                       </>
@@ -274,7 +274,7 @@ export default async function TaxDeclarationsPage() {
                           <FileText className="h-6 w-6 text-muted-foreground" />
                         </div>
                         <div className="space-y-2">
-                          <p className="text-sm font-medium">Sin Declaración</p>
+                          <p className="text-sm font-medium">Sin Estimación</p>
                           <p className="text-xs text-muted-foreground font-mono">
                             Genera el borrador para este período
                           </p>
@@ -297,14 +297,14 @@ export default async function TaxDeclarationsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <CardTitle className="text-xl font-light tracking-tight">
-                    Historial de Declaraciones
+                    Historial de Estimaciones
                   </CardTitle>
                   <CardDescription className="font-mono text-xs">
-                    Declaraciones presentadas anteriormente
+                    Estimaciones calculadas anteriormente
                   </CardDescription>
                 </div>
                 <div className="text-xs font-mono text-muted-foreground">
-                  {history.length} declaraciones
+                  {history.length} estimaciones
                 </div>
               </div>
             </CardHeader>
@@ -356,7 +356,7 @@ export default async function TaxDeclarationsPage() {
                     <FileText className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <p className="text-sm font-medium text-muted-foreground font-mono">
-                    No hay declaraciones en el historial
+                    No hay estimaciones en el historial
                   </p>
                 </div>
               )}
