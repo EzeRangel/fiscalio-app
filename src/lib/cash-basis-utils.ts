@@ -22,6 +22,7 @@ interface TaxInfo {
 
 interface AllocationWithInvoice {
   amountAllocated: string | number;
+  exchangeRate?: string | number | null;
   invoice: {
     total: string | number;
     subtotal: string | number;
@@ -32,8 +33,22 @@ interface AllocationWithInvoice {
 }
 
 /**
+ * Normalizes an amount to MXN using an exchange rate.
+ * Defaults to 1.0 if no rate is provided.
+ */
+export function normalizeToMXN(
+  amount: string | number,
+  exchangeRate: string | number | null = 1.0
+): number {
+  const parsedAmount = parseFloat(amount.toString()) || 0;
+  const parsedRate = parseFloat((exchangeRate ?? 1.0).toString()) || 1.0;
+  return parsedAmount * parsedRate;
+}
+
+/**
  * Calculates a summary of paid amounts based on payment allocations.
  * It applies a proportional calculation for each allocation based on the invoice's total.
+ * All amounts are normalized to MXN using the allocation's exchange rate.
  */
 export function calculateCashBasisSummary(
   allocations: AllocationWithInvoice[]
@@ -51,19 +66,20 @@ export function calculateCashBasisSummary(
   for (const allocation of allocations) {
     const amountAllocated = parseFloat(allocation.amountAllocated.toString());
     const invoiceTotal = parseFloat(allocation.invoice.total.toString());
+    const exchangeRate = parseFloat((allocation.exchangeRate ?? 1.0).toString()) || 1.0;
 
     if (invoiceTotal === 0) continue;
 
     const ratio = amountAllocated / invoiceTotal;
 
-    summary.totalPaid += amountAllocated;
+    summary.totalPaid += amountAllocated * exchangeRate;
     summary.subtotalPaid +=
-      parseFloat(allocation.invoice.subtotal.toString()) * ratio;
+      parseFloat(allocation.invoice.subtotal.toString()) * ratio * exchangeRate;
 
     // Process granular taxes if available
     if (allocation.invoice.taxes && allocation.invoice.taxes.length > 0) {
       for (const tax of allocation.invoice.taxes) {
-        const taxAmount = parseFloat(tax.amount.toString()) * ratio;
+        const taxAmount = parseFloat(tax.amount.toString()) * ratio * exchangeRate;
         
         // Aggregate totals
         if (tax.taxType === 'transferred') {
@@ -91,9 +107,9 @@ export function calculateCashBasisSummary(
     } else {
       // Fallback to simplistic calculation if no granular taxes provided
       summary.taxesPaid +=
-        parseFloat((allocation.invoice.totalTaxes ?? 0).toString()) * ratio;
+        parseFloat((allocation.invoice.totalTaxes ?? 0).toString()) * ratio * exchangeRate;
       summary.withholdingsPaid +=
-        parseFloat((allocation.invoice.totalWithholdings ?? 0).toString()) * ratio;
+        parseFloat((allocation.invoice.totalWithholdings ?? 0).toString()) * ratio * exchangeRate;
     }
   }
 
