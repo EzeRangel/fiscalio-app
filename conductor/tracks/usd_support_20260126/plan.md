@@ -5,7 +5,7 @@
     - [ ] Update `src/lib/cash-basis-utils.ts` to support currency normalization.
     - [ ] Implement `normalizeToMXN(amount, rate)` helper.
     - [ ] Update `calculateCashBasisSummary` to multiply each allocation's components (subtotal, taxes, etc.) by its `exchangeRate`.
-- [ ] Task: Unit Tests for Currency Normalization
+- [x] Task: Unit Tests for Currency Normalization 16a9d7c
     - [ ] Update `src/lib/cash-basis-utils.test.ts`.
     - [ ] Test cases: MXN-only, USD-only (PUE), Mixed currencies, PPD with different rates on Invoice vs Payment.
 - [ ] Task: Conductor - User Manual Verification 'Core Logic & Normalization' (Protocol in workflow.md)
