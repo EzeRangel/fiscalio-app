@@ -27,7 +27,7 @@
     - [ ] Add logic to hide/show `exchangeRate` input based on selected `currency`.
 - [ ] Task: Conductor - User Manual Verification 'Forms & Schema Updates' (Protocol in workflow.md)
 
-## Phase 4: UI Enhancements & Indicators
+## Phase 4: UI Enhancements & Indicators [checkpoint: 2e5178a]
 - [x] Task: Create CurrencyDisplay Component 4e2bda6
     - [ ] Create a reusable component that displays a formatted currency value with a "USD" badge if the source currency is not MXN.
 - [x] Task: Update Dashboard & Lists 24cf620
