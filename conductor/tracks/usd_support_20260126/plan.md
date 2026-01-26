@@ -11,7 +11,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Core Logic & Normalization' (Protocol in workflow.md)
 
 ## Phase 2: Data Access Layer Normalization
-- [ ] Task: Update Dashboard Metrics
+- [x] Task: Update Dashboard Metrics 5386535
     - [ ] Verify `src/data/dashboard.ts` correctly handles `exchangeRate` in SQL queries (already present, needs confirmation with tests).
 - [ ] Task: Update Partner Analytics
     - [ ] Refactor `fetchBusinessPartnersWithAnalytics` and `fetchGlobalPartnerStats` in `src/data/businessPartners.ts` to multiply `invoices.total` and `paymentAllocations.amountAllocated` by their respective `exchangeRate`.
