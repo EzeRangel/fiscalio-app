@@ -19,7 +19,7 @@
     - [ ] Ensure `src/actions/tax-declarations.ts` passes the `exchangeRate` from allocations to the calculation utility.
 - [ ] Task: Conductor - User Manual Verification 'Data Access Layer Normalization' (Protocol in workflow.md)
 
-## Phase 3: Forms & Schema Updates
+## Phase 3: Forms & Schema Updates [checkpoint: c264ad6]
 - [x] Task: Update Zod Schemas 942398e
     - [ ] Update invoice and payment validation schemas to ensure `currency` and `exchangeRate` are correctly handled (defaults to MXN/1.0).
 - [x] Task: Update Form Components 942398e
