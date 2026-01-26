@@ -15,7 +15,7 @@
     - [ ] Verify `src/data/dashboard.ts` correctly handles `exchangeRate` in SQL queries (already present, needs confirmation with tests).
 - [x] Task: Update Partner Analytics 43bc121
     - [ ] Refactor `fetchBusinessPartnersWithAnalytics` and `fetchGlobalPartnerStats` in `src/data/businessPartners.ts` to multiply `invoices.total` and `paymentAllocations.amountAllocated` by their respective `exchangeRate`.
-- [ ] Task: Update Tax Declarations Logic
+- [x] Task: Update Tax Declarations Logic 1dc167f
     - [ ] Ensure `src/actions/tax-declarations.ts` passes the `exchangeRate` from allocations to the calculation utility.
 - [ ] Task: Conductor - User Manual Verification 'Data Access Layer Normalization' (Protocol in workflow.md)
 
