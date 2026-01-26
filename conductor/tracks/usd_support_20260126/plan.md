@@ -1,6 +1,6 @@
 # Implementation Plan - USD Support & MXN Normalization
 
-## Phase 1: Core Logic & Normalization (TDD)
+## Phase 1: Core Logic & Normalization (TDD) [checkpoint: a586d1d]
 - [x] Task: Create Normalization Utilities 16a9d7c
     - [ ] Update `src/lib/cash-basis-utils.ts` to support currency normalization.
     - [ ] Implement `normalizeToMXN(amount, rate)` helper.
