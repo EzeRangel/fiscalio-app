@@ -20,9 +20,9 @@
 - [ ] Task: Conductor - User Manual Verification 'Data Access Layer Normalization' (Protocol in workflow.md)
 
 ## Phase 3: Forms & Schema Updates
-- [ ] Task: Update Zod Schemas
+- [x] Task: Update Zod Schemas 942398e
     - [ ] Update invoice and payment validation schemas to ensure `currency` and `exchangeRate` are correctly handled (defaults to MXN/1.0).
-- [ ] Task: Update Form Components
+- [x] Task: Update Form Components 942398e
     - [ ] Add `currency` (Select) and `exchangeRate` (Input) fields to manual invoice/payment creation forms.
     - [ ] Add logic to hide/show `exchangeRate` input based on selected `currency`.
 - [ ] Task: Conductor - User Manual Verification 'Forms & Schema Updates' (Protocol in workflow.md)
