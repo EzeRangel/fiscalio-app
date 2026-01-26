@@ -30,7 +30,7 @@
 ## Phase 4: UI Enhancements & Indicators
 - [x] Task: Create CurrencyDisplay Component 4e2bda6
     - [ ] Create a reusable component that displays a formatted currency value with a "USD" badge if the source currency is not MXN.
-- [ ] Task: Update Dashboard & Lists
+- [x] Task: Update Dashboard & Lists 24cf620
     - [ ] Use `CurrencyDisplay` in `SummaryCard` (Dashboard).
     - [ ] Use `CurrencyDisplay` in the Invoices and Payments data tables.
 - [ ] Task: Conductor - User Manual Verification 'UI Enhancements & Indicators' (Protocol in workflow.md)
