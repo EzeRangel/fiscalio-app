@@ -36,7 +36,7 @@
 - [ ] Task: Conductor - User Manual Verification 'UI Enhancements & Indicators' (Protocol in workflow.md)
 
 ## Phase 5: Verification & Testing
-- [ ] Task: End-to-End Verification
+- [x] Task: End-to-End Verification 8ca9f82
     - [ ] Upload a USD CFDI and verify it appears normalized in the dashboard.
     - [ ] Create a manual USD payment for a USD invoice and verify the cash-basis calculation.
 - [ ] Task: Conductor - User Manual Verification 'Verification & Testing' (Protocol in workflow.md)
