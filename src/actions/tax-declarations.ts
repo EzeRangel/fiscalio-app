@@ -157,14 +157,25 @@ export const createTaxDeclarationDraft = actionClient
       );
 
       // Prepare allocations for this invoice in this period
-      const invoiceAllocations = items.map((i: any) => ({
-        amountAllocated: i.allocation.amountAllocated,
-        invoice: {
-          total: fullInvoice.total,
-          subtotal: fullInvoice.subtotal,
-          taxes: allTaxes,
-        },
-      }));
+      const invoiceAllocations = items.map((i: any) => {
+        const allocRate = i.allocation.exchangeRate || "1.0";
+        const invoiceRate = fullInvoice.exchangeRate || "1.0";
+        const currency = fullInvoice.currency || "MXN";
+
+        // Fallback logic for past calculations
+        const finalRate =
+          allocRate === "1.0" && currency !== "MXN" ? invoiceRate : allocRate;
+
+        return {
+          amountAllocated: i.allocation.amountAllocated,
+          exchangeRate: finalRate,
+          invoice: {
+            total: fullInvoice.total,
+            subtotal: fullInvoice.subtotal,
+            taxes: allTaxes,
+          },
+        };
+      });
 
       const summary = calculateCashBasisSummary(invoiceAllocations);
 

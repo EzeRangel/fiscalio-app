@@ -24,7 +24,14 @@ export async function getDashboardMetrics(
   // Cash-Basis Income: sum of payment_allocations where invoice_type = 'income'
   const incomeResult = await db
     .select({
-      total: sql<string>`sum(${paymentAllocations.amountAllocated} * ${paymentAllocations.exchangeRate})`,
+      total: sql<string>`sum(
+        ${paymentAllocations.amountAllocated} * 
+        CASE 
+          WHEN ${paymentAllocations.exchangeRate} = 1.0 AND ${invoices.currency} != 'MXN' 
+          THEN ${invoices.exchangeRate} 
+          ELSE ${paymentAllocations.exchangeRate} 
+        END
+      )`,
     })
     .from(paymentAllocations)
     .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
@@ -41,7 +48,14 @@ export async function getDashboardMetrics(
   // Cash-Basis Expenses: sum of payment_allocations where invoice_type = 'expense'
   const expenseResult = await db
     .select({
-      total: sql<string>`sum(${paymentAllocations.amountAllocated} * ${paymentAllocations.exchangeRate})`,
+      total: sql<string>`sum(
+        ${paymentAllocations.amountAllocated} * 
+        CASE 
+          WHEN ${paymentAllocations.exchangeRate} = 1.0 AND ${invoices.currency} != 'MXN' 
+          THEN ${invoices.exchangeRate} 
+          ELSE ${paymentAllocations.exchangeRate} 
+        END
+      )`,
     })
     .from(paymentAllocations)
     .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))

@@ -18,15 +18,23 @@ export const fetchBusinessPartnersWithAnalytics = async (
 ) => {
   const { db } = await getDB();
 
-  // Subquery for paid amounts per invoice
+  // Subquery for paid amounts per invoice (Normalized to MXN)
   const paidPerInvoice = db
     .select({
       invoiceId: paymentAllocations.invoiceId,
-      paidAmount: sql<number>`sum(${paymentAllocations.amountAllocated})`
+      paidAmount: sql<number>`sum(
+        ${paymentAllocations.amountAllocated} * 
+        CASE 
+          WHEN ${paymentAllocations.exchangeRate} = 1.0 AND ${invoices.currency} != 'MXN' 
+          THEN ${invoices.exchangeRate} 
+          ELSE ${paymentAllocations.exchangeRate} 
+        END
+      )`
         .mapWith(Number)
         .as("paid_amount"),
     })
     .from(paymentAllocations)
+    .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
     .groupBy(paymentAllocations.invoiceId)
     .as("paid_per_invoice");
 
@@ -37,7 +45,7 @@ export const fetchBusinessPartnersWithAnalytics = async (
       invoiceCount: sql<number>`count(${invoices.id})`
         .mapWith(Number)
         .as("invoice_count"),
-      totalVolume: sql<number>`sum(${invoices.total})`
+      totalVolume: sql<number>`sum(${invoices.total} * ${invoices.exchangeRate})`
         .mapWith(Number)
         .as("total_volume"),
       paidVolume: sql<number>`sum(COALESCE(${paidPerInvoice.paidAmount}, 0))`
@@ -80,22 +88,30 @@ export const fetchBusinessPartnersWithAnalytics = async (
 export const fetchGlobalPartnerStats = async (organizationId: number) => {
   const { db } = await getDB();
 
-  // Subquery for paid amounts per invoice
+  // Subquery for paid amounts per invoice (Normalized to MXN)
   const paidPerInvoice = db
     .select({
       invoiceId: paymentAllocations.invoiceId,
-      paidAmount: sql<number>`sum(${paymentAllocations.amountAllocated})`
+      paidAmount: sql<number>`sum(
+        ${paymentAllocations.amountAllocated} * 
+        CASE 
+          WHEN ${paymentAllocations.exchangeRate} = 1.0 AND ${invoices.currency} != 'MXN' 
+          THEN ${invoices.exchangeRate} 
+          ELSE ${paymentAllocations.exchangeRate} 
+        END
+      )`
         .mapWith(Number)
         .as("paid_amount"),
     })
     .from(paymentAllocations)
+    .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
     .groupBy(paymentAllocations.invoiceId)
     .as("paid_per_invoice");
 
   const results = await db
     .select({
       type: invoices.invoiceType,
-      volume: sql<number>`sum(${invoices.total})`.mapWith(Number),
+      volume: sql<number>`sum(${invoices.total} * ${invoices.exchangeRate})`.mapWith(Number),
       paidVolume: sql<number>`sum(COALESCE(${paidPerInvoice.paidAmount}, 0))`.mapWith(Number),
     })
     .from(invoices)
