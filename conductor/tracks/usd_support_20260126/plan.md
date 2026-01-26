@@ -13,7 +13,7 @@
 ## Phase 2: Data Access Layer Normalization
 - [x] Task: Update Dashboard Metrics 5386535
     - [ ] Verify `src/data/dashboard.ts` correctly handles `exchangeRate` in SQL queries (already present, needs confirmation with tests).
-- [ ] Task: Update Partner Analytics
+- [x] Task: Update Partner Analytics 43bc121
     - [ ] Refactor `fetchBusinessPartnersWithAnalytics` and `fetchGlobalPartnerStats` in `src/data/businessPartners.ts` to multiply `invoices.total` and `paymentAllocations.amountAllocated` by their respective `exchangeRate`.
 - [ ] Task: Update Tax Declarations Logic
     - [ ] Ensure `src/actions/tax-declarations.ts` passes the `exchangeRate` from allocations to the calculation utility.
