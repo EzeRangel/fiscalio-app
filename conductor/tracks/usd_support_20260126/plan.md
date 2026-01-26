@@ -35,7 +35,7 @@
     - [ ] Use `CurrencyDisplay` in the Invoices and Payments data tables.
 - [ ] Task: Conductor - User Manual Verification 'UI Enhancements & Indicators' (Protocol in workflow.md)
 
-## Phase 5: Verification & Testing
+## Phase 5: Verification & Testing [checkpoint: 2c25bf6]
 - [x] Task: End-to-End Verification 8ca9f82
     - [ ] Upload a USD CFDI and verify it appears normalized in the dashboard.
     - [ ] Create a manual USD payment for a USD invoice and verify the cash-basis calculation.
