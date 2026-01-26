@@ -10,7 +10,7 @@
     - [ ] Test cases: MXN-only, USD-only (PUE), Mixed currencies, PPD with different rates on Invoice vs Payment.
 - [ ] Task: Conductor - User Manual Verification 'Core Logic & Normalization' (Protocol in workflow.md)
 
-## Phase 2: Data Access Layer Normalization
+## Phase 2: Data Access Layer Normalization [checkpoint: 66be215]
 - [x] Task: Update Dashboard Metrics 5386535
     - [ ] Verify `src/data/dashboard.ts` correctly handles `exchangeRate` in SQL queries (already present, needs confirmation with tests).
 - [x] Task: Update Partner Analytics 43bc121
