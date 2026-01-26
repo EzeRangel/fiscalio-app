@@ -28,7 +28,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Forms & Schema Updates' (Protocol in workflow.md)
 
 ## Phase 4: UI Enhancements & Indicators
-- [ ] Task: Create CurrencyDisplay Component
+- [x] Task: Create CurrencyDisplay Component 4e2bda6
     - [ ] Create a reusable component that displays a formatted currency value with a "USD" badge if the source currency is not MXN.
 - [ ] Task: Update Dashboard & Lists
     - [ ] Use `CurrencyDisplay` in `SummaryCard` (Dashboard).
