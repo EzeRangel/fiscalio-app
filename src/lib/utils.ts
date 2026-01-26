@@ -1,6 +1,14 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { CFDI_TYPE, TAX_NAMES } from "./constants";
+import {
+  CFDI_TYPE,
+  INVOICE_TYPE,
+  PAYMENT_FORMS,
+  PAYMENT_METHODS,
+  TAX_NAMES,
+  TAX_TYPES,
+} from "./constants";
+import { PaymentForms, PaymentMethods, TaxTypes } from "@/types/utils";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -8,6 +16,22 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getCFDIType(code: keyof typeof CFDI_TYPE) {
   return CFDI_TYPE[code];
+}
+
+export function getInvoiceType(code: keyof typeof INVOICE_TYPE) {
+  return INVOICE_TYPE[code];
+}
+
+export function getPaymentMethod(code: PaymentMethods) {
+  return PAYMENT_METHODS[code];
+}
+
+export function getPaymentForm(code: PaymentForms) {
+  return PAYMENT_FORMS[code];
+}
+
+export function getTaxType(code: TaxTypes) {
+  return TAX_TYPES[code];
 }
 
 export function getTaxName(code: keyof typeof TAX_NAMES): string {

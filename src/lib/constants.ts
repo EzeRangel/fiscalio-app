@@ -5,10 +5,22 @@ export const CFDI_TYPE = {
   P: "Pago",
 };
 
+export const INVOICE_TYPE = {
+  income: "Ingreso",
+  expense: "Egreso",
+  transfer: "Traslado",
+  payment: "Pago",
+};
+
 export const TAX_NAMES = {
   "001": "ISR",
   "002": "IVA",
   "003": "IEPS",
+};
+
+export const TAX_TYPES = {
+  transferred: "Trasladado",
+  withheld: "Retenido",
 };
 
 export const PAYMENT_FORMS = {

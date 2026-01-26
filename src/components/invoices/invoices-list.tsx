@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, FileText } from "lucide-react";
 import { formatPrice } from "@/hooks/usePrice";
-import { getCFDIType } from "@/lib/utils";
+import { getCFDIType, getInvoiceType } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { PrivacyBlur } from "../privacy-blur";
 import {
@@ -17,6 +17,7 @@ import {
   EmptyTitle,
 } from "../ui/empty";
 import { InferResultType } from "@/types/orm";
+import { InvoiceTypes } from "@/types/utils";
 
 type InvoiceWithBusinessPartner = InferResultType<
   "invoices",
@@ -28,13 +29,27 @@ interface Props {
 }
 
 const getPaymentStatus = (total: number, paid: number) => {
-    if (paid <= 0) return { label: "Pendiente", color: "bg-red-500/10 text-red-700 border-red-500/20" };
-    if (paid >= total) return { label: "Pagado", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20" };
-    return { label: "Parcial", color: "bg-amber-500/10 text-amber-700 border-amber-500/20" };
+  if (paid <= 0)
+    return {
+      label: "Pendiente",
+      color: "text-red-700",
+    };
+  if (paid >= total)
+    return {
+      label: "Pagado",
+      color: "text-emerald-700",
+    };
+  return {
+    label: "Parcial",
+    color: "text-amber-700",
+  };
 };
 
 const calculateInvoicePaid = (invoice: InvoiceWithBusinessPartner) => {
-    return (invoice.allocations || []).reduce((sum, alloc) => sum + Number(alloc.amountAllocated), 0);
+  return (invoice.allocations || []).reduce(
+    (sum, alloc) => sum + Number(alloc.amountAllocated),
+    0,
+  );
 };
 
 export function InvoicesList({ invoices }: Props) {
@@ -109,7 +124,7 @@ export function InvoicesList({ invoices }: Props) {
                               {
                                 month: "short",
                                 day: "numeric",
-                              }
+                              },
                             )}
                           </div>
                         </div>
@@ -121,31 +136,34 @@ export function InvoicesList({ invoices }: Props) {
                             {invoice.businessPartner?.legalName}
                           </div>
                           <div className="text-xs text-muted-foreground font-mono">
-                            <PrivacyBlur>{invoice.businessPartner?.rfc}</PrivacyBlur>
+                            <PrivacyBlur>
+                              {invoice.businessPartner?.rfc}
+                            </PrivacyBlur>
                           </div>
                         </div>
                       </div>
 
                       {/* Right: Status & Amount */}
                       <div className="flex items-center gap-6 shrink-0">
-                        <div className="flex flex-col items-end gap-1.5">
-                            <Badge
-                                variant="outline"
-                                className={
-                                invoice.cfdiType === "I"
-                                    ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
-                                    : "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                                }
-                            >
-                                {/* @ts-expect-error Incorrect type */}
-                                {getCFDIType(invoice.cfdiType)}
-                            </Badge>
-                            <Badge
-                                variant="outline"
-                                className={`font-mono text-[10px] uppercase tracking-tighter ${status.color}`}
-                            >
-                                {status.label}
-                            </Badge>
+                        <div className="flex flex-row items-center gap-1.5">
+                          <Badge
+                            variant="outline"
+                            className={
+                              invoice.invoiceType === "income"
+                                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+                                : "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                            }
+                          >
+                            {getInvoiceType(
+                              invoice.invoiceType as InvoiceTypes,
+                            )}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={`font-mono tracking-tighter ${status.color}`}
+                          >
+                            {status.label}
+                          </Badge>
                         </div>
 
                         <div className="text-right">
@@ -155,7 +173,8 @@ export function InvoicesList({ invoices }: Props) {
                             </PrivacyBlur>
                           </div>
                           <div className="text-xs text-muted-foreground font-mono">
-                            de {formatPrice(Number(invoice.total), 2)} {invoice.currency}
+                            de {formatPrice(Number(invoice.total), 2)}{" "}
+                            {invoice.currency}
                           </div>
                         </div>
 

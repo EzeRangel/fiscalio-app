@@ -17,7 +17,14 @@ import { InvoiceDetails as CFDI } from "@/types/invoices";
 import { Separator } from "@/components/ui/separator";
 import { ClassificationFeedback } from "./classification-feedback";
 import ClassificationAssigned from "./classification-assigned";
-import { cn, getCFDIType } from "@/lib/utils";
+import {
+  cn,
+  formatCurrency,
+  getInvoiceType,
+  getPaymentForm,
+  getPaymentMethod,
+  getTaxType,
+} from "@/lib/utils";
 import { PaymentAllocation } from "@/types/payments";
 import { formatPrice } from "@/hooks/usePrice";
 import { PrivacyBlur } from "@/components/privacy-blur";
@@ -29,17 +36,21 @@ import {
 } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { EditPaymentDialog } from "./edit-payment-dialog";
+import { INVOICE_TYPE } from "@/lib/constants";
+import { PaymentForms, PaymentMethods, TaxTypes } from "@/types/utils";
 
 interface Props {
   data: CFDI;
   relatedPayments?: PaymentAllocation[];
 }
 
-const CFDI_TYPE_COLOR = {
-  I: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-  E: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
-  T: "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
-  P: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+const INVOICE_TYPE_COLOR = {
+  income:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  expense: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  transfer:
+    "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
+  payment: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
 };
 
 export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
@@ -58,11 +69,12 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 className={cn(
                   "font-mono text-xs tracking-wider",
                   // @ts-expect-error Incorrect type
-                  CFDI_TYPE_COLOR[invoice.cfdiType] || "bg-gray-500/10",
+                  INVOICE_TYPE_COLOR[invoice.invoiceType] || "bg-gray-500/10",
                 )}
               >
-                {/* @ts-expect-error No se puede asignar un argumento de tipo "string" al parámetro de tipo ""I" | "E" | "T" */}
-                {getCFDIType(invoice.cfdiType)}
+                {getInvoiceType(
+                  invoice.invoiceType as keyof typeof INVOICE_TYPE,
+                )}
               </Badge>
             </div>
 
@@ -239,27 +251,33 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
 
           {!isPaymentComplement && (
             <>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                  <CreditCard className="h-3.5 w-3.5" />
-                  <span className="text-xs uppercase tracking-widest">
-                    Método de Pago
-                  </span>
+              {invoice.paymentMethod ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                    <CreditCard className="h-3.5 w-3.5" />
+                    <span className="text-xs uppercase tracking-widest">
+                      Método de Pago
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed">
+                    {getPaymentMethod(invoice.paymentMethod as PaymentMethods)}
+                  </p>
                 </div>
-                <p className="text-sm leading-relaxed">
-                  {invoice.paymentMethod}
-                </p>
-              </div>
+              ) : null}
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                  <CreditCard className="h-3.5 w-3.5" />
-                  <span className="text-xs uppercase tracking-widest">
-                    Forma de Pago
-                  </span>
+              {invoice.paymentForm ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                    <CreditCard className="h-3.5 w-3.5" />
+                    <span className="text-xs uppercase tracking-widest">
+                      Forma de Pago
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed">
+                    {getPaymentForm(invoice.paymentForm as PaymentForms)}
+                  </p>
                 </div>
-                <p className="text-sm leading-relaxed">{invoice.paymentForm}</p>
-              </div>
+              ) : null}
             </>
           )}
         </div>
@@ -418,90 +436,116 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
           </div>
 
           <div className="space-y-6">
-            {invoice.items.map((item, index) => (
-              <div
-                key={item.id}
-                className="border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
-              >
-                {/* Item Header */}
-                <div className="flex items-start justify-between gap-4 mb-6">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-muted-foreground">
-                        #{String(index + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-                    <h4 className="text-lg font-light leading-relaxed text-balance">
-                      {item.description}
-                    </h4>
-                  </div>
-                  <div className="text-right space-y-1">
-                    <div className="text-2xl font-mono font-light">
-                      <PrivacyBlur>${item.subtotal}</PrivacyBlur>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {invoice.currency}
-                    </div>
-                  </div>
-                </div>
+            {invoice.items.map((item, index) => {
+              const subtotal =
+                parseFloat(item.subtotal) - parseFloat(item.discount || " 0");
 
-                {/* Item Details Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4 border-t border-border/50">
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">
-                      Clave Prod. Serv.
-                    </div>
-                    <div className="font-mono text-sm">
-                      {item.productServiceKey}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">
-                      Cantidad
-                    </div>
-                    <div className="font-mono text-sm">{item.quantity}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">
-                      Unidad
-                    </div>
-                    <div className="text-sm">{item.unit}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">
-                      Precio Unit.
-                    </div>
-                    <div className="font-mono text-sm">
-                      <PrivacyBlur>${item.unitPrice}</PrivacyBlur>
-                    </div>
-                  </div>
-                </div>
+              const taxes = item.taxes.reduce((acc, item) => {
+                if (item.taxType === "transferred") {
+                  return acc + parseFloat(item.taxAmount);
+                }
 
-                {/* Taxes */}
-                {item.taxes && item.taxes.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-border/50">
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-                      Impuestos Aplicados
+                return acc;
+              }, 0);
+
+              return (
+                <div
+                  key={item.id}
+                  className="border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
+                >
+                  {/* Item Header */}
+                  <div className="flex items-start justify-between gap-4 mb-6">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono text-muted-foreground">
+                          #{String(index + 1).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <h4 className="text-lg font-light leading-relaxed text-balance">
+                        {item.description}
+                      </h4>
                     </div>
-                    <div className="flex flex-wrap gap-4">
-                      {item.taxes.map((tax) => (
-                        <div key={tax.id} className="flex items-baseline gap-2">
-                          <span className="text-sm font-medium">
-                            {tax.taxName}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {tax.taxType} • {tax.rate}
-                          </span>
-                          <span className="font-mono text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                            <PrivacyBlur>${tax.taxAmount}</PrivacyBlur>
-                          </span>
-                        </div>
-                      ))}
+                    <div className="text-right space-y-1">
+                      <div className="text-2xl font-mono font-light">
+                        <PrivacyBlur>
+                          {formatCurrency(subtotal + taxes)}
+                        </PrivacyBlur>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {invoice.currency}
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Item Details Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6 pt-4 border-t border-border/50">
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Clave Prod. Serv.
+                      </div>
+                      <div className="font-mono text-sm">
+                        {item.productServiceKey}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Cantidad
+                      </div>
+                      <div className="font-mono text-sm">{item.quantity}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Unidad
+                      </div>
+                      <div className="text-sm">{item.unit}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Precio Unit.
+                      </div>
+                      <div className="font-mono text-sm">
+                        <PrivacyBlur>${item.unitPrice}</PrivacyBlur>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Dscto.
+                      </div>
+                      <div className="font-mono text-sm">
+                        <PrivacyBlur>${item.discount}</PrivacyBlur>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Taxes */}
+                  {item.taxes && item.taxes.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-border/50">
+                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                        Impuestos Aplicados
+                      </div>
+                      <div className="flex flex-wrap gap-4">
+                        {item.taxes.map((tax) => (
+                          <div
+                            key={tax.id}
+                            className="flex items-baseline gap-2"
+                          >
+                            <span className="text-sm font-medium">
+                              {tax.taxName}
+                            </span>
+                            <span className="text-xs text-muted-foreground lowercase">
+                              {getTaxType(tax.taxType as TaxTypes)} • {tax.rate}
+                            </span>
+                            <span className="font-mono text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                              <PrivacyBlur>${tax.taxAmount}</PrivacyBlur>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
