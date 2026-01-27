@@ -53,10 +53,37 @@ const INVOICE_TYPE_COLOR = {
   payment: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
 };
 
+const getPaymentStatus = (total: number, paid: number) => {
+  if (paid <= 0)
+    return {
+      label: "Pendiente",
+      color: "text-red-700",
+    };
+  if (paid >= total)
+    return {
+      label: "Pagado",
+      color: "text-emerald-700",
+    };
+  return {
+    label: "Parcial",
+    color: "text-amber-700",
+  };
+};
+
+export const calculateInvoicePaid = (invoice: CFDI) => {
+  return (invoice.allocations || []).reduce(
+    (sum, alloc) => sum + Number(alloc.amountAllocated),
+    0,
+  );
+};
+
 export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
   const isPaymentComplement = invoice.cfdiType === "P";
   const [editingPayment, setEditingPayment] =
     useState<PaymentAllocation | null>(null);
+
+  const totalPaid = calculateInvoicePaid(invoice);
+  const paymentStatus = getPaymentStatus(Number(invoice.total), totalPaid);
 
   return (
     <div className="container mx-auto px-6 py-12 max-w-7xl">
@@ -75,6 +102,13 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 {getInvoiceType(
                   invoice.invoiceType as keyof typeof INVOICE_TYPE,
                 )}
+              </Badge>
+
+              <Badge
+                variant="outline"
+                className={`font-mono tracking-tighter ${paymentStatus.color}`}
+              >
+                {paymentStatus.label}
               </Badge>
             </div>
 
@@ -549,14 +583,6 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
           </div>
         </div>
       )}
-
-      {/* Footer Note */}
-      <div className="mt-16 pt-8 border-t border-border">
-        <p className="text-xs text-muted-foreground text-center">
-          Documento fiscal digital emitido conforme a las disposiciones fiscales
-          vigentes del SAT
-        </p>
-      </div>
 
       {editingPayment && (
         <EditPaymentDialog

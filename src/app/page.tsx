@@ -1,5 +1,4 @@
 import Dashboard from "@/components/dashboard";
-import { DisclaimerBanner } from "@/components/disclaimer-banner";
 
 export default async function Home() {
   return (
@@ -23,7 +22,6 @@ export default async function Home() {
         </div>
       </div>
       <div className="container mx-auto px-6 py-12">
-        <DisclaimerBanner className="mb-8" />
         <Dashboard />
       </div>
     </div>

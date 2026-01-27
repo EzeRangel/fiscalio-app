@@ -52,7 +52,17 @@ export default async function RootLayout({
                 <SiteHeader />
                 <div className="flex flex-1">
                   <AppSidebar organizations={organizations} />
-                  <SidebarInset>{children}</SidebarInset>
+                  <SidebarInset>
+                    {children}
+                    <footer className="p-4">
+                      <p className="leading-relaxed text-xs text-center text-muted-foreground">
+                        Esta plataforma es una herramienta de asistencia e
+                        información. Los cálculos presentados son estimaciones y
+                        no sustituyen la asesoría fiscal profesional ni las
+                        declaraciones oficiales ante el SAT.
+                      </p>
+                    </footer>
+                  </SidebarInset>
                 </div>
               </SidebarProvider>
             </div>

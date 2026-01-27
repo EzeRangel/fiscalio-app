@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, FileText } from "lucide-react";
 import { formatPrice } from "@/hooks/usePrice";
-import { getCFDIType, getInvoiceType } from "@/lib/utils";
+import { getInvoiceType } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { PrivacyBlur } from "../privacy-blur";
 import {
@@ -185,15 +185,6 @@ export function InvoicesList({ invoices }: Props) {
                 </Card>
               );
             })}
-            {/* View All CTA */}
-            <div className="pt-4 border-t border-border">
-              <Button asChild variant="ghost" className="w-full gap-2 text-sm">
-                <Link href="/invoices">
-                  Explorar todas las facturas
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
           </>
         )}
       </div>
