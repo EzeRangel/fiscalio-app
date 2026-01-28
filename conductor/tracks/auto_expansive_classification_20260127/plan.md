@@ -13,7 +13,7 @@ This plan outlines the steps to implement an autonomous rule generation system t
     - [x] Define threshold constants (e.g., `MIN_EVIDENCE_TO_PROMOTE`, `MIN_CONSISTENCY_RATE`) in `src/lib/constants.ts`.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Persistence & Schema' (Protocol in workflow.md)
 
-## Phase 2: Pattern Detection Engine
+## Phase 2: Pattern Detection Engine [checkpoint: dff0def]
 - [x] Task: EngineInvoice Canonicalization
     - [x] Implement a utility to extract a stable, hashed feature set from an `EngineInvoice` in `src/lib/classification-engine.ts`.
     - [x] Write unit tests to ensure different invoices with the same core features produce identical hashes.
@@ -24,7 +24,7 @@ This plan outlines the steps to implement an autonomous rule generation system t
 - [x] Task: Background Task Integration
     - [x] Hook into the `applyClassification` server action to trigger pattern detection asynchronously.
     - [x] Ensure the background process does not block the main response.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Pattern Detection Engine' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Pattern Detection Engine' (Protocol in workflow.md) dff0def
 
 ## Phase 3: Autonomous Rule Promotion
 - [ ] Task: Promotion Service
