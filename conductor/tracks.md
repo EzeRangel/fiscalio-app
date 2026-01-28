@@ -5,3 +5,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Cash-Basis Financial Reporting (Issued CFDI ≠ Taxable Income)**
 *Link: [./tracks/cash_basis_reporting_20260120/](./tracks/cash_basis_reporting_20260120/)*
+
+---
+
+- [~] **Track: Auto-Expansive Classification System**
+*Link: [./tracks/auto_expansive_classification_20260127/](./tracks/auto_expansive_classification_20260127/)*

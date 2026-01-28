@@ -1,0 +1,45 @@
+# Implementation Plan: Auto-Expansive Classification System
+
+This plan outlines the steps to implement an autonomous rule generation system that learns from observed classification patterns.
+
+## Phase 1: Persistence & Schema
+- [x] Task: Database Schema Update
+    - [x] Create `src/db/schema/patternCandidates.ts` to define the `patternCandidates` table.
+    - [x] Implement the `featureSetHash` and JSON `features` storage.
+    - [x] Export the new schema in `src/db/schema/index.ts`.
+    - [x] Create and run the Drizzle migration.
+- [x] Task: Domain Types & Constants
+    - [x] Define TypeScript interfaces for `PatternCandidate` and `EngineInvoice` snapshots in `src/types/classification-engine.ts`.
+    - [x] Define threshold constants (e.g., `MIN_EVIDENCE_TO_PROMOTE`, `MIN_CONSISTENCY_RATE`) in `src/lib/constants.ts`.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Persistence & Schema' (Protocol in workflow.md)
+
+## Phase 2: Pattern Detection Engine
+- [x] Task: EngineInvoice Canonicalization
+    - [x] Implement a utility to extract a stable, hashed feature set from an `EngineInvoice` in `src/lib/classification-engine.ts`.
+    - [x] Write unit tests to ensure different invoices with the same core features produce identical hashes.
+- [x] Task: Pattern Tracking Logic
+    - [x] Implement `upsertPatternCandidate` in a new service `src/lib/pattern-detection.ts`.
+    - [x] Logic should update `evidenceCount`, `consistencyRate`, and `confidenceScore`.
+    - [x] Write unit tests for pattern tracking with various feedback scenarios.
+- [x] Task: Background Task Integration
+    - [x] Hook into the `applyClassification` server action to trigger pattern detection asynchronously.
+    - [x] Ensure the background process does not block the main response.
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Pattern Detection Engine' (Protocol in workflow.md)
+
+## Phase 3: Autonomous Rule Promotion
+- [ ] Task: Promotion Service
+    - [ ] Implement `promoteCandidateToRule` in `src/lib/pattern-detection.ts`.
+    - [ ] This service should create a new `ClassificationRule` and update the `PatternCandidate` status to `promoted`.
+    - [ ] Ensure proper traceability by linking the rule back to the candidate.
+- [ ] Task: Threshold Monitor
+    - [ ] Add logic to the pattern detection flow to check if a candidate has met promotion criteria.
+- [ ] Task: Conductor - User Manual Verification 'Phase 3: Autonomous Rule Promotion' (Protocol in workflow.md)
+
+## Phase 4: Integration & Verification
+- [ ] Task: End-to-End Test Suite
+    - [ ] Create an integration test that simulates multiple manual classifications.
+    - [ ] Verify that a `PatternCandidate` is created, updated, and eventually promoted.
+    - [ ] Verify that the `ClassificationEngine` correctly utilizes the new auto-generated rule for subsequent invoices.
+- [ ] Task: Audit & Logging
+    - [ ] Ensure promotion events are recorded in the `auditLogs`.
+- [ ] Task: Conductor - User Manual Verification 'Phase 4: Integration & Verification' (Protocol in workflow.md)

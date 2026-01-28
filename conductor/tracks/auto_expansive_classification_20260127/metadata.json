@@ -1,0 +1,8 @@
+{
+  "track_id": "auto_expansive_classification_20260127",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-27T10:00:00Z",
+  "updated_at": "2026-01-27T10:00:00Z",
+  "description": "It's time to improve the classification system to create new rules. The idea is to design an architecture to evolve the classification system to an auto-expansive model, the system should be able to create new rules on background based on observed patterns, keeping control, traceability and operative stability. Focus on the design not so much on the implementation."
+}

@@ -16,9 +16,10 @@ import {
   invoices,
 } from "@/db/schema";
 import { getClassificationRules } from "@/data/classification-rules";
-import { ClassificationEngine } from "@/lib/classification-engine";
+import { ClassificationEngine, deriveEngineInvoice, generateFeatureSetHash } from "@/lib/classification-engine";
 import { ClassificationCandidate, EngineInvoice } from "@/types/classification-engine";
 import { logAction } from "@/lib/audit-service";
+import { upsertPatternCandidate } from "@/data/pattern-detection";
 
 const LEARNING_RATE = 0.05;
 const DOMINANT_EVIDENCE_THRESHOLD = 0.15;
@@ -153,6 +154,14 @@ export const applyClassification = actionClient
         eq(invoices.id, invoiceId),
         eq(invoices.organizationId, organizationId)
       ),
+      with: {
+        items: {
+          with: {
+            taxes: true,
+          },
+        },
+        businessPartner: true,
+      },
     });
 
     if (!invoice) {
@@ -176,6 +185,44 @@ export const applyClassification = actionClient
     const account = await db.query.chartOfAccounts.findFirst({
       where: eq(chartOfAccounts.accountCode, accountCode),
     });
+
+    // --- Background Pattern Detection ---
+    // Trigger asynchronously without blocking the response
+    (async () => {
+      try {
+        const engineInvoice: EngineInvoice = {
+          cfdiType: invoice.cfdiType,
+          invoiceType: invoice.invoiceType,
+          currency: invoice.currency,
+          paymentForm: invoice.paymentForm,
+          partnerId: invoice.partnerId,
+          partnerRfc: invoice.businessPartner?.rfc || null,
+          items: invoice.items.map((i) => ({
+            productServiceKey: i.productServiceKey,
+          })),
+          taxes: invoice.items.flatMap((i) =>
+            i.taxes.map((t) => ({
+              rate: Number(t.rate),
+              taxCode: t.taxCode,
+              taxType: t.taxType,
+            }))
+          ),
+        };
+
+        const derived = deriveEngineInvoice(engineInvoice);
+        const hash = generateFeatureSetHash(derived);
+
+        await upsertPatternCandidate(
+          organizationId,
+          hash,
+          derived,
+          accountCode
+        );
+      } catch (err) {
+        console.error("Pattern detection background task failed:", err);
+      }
+    })();
+    // -------------------------------------
 
     if (action === "select" && acceptedCandidate) {
       // User chose one of the suggestions. Reinforce all rules for that candidate.
