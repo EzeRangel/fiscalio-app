@@ -40,6 +40,6 @@ This plan outlines the steps to implement an autonomous rule generation system t
     - [x] Create an integration test that simulates multiple manual classifications. 4c9107c
     - [x] Verify that a `PatternCandidate` is created, updated, and eventually promoted.
     - [x] Verify that the `ClassificationEngine` correctly utilizes the new auto-generated rule for subsequent invoices.
-- [ ] Task: Audit & Logging
-    - [ ] Ensure promotion events are recorded in the `auditLogs`.
+- [x] Task: Audit & Logging
+    - [x] Ensure promotion events are recorded in the `auditLogs`. 5a5d0a3
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Integration & Verification' (Protocol in workflow.md)
