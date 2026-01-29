@@ -204,6 +204,10 @@ export class ClassificationEngine {
           criteria.partnerIds.includes(invoice.partnerId)
           ? 1
           : null;
+      case "pattern":
+        const derived = deriveEngineInvoice(invoice);
+        const hash = generateFeatureSetHash(derived);
+        return hash === criteria.featureSetHash ? 1 : null;
       default:
         return null;
     }

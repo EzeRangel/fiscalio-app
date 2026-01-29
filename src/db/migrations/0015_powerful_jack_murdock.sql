@@ -1,0 +1,2 @@
+ALTER TABLE "classification_rules" ADD COLUMN "origin_candidate_id" integer;--> statement-breakpoint
+ALTER TABLE "classification_rules" ADD CONSTRAINT "classification_rules_origin_candidate_id_pattern_candidates_id_fk" FOREIGN KEY ("origin_candidate_id") REFERENCES "public"."pattern_candidates"("id") ON DELETE set null ON UPDATE no action;

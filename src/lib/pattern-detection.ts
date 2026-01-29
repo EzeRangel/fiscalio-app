@@ -58,3 +58,19 @@ function calculateConfidence(count: number, consistency: number): string {
     const score = countFactor * consistencyFactor;
     return score.toFixed(4);
 }
+
+export function prepareRuleFromCandidate(candidate: PatternCandidate) {
+  return {
+    organizationId: candidate.organizationId,
+    ruleName: `Patrón Autónomo ${candidate.featureSetHash.substring(0, 8)}`,
+    ruleType: "pattern",
+    matchCriteria: {
+      ruleType: "pattern" as const,
+      featureSetHash: candidate.featureSetHash,
+    },
+    accountCode: candidate.proposedAccountId,
+    priority: 80, // Slightly lower priority than manual rules
+    confidenceBoost: "0.5000",
+    isActive: true,
+  };
+}

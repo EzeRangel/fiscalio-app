@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { organizations } from "./organizations";
+import { patternCandidates } from "./patternCandidates";
 import { z } from "zod";
 import { matchCriteriaSchema } from "@/types/classification-rules";
 
@@ -47,6 +48,10 @@ export const classificationRules = pgTable(
     accuracyRate: decimal("accuracy_rate", { precision: 5, scale: 4 }),
 
     isActive: boolean("is_active").default(true),
+    originCandidateId: integer("origin_candidate_id").references(
+      () => patternCandidates.id,
+      { onDelete: "set null" }
+    ),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },

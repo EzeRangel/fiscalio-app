@@ -1,5 +1,5 @@
 import { PatternCandidate } from "@/types/classification-engine";
-import { calculateCandidateUpdate } from "./pattern-detection";
+import { calculateCandidateUpdate, prepareRuleFromCandidate } from "./pattern-detection";
 
 describe("Pattern Detection Logic", () => {
   const mockFeatures = { hasVat: true, invoiceType: "expense" } as any; // Partial features
@@ -86,6 +86,38 @@ describe("Pattern Detection Logic", () => {
       // Rate = 10 / 11 = 0.9090
       expect(parseFloat(result.consistencyRate)).toBeCloseTo(0.9090, 3);
       expect(parseFloat(result.confidenceScore)).toBeLessThan(1.0); // Should decrease
+    });
+  });
+
+  describe("prepareRuleFromCandidate", () => {
+    it("should generate a valid rule payload from a candidate", () => {
+      const candidate: PatternCandidate = {
+        id: 1,
+        organizationId: orgId,
+        featureSetHash: hash,
+        features: mockFeatures,
+        proposedAccountId: "5000",
+        evidenceCount: 50,
+        consistencyRate: 0.98,
+        confidenceScore: 0.95,
+        firstSeenAt: new Date(),
+        lastSeenAt: new Date(),
+        status: "candidate"
+      };
+
+      const result = prepareRuleFromCandidate(candidate);
+
+      expect(result).toMatchObject({
+        organizationId: orgId,
+        ruleType: "pattern",
+        accountCode: "5000",
+        isActive: true
+      });
+      expect(result.ruleName).toContain("Patrón Autónomo");
+      expect(result.matchCriteria).toEqual({
+        ruleType: "pattern",
+        featureSetHash: hash
+      });
     });
   });
 });

@@ -185,6 +185,8 @@ export const AUDIT_ENTITIES = {
   account: "Cuenta Contable",
   tax_declaration: "Estimación Fiscal",
   payment: "Pago",
+  classification_rule: "Regla de Clasificación",
+  pattern_candidate: "Patrón de Clasificación",
 };
 
 export const AUDIT_ACTIONS = {

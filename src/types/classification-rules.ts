@@ -79,6 +79,15 @@ export const matchCriteriaSchema = z.union([
     ruleType: z.literal("tax"),
     taxRate: z.number(),
   }),
+
+  /**
+   * Matches an autonomous pattern discovered by the engine.
+   * ruleType: 'pattern'
+   */
+  z.object({
+    ruleType: z.literal("pattern"),
+    featureSetHash: z.string(),
+  }),
 ]);
 
 export type MatchCriteria = z.infer<typeof matchCriteriaSchema>;
