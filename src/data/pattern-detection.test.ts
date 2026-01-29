@@ -70,6 +70,51 @@ describe("Pattern Detection Data Service", () => {
         action: "created",
       }));
     });
+
+    it("should log correct metadata for promotion events", async () => {
+      const mockCandidate = {
+        id: 11,
+        organizationId: orgId,
+        featureSetHash: hash,
+        features,
+        proposedAccountId: accountCode,
+        evidenceCount: 15,
+        consistencyRate: "0.9500",
+        confidenceScore: "0.8500",
+        status: "candidate",
+      };
+
+      const mockTx = {
+        insert: jest.fn().mockReturnThis(),
+        values: jest.fn().mockReturnThis(),
+        returning: jest.fn().mockResolvedValue([{ id: 100 }]),
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+      };
+
+      const mockDb = {
+        query: {
+          patternCandidates: {
+            findFirst: jest.fn().mockResolvedValue(mockCandidate),
+          },
+        },
+        transaction: jest.fn((cb) => cb(mockTx)),
+      };
+
+      (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
+
+      await promoteCandidateToRule(11);
+
+      expect(logAction).toHaveBeenCalledWith(expect.objectContaining({
+        metadata: expect.objectContaining({
+          source: "ai",
+          reason: "Patrón detectado con alta confianza",
+          evidenceCount: 15,
+          consistencyRate: "0.9500",
+        }),
+      }));
+    });
   });
 
   describe("upsertPatternCandidate", () => {
