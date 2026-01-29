@@ -36,10 +36,10 @@ This plan outlines the steps to implement an autonomous rule generation system t
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Autonomous Rule Promotion' (Protocol in workflow.md) bfa4ce1
 
 ## Phase 4: Integration & Verification
-- [ ] Task: End-to-End Test Suite
-    - [ ] Create an integration test that simulates multiple manual classifications.
-    - [ ] Verify that a `PatternCandidate` is created, updated, and eventually promoted.
-    - [ ] Verify that the `ClassificationEngine` correctly utilizes the new auto-generated rule for subsequent invoices.
+- [x] Task: End-to-End Test Suite
+    - [x] Create an integration test that simulates multiple manual classifications. 4c9107c
+    - [x] Verify that a `PatternCandidate` is created, updated, and eventually promoted.
+    - [x] Verify that the `ClassificationEngine` correctly utilizes the new auto-generated rule for subsequent invoices.
 - [ ] Task: Audit & Logging
     - [ ] Ensure promotion events are recorded in the `auditLogs`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Integration & Verification' (Protocol in workflow.md)
