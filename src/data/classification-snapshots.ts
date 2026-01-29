@@ -30,10 +30,15 @@ export async function suggestInvoiceClassification(invoiceId: number) {
     items: invoice.items.map((item) => ({
       productServiceKey: item.productServiceKey,
     })),
+    invoiceType: invoice.invoiceType,
     taxes: invoice.items.flatMap((item) =>
       item.taxes
         .filter((t) => t.rate !== null)
-        .map((tax) => ({ rate: parseFloat(tax.rate!) }))
+        .map((tax) => ({
+          rate: parseFloat(tax.rate!),
+          taxCode: tax.taxCode,
+          taxType: tax.taxType,
+        })),
     ),
   };
 
