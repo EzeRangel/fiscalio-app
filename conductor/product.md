@@ -8,7 +8,7 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 - **Freelancers:** Needing to track deductible expenses and income under the RESICO regime.
 
 ## Key Features & Goals
-- **Automated Invoice Classification:** An ML Engine that learns from patterns to automatically suggest account classifications based on invoice data and product codes.
+- **Autonomous Classification System:** An adaptive engine that learns from patterns to suggest account classifications and autonomously generates new rules based on observed user behavior and high-confidence patterns.
 - **Tax Estimation Support:** Creating preliminary tax estimations and financial reports tailored to the RESICO regime for informational purposes.
 - **Data Integrity Layer:** Enforcing strict RESICO-aligned rules (e.g., "Cash-Basis") to ensure data consistency and accuracy in estimations, supported by robust validation and tools for manual data correction.
 - **CFDI Validation:** Automatically validating invoices against official SAT requirements to ensure compliance.
