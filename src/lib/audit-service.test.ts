@@ -1,4 +1,5 @@
-import { calculateDiff, auditMetadataSchema } from "./audit-service";
+import { calculateDiff } from "./audit-service";
+import { auditMetadataSchema } from "@/types/audit-log";
 
 describe("AuditService", () => {
   describe("calculateDiff", () => {

@@ -38,6 +38,7 @@ jest.mock("@/db", () => ({
 }));
 
 jest.mock("@/lib/audit-service", () => ({
+  ...jest.requireActual("@/lib/audit-service"),
   logAction: jest.fn(),
 }));
 
