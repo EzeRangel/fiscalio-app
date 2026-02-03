@@ -25,7 +25,7 @@ jest.mock("@/lib/cash-basis-utils", () => ({
     calculateCashBasisSummary: jest.fn().mockReturnValue({
         subtotalPaid: 2000,
         taxBreakdown: [],
-        totalPaid: 2000,
+        totalPaid: 2320,
     })
 }));
 
@@ -72,8 +72,8 @@ describe("getTaxDeclarationsDashboardData", () => {
     expect(result.currentPeriod.incomeInvoiceCount).toBe(1);
     
     // 2. Check for calculated values (mocked utility return)
-    expect(result.currentPeriod.totalIncome).toBe(2000);
-    expect(result.currentPeriod.netAmount).toBe(2000); // isrBase = totalIncome
+    expect(result.currentPeriod.totalIncome).toBe(2320); // Gross
+    expect(result.currentPeriod.netAmount).toBe(2000); // Net (Base)
     expect(result.currentPeriod.estimatedTax).toBe(50);
     
     // 3. Check extra fields existence

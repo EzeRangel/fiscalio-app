@@ -1,7 +1,12 @@
 import "server-only";
 import { getDB } from "@/db";
 import { and, eq, gte, lt, desc, sql, inArray } from "drizzle-orm";
-import { invoices, taxDeclarations, paymentAllocations, payments } from "@/db/schema";
+import {
+  invoices,
+  taxDeclarations,
+  paymentAllocations,
+  payments,
+} from "@/db/schema";
 import { calculateCashBasisSummary } from "@/lib/cash-basis-utils";
 import { calculateISR_RESICO } from "@/lib/tax-calculations";
 
@@ -21,7 +26,7 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
   const declarationForPeriod = await db.query.taxDeclarations.findFirst({
     where: and(
       eq(taxDeclarations.organizationId, organizationId),
-      eq(taxDeclarations.fiscalPeriod, fiscalPeriodToDeclare)
+      eq(taxDeclarations.fiscalPeriod, fiscalPeriodToDeclare),
     ),
   });
 
@@ -42,157 +47,158 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
   }
 
   // 3. Detailed Calculation (Fallback or Verification)
-  // We run this to get the invoice counts (which aren't stored in declaration) 
+  // We run this to get the invoice counts (which aren't stored in declaration)
   // and to provide fallback values if declaration is missing.
-  
+
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 1);
 
   const periodPayments = await db.query.payments.findMany({
     where: and(
-        eq(payments.organizationId, organizationId),
-        gte(payments.paymentDate, startDate),
-        lt(payments.paymentDate, endDate)
+      eq(payments.organizationId, organizationId),
+      gte(payments.paymentDate, startDate),
+      lt(payments.paymentDate, endDate),
     ),
-    columns: { id: true }
+    columns: { id: true },
   });
-  
-  const paymentIds = periodPayments.map(p => p.id);
+
+  const paymentIds = periodPayments.map((p) => p.id);
 
   let calcTotalIncome = 0;
+  let calcTotalIncomeSubtotal = 0;
   let calcTotalExpenses = 0;
   let calcDeductibleExpenses = 0;
   let calcIvaCharged = 0;
   let calcIvaCreditable = 0;
   let calcIsrWithheld = 0;
-  
+
   const incomeInvoiceIds = new Set<number>();
   const expenseInvoiceIds = new Set<number>();
 
   if (paymentIds.length > 0) {
-      const rawAllocations = await db.query.paymentAllocations.findMany({
-          where: inArray(paymentAllocations.paymentId, paymentIds),
+    const rawAllocations = await db.query.paymentAllocations.findMany({
+      where: inArray(paymentAllocations.paymentId, paymentIds),
+      with: {
+        invoice: {
           with: {
-              invoice: {
-                  with: {
-                      account: true,
-                      items: {
-                          with: {
-                              taxes: true
-                          }
-                      }
-                  }
-              }
-          }
+            account: true,
+            items: {
+              with: {
+                taxes: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Group by invoice to avoid double counting if multiple payments for same invoice
+    const allocationsByInvoice = new Map<number, any[]>();
+    for (const item of rawAllocations) {
+      if (!allocationsByInvoice.has(item.invoiceId)) {
+        allocationsByInvoice.set(item.invoiceId, []);
+      }
+      allocationsByInvoice.get(item.invoiceId)!.push(item);
+    }
+
+    for (const [invoiceId, items] of allocationsByInvoice.entries()) {
+      const firstItem = items[0];
+      const fullInvoice = firstItem.invoice;
+
+      if (!fullInvoice) continue;
+
+      // Flatten taxes
+      const allTaxes = fullInvoice.items.flatMap((item: any) =>
+        item.taxes.map((t: any) => ({
+          taxType: t.taxType,
+          taxCode: t.taxCode,
+          rate: t.rate,
+          amount: t.taxAmount,
+        })),
+      );
+
+      const invoiceAllocations = items.map((i: any) => {
+        const allocRate = i.exchangeRate || "1.0";
+        const invoiceRate = fullInvoice.exchangeRate || "1.0";
+        const currency = fullInvoice.currency || "MXN";
+
+        const finalRate =
+          allocRate === "1.0" && currency !== "MXN" ? invoiceRate : allocRate;
+
+        return {
+          amountAllocated: i.amountAllocated,
+          exchangeRate: finalRate,
+          invoice: {
+            total: fullInvoice.total,
+            subtotal: fullInvoice.subtotal,
+            taxes: allTaxes,
+          },
+        };
       });
 
-      // Group by invoice to avoid double counting if multiple payments for same invoice
-      const allocationsByInvoice = new Map<number, any[]>();
-      for (const item of rawAllocations) {
-        if (!allocationsByInvoice.has(item.invoiceId)) {
-          allocationsByInvoice.set(item.invoiceId, []);
+      const summary = calculateCashBasisSummary(invoiceAllocations);
+
+      const isDeductible = fullInvoice.account?.isDeductible || false;
+      const deductionPercentage = parseFloat(
+        fullInvoice.account?.deductionPercentage || "100.00",
+      );
+
+      // Only deductible amount of what was PAID
+      const deductibleAmount = isDeductible
+        ? summary.subtotalPaid * (deductionPercentage / 100)
+        : 0;
+
+      if (fullInvoice.invoiceType === "income") {
+        calcTotalIncome += summary.totalPaid;
+        calcTotalIncomeSubtotal += summary.subtotalPaid;
+        incomeInvoiceIds.add(invoiceId);
+
+        // IVA Charged
+        for (const tax of summary.taxBreakdown) {
+          if (tax.taxCode === "002" && tax.taxType === "transferred") {
+            calcIvaCharged += tax.amount;
+          } else if (tax.taxCode === "001" && tax.taxType === "withheld") {
+            calcIsrWithheld += tax.amount;
+          }
         }
-        allocationsByInvoice.get(item.invoiceId)!.push(item);
-      }
+      } else if (fullInvoice.invoiceType === "expense") {
+        calcTotalExpenses += summary.totalPaid;
+        expenseInvoiceIds.add(invoiceId);
 
-      for (const [invoiceId, items] of allocationsByInvoice.entries()) {
-          const firstItem = items[0];
-          const fullInvoice = firstItem.invoice;
-          
-          if (!fullInvoice) continue;
-
-          // Flatten taxes
-          const allTaxes = fullInvoice.items.flatMap((item: any) =>
-            item.taxes.map((t: any) => ({
-              taxType: t.taxType,
-              taxCode: t.taxCode,
-              rate: t.rate,
-              amount: t.taxAmount,
-            }))
-          );
-
-          const invoiceAllocations = items.map((i: any) => {
-            const allocRate = i.exchangeRate || "1.0";
-            const invoiceRate = fullInvoice.exchangeRate || "1.0";
-            const currency = fullInvoice.currency || "MXN";
-
-            const finalRate =
-              allocRate === "1.0" && currency !== "MXN" ? invoiceRate : allocRate;
-
-            return {
-              amountAllocated: i.amountAllocated,
-              exchangeRate: finalRate,
-              invoice: {
-                total: fullInvoice.total,
-                subtotal: fullInvoice.subtotal,
-                taxes: allTaxes,
-              },
-            };
-          });
-
-          const summary = calculateCashBasisSummary(invoiceAllocations);
-          
-          const isDeductible = fullInvoice.account?.isDeductible || false;
-          const deductionPercentage = parseFloat(
-            fullInvoice.account?.deductionPercentage || "100.00"
-          );
-          
-          // Only deductible amount of what was PAID
-          const deductibleAmount = isDeductible
-            ? summary.subtotalPaid * (deductionPercentage / 100)
-            : 0;
-
-          if (fullInvoice.invoiceType === "income") {
-            calcTotalIncome += summary.subtotalPaid;
-            incomeInvoiceIds.add(invoiceId);
-            
-            // IVA Charged
-            for (const tax of summary.taxBreakdown) {
-                if (tax.taxCode === "002" && tax.taxType === "transferred") {
-                    calcIvaCharged += tax.amount;
-                } else if (tax.taxCode === "001" && tax.taxType === "withheld") {
-                    calcIsrWithheld += tax.amount;
-                }
-            }
-            
-          } else if (fullInvoice.invoiceType === "expense") {
-            calcTotalExpenses += summary.subtotalPaid;
-            expenseInvoiceIds.add(invoiceId);
-            
-            if (isDeductible) {
-                calcDeductibleExpenses += deductibleAmount;
-                // IVA Creditable
-                 for (const tax of summary.taxBreakdown) {
-                    if (tax.taxCode === "002" && tax.taxType === "transferred") {
-                        calcIvaCreditable += tax.amount;
-                    }
-                }
+        if (isDeductible) {
+          calcDeductibleExpenses += deductibleAmount;
+          // IVA Creditable
+          for (const tax of summary.taxBreakdown) {
+            if (tax.taxCode === "002" && tax.taxType === "transferred") {
+              calcIvaCreditable += tax.amount;
             }
           }
+        }
       }
+    }
   }
 
   incomeInvoiceCount = incomeInvoiceIds.size;
   expenseInvoiceCount = expenseInvoiceIds.size;
 
   if (!declarationForPeriod) {
-      totalIncome = calcTotalIncome;
-      totalExpenses = calcTotalExpenses;
-      // In RESICO, ISR Base is typically just Gross Income.
-      const isrBase = calcTotalIncome; 
-      netAmount = isrBase;
-      
-      const calculatedIsr = calculateISR_RESICO(isrBase, "monthly");
-      estimatedTax = Math.max(0, calculatedIsr - calcIsrWithheld);
-      
-      ivaBalance = calcIvaCharged - calcIvaCreditable;
+    totalIncome = calcTotalIncome;
+    totalExpenses = calcTotalExpenses;
+    // In RESICO, ISR Base is typically just Gross Income (Subtotal).
+    const isrBase = calcTotalIncomeSubtotal;
+    netAmount = isrBase;
+
+    const calculatedIsr = calculateISR_RESICO(isrBase, "monthly");
+    estimatedTax = Math.max(0, calculatedIsr - calcIsrWithheld);
+
+    ivaBalance = calcIvaCharged - calcIvaCreditable;
   }
 
   // 4. Get History
   const history = await db.query.taxDeclarations.findMany({
     where: and(
       eq(taxDeclarations.organizationId, organizationId),
-      eq(taxDeclarations.status, "filed") // Only show filed declarations in history
+      eq(taxDeclarations.status, "filed"), // Only show filed declarations in history
     ),
     orderBy: [desc(taxDeclarations.fiscalPeriod)],
     limit: 12, // Last 12 months
@@ -216,14 +222,14 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
 
 export async function getTaxDeclarationById(
   declarationId: number,
-  organizationId: number
+  organizationId: number,
 ) {
   const { db } = await getDB();
 
   const declaration = await db.query.taxDeclarations.findFirst({
     where: and(
       eq(taxDeclarations.id, declarationId),
-      eq(taxDeclarations.organizationId, organizationId)
+      eq(taxDeclarations.organizationId, organizationId),
     ),
     with: {
       declarationInvoices: {
