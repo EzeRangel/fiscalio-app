@@ -28,3 +28,15 @@
     - [x] Sub-task: Check the component rendering the summary cards (likely in `src/app/(main)/tax-declarations/` or `src/components/summary-card.tsx`).
     - [x] Sub-task: Ensure the component correctly receives and renders the invoice count label (e.g., "X invoices").
 - [x] Task: Conductor - User Manual Verification 'UI Updates & Integration' (Protocol in workflow.md)
+
+## Phase 4: Fallback Estimations (Live Preview)
+- [x] Task: Implement preliminary tax calculations in `getTaxDeclarationsDashboardData`. (d97c104)
+    - [x] Sub-task: Update `getTaxDeclarationsDashboardData` in `src/data/tax-declarations.ts` to perform a more detailed query (fetching taxes and deductibility).
+    - [x] Sub-task: Calculate `deductibleExpenses`, `ivaCharged`, `ivaCreditable`, `isrWithheld` for the current period.
+    - [x] Sub-task: Calculate `netAmount` (Base), `estimatedTax` (ISR), and `ivaBalance` using the same logic as the draft creation (but on the fly).
+    - [x] Sub-task: Return these values in `currentPeriod` object.
+- [x] Task: Update UI to use fallback values. (d97c104)
+    - [x] Sub-task: Update `src/app/tax-declarations/_components/summary-cards.tsx` to use the calculated values from `currentPeriod` when `data` is missing.
+- [x] Task: Verify with Tests. (d97c104)
+    - [x] Sub-task: Update `src/data/tax-declarations.currency-fix.test.ts` to verify the presence and correctness of these new fields.
+- [x] Task: Conductor - User Manual Verification 'Fallback Estimations' (Protocol in workflow.md)
