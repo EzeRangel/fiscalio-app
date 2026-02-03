@@ -24,7 +24,7 @@
 - [x] Task: Conductor - User Manual Verification 'Core Logic Implementation (Currency & Counting)' (Protocol in workflow.md)
 
 ## Phase 3: UI Updates & Integration
-- [ ] Task: Update Summary Card Display.
-    - [ ] Sub-task: Check the component rendering the summary cards (likely in `src/app/(main)/tax-declarations/` or `src/components/summary-card.tsx`).
-    - [ ] Sub-task: Ensure the component correctly receives and renders the invoice count label (e.g., "X invoices").
-- [ ] Task: Conductor - User Manual Verification 'UI Updates & Integration' (Protocol in workflow.md)
+- [x] Task: Update Summary Card Display. (b3c43aa)
+    - [x] Sub-task: Check the component rendering the summary cards (likely in `src/app/(main)/tax-declarations/` or `src/components/summary-card.tsx`).
+    - [x] Sub-task: Ensure the component correctly receives and renders the invoice count label (e.g., "X invoices").
+- [x] Task: Conductor - User Manual Verification 'UI Updates & Integration' (Protocol in workflow.md)
