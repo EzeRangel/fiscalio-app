@@ -20,7 +20,7 @@ export const EmisorSchema = z.object({
 export const ReceptorSchema = z.object({
   Rfc: z.string().regex(/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/),
   Nombre: z.string().min(1),
-  UsoCFDI: z.string().regex(/^[A-Z]\d{2}$/),
+  UsoCFDI: z.string().regex(/^[A-Z]{1,2}\d{2}$/),
   DomicilioFiscalReceptor: z.string().regex(/^\d{5}$/),
   RegimenFiscalReceptor: z.string().regex(/^\d{3}$/),
 });
