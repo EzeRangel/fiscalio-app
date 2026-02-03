@@ -47,3 +47,9 @@
     - [x] Sub-task: Ensure `netAmount` (Base Gravable) continues to use `summary.subtotalPaid` (via a separate accumulator).
     - [x] Sub-task: Update tests to verify the difference between Total Income (Gross) and Base Gravable (Net).
 - [x] Task: Conductor - User Manual Verification 'Refine Calculations' (Protocol in workflow.md)
+
+## Phase 6: Bug Fix - Currency Type Handling
+- [x] Task: Fix currency rate logic to handle numbers and strings correctly. (0f3f9c2)
+    - [x] Sub-task: Update `getTaxDeclarationsDashboardData` to safely parse exchange rates and handle numeric `1`.
+    - [x] Sub-task: Verify with updated test case using numeric exchange rate.
+- [x] Task: Conductor - User Manual Verification 'Currency Type Handling' (Protocol in workflow.md)
