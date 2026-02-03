@@ -49,7 +49,7 @@ describe("getTaxDeclarationsDashboardData", () => {
                 {
                     invoiceId: 101,
                     amountAllocated: 100,
-                    exchangeRate: "20.0",
+                    exchangeRate: 1, // Number, effectively 1.0. Should trigger fallback.
                     invoice: {
                         invoiceType: 'income',
                         total: 100,
@@ -67,6 +67,13 @@ describe("getTaxDeclarationsDashboardData", () => {
     (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
 
     const result = await getTaxDeclarationsDashboardData(1);
+
+    // Verify exchange rate fallback logic was applied
+    const { calculateCashBasisSummary } = require("@/lib/cash-basis-utils");
+    const lastCall = calculateCashBasisSummary.mock.calls[calculateCashBasisSummary.mock.calls.length - 1];
+    const allocationsPassed = lastCall[0];
+    // We expect the exchange rate to be "20.0" because 1 (alloc) was replaced by "20.0" (invoice)
+    expect(allocationsPassed[0].exchangeRate).toBe("20.0");
 
     // 1. Check for Invoice Counts
     expect(result.currentPeriod.incomeInvoiceCount).toBe(1);

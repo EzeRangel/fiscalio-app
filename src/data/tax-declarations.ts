@@ -117,25 +117,29 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
         })),
       );
 
-      const invoiceAllocations = items.map((i: any) => {
-        const allocRate = i.exchangeRate || "1.0";
-        const invoiceRate = fullInvoice.exchangeRate || "1.0";
-        const currency = fullInvoice.currency || "MXN";
-
-        const finalRate =
-          allocRate === "1.0" && currency !== "MXN" ? invoiceRate : allocRate;
-
-        return {
-          amountAllocated: i.amountAllocated,
-          exchangeRate: finalRate,
-          invoice: {
-            total: fullInvoice.total,
-            subtotal: fullInvoice.subtotal,
-            taxes: allTaxes,
-          },
-        };
-      });
-
+                const invoiceAllocations = items.map((i: any) => {
+                  const allocRateStr = String(i.exchangeRate || "1.0");
+                  const allocRateVal = parseFloat(allocRateStr);
+      
+                  const invoiceRateStr = String(fullInvoice.exchangeRate || "1.0");
+                  const currency = fullInvoice.currency || "MXN";
+      
+                  // If allocation rate is effectively 1.0 and currency is not MXN, use invoice rate (fallback)
+                  const finalRate =
+                    Math.abs(allocRateVal - 1.0) < 0.0001 && currency !== "MXN"
+                      ? invoiceRateStr
+                      : allocRateStr;
+      
+                  return {
+                    amountAllocated: i.amountAllocated,
+                    exchangeRate: finalRate,
+                    invoice: {
+                      total: fullInvoice.total,
+                      subtotal: fullInvoice.subtotal,
+                      taxes: allTaxes,
+                    },
+                  };
+                });
       const summary = calculateCashBasisSummary(invoiceAllocations);
 
       const isDeductible = fullInvoice.account?.isDeductible || false;
