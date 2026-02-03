@@ -31,11 +31,15 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
   const periodResults = await db
     .select({
       invoiceType: invoices.invoiceType,
-      paidAmount: sql<number>`sum(${paymentAllocations.amountAllocated})`.mapWith(Number),
-      // For a simplified preview, we use the amountAllocated. 
-      // In the real declaration creation, we use the proportional subtotal.
-      // To keep preview consistent, let's try to get a better approximation if possible, 
-      // or just show the paid total.
+      paidAmount: sql<number>`sum(
+        ${paymentAllocations.amountAllocated} * 
+        CASE 
+          WHEN ${paymentAllocations.exchangeRate} = 1.0 AND ${invoices.currency} != 'MXN' 
+          THEN ${invoices.exchangeRate} 
+          ELSE ${paymentAllocations.exchangeRate} 
+        END
+      )`.mapWith(Number),
+      invoiceCount: sql<number>`count(distinct ${invoices.id})`.mapWith(Number),
     })
     .from(paymentAllocations)
     .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
@@ -51,12 +55,16 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
 
   let totalIncome = 0;
   let totalExpenses = 0;
+  let incomeInvoiceCount = 0;
+  let expenseInvoiceCount = 0;
 
   periodResults.forEach(row => {
     if (row.invoiceType === "income") {
         totalIncome = row.paidAmount || 0;
+        incomeInvoiceCount = row.invoiceCount || 0;
     } else if (row.invoiceType === "expense") {
         totalExpenses = row.paidAmount || 0;
+        expenseInvoiceCount = row.invoiceCount || 0;
     }
   });
 
@@ -81,6 +89,8 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
       totalIncome,
       totalExpenses,
       netAmount,
+      incomeInvoiceCount,
+      expenseInvoiceCount,
     },
     history,
   };
