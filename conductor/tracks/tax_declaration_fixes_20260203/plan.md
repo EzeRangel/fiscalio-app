@@ -40,3 +40,10 @@
 - [x] Task: Verify with Tests. (d97c104)
     - [x] Sub-task: Update `src/data/tax-declarations.currency-fix.test.ts` to verify the presence and correctness of these new fields.
 - [x] Task: Conductor - User Manual Verification 'Fallback Estimations' (Protocol in workflow.md)
+
+## Phase 5: Refine Calculations (Gross vs Net)
+- [x] Task: Switch Income/Expense totals to Cash Flow (Gross). (82aa31b)
+    - [x] Sub-task: Update `getTaxDeclarationsDashboardData` in `src/data/tax-declarations.ts` to use `summary.totalPaid` for `calcTotalIncome` and `calcTotalExpenses`.
+    - [x] Sub-task: Ensure `netAmount` (Base Gravable) continues to use `summary.subtotalPaid` (via a separate accumulator).
+    - [x] Sub-task: Update tests to verify the difference between Total Income (Gross) and Base Gravable (Net).
+- [x] Task: Conductor - User Manual Verification 'Refine Calculations' (Protocol in workflow.md)
