@@ -1,7 +1,9 @@
 import "server-only";
 import { getDB } from "@/db";
-import { and, eq, gte, lt, desc, sql } from "drizzle-orm";
+import { and, eq, gte, lt, desc, sql, inArray } from "drizzle-orm";
 import { invoices, taxDeclarations, paymentAllocations, payments } from "@/db/schema";
+import { calculateCashBasisSummary } from "@/lib/cash-basis-utils";
+import { calculateISR_RESICO } from "@/lib/tax-calculations";
 
 export async function getTaxDeclarationsDashboardData(organizationId: number) {
   const { db } = await getDB();
@@ -23,54 +25,168 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
     ),
   });
 
-  // 3. Get Cash-Basis Income/Expense data for that period
+  let totalIncome = 0;
+  let totalExpenses = 0;
+  let netAmount = 0;
+  let incomeInvoiceCount = 0;
+  let expenseInvoiceCount = 0;
+  let estimatedTax = 0;
+  let ivaBalance = 0;
+
+  if (declarationForPeriod) {
+    totalIncome = parseFloat(declarationForPeriod.totalIncome);
+    totalExpenses = parseFloat(declarationForPeriod.totalExpenses);
+    netAmount = parseFloat(declarationForPeriod.isrBase || "0");
+    estimatedTax = parseFloat(declarationForPeriod.isrCalculated || "0");
+    ivaBalance = parseFloat(declarationForPeriod.ivaBalance || "0");
+  }
+
+  // 3. Detailed Calculation (Fallback or Verification)
+  // We run this to get the invoice counts (which aren't stored in declaration) 
+  // and to provide fallback values if declaration is missing.
+  
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 1);
 
-  // We calculate paid amounts proportionally based on subtotal for reporting
-  const periodResults = await db
-    .select({
-      invoiceType: invoices.invoiceType,
-      paidAmount: sql<number>`sum(
-        ${paymentAllocations.amountAllocated} * 
-        CASE 
-          WHEN ${paymentAllocations.exchangeRate} = 1.0 AND ${invoices.currency} != 'MXN' 
-          THEN ${invoices.exchangeRate} 
-          ELSE ${paymentAllocations.exchangeRate} 
-        END
-      )`.mapWith(Number),
-      invoiceCount: sql<number>`count(distinct ${invoices.id})`.mapWith(Number),
-    })
-    .from(paymentAllocations)
-    .innerJoin(payments, eq(paymentAllocations.paymentId, payments.id))
-    .innerJoin(invoices, eq(paymentAllocations.invoiceId, invoices.id))
-    .where(
-      and(
+  const periodPayments = await db.query.payments.findMany({
+    where: and(
         eq(payments.organizationId, organizationId),
         gte(payments.paymentDate, startDate),
         lt(payments.paymentDate, endDate)
-      )
-    )
-    .groupBy(invoices.invoiceType);
-
-  let totalIncome = 0;
-  let totalExpenses = 0;
-  let incomeInvoiceCount = 0;
-  let expenseInvoiceCount = 0;
-
-  periodResults.forEach(row => {
-    if (row.invoiceType === "income") {
-        totalIncome = row.paidAmount || 0;
-        incomeInvoiceCount = row.invoiceCount || 0;
-    } else if (row.invoiceType === "expense") {
-        totalExpenses = row.paidAmount || 0;
-        expenseInvoiceCount = row.invoiceCount || 0;
-    }
+    ),
+    columns: { id: true }
   });
+  
+  const paymentIds = periodPayments.map(p => p.id);
 
-  const netAmount =
-    (Number(declarationForPeriod?.totalIncome) || 0) -
-    (Number(declarationForPeriod?.deductibleExpenses) || 0);
+  let calcTotalIncome = 0;
+  let calcTotalExpenses = 0;
+  let calcDeductibleExpenses = 0;
+  let calcIvaCharged = 0;
+  let calcIvaCreditable = 0;
+  let calcIsrWithheld = 0;
+  
+  const incomeInvoiceIds = new Set<number>();
+  const expenseInvoiceIds = new Set<number>();
+
+  if (paymentIds.length > 0) {
+      const rawAllocations = await db.query.paymentAllocations.findMany({
+          where: inArray(paymentAllocations.paymentId, paymentIds),
+          with: {
+              invoice: {
+                  with: {
+                      account: true,
+                      items: {
+                          with: {
+                              taxes: true
+                          }
+                      }
+                  }
+              }
+          }
+      });
+
+      // Group by invoice to avoid double counting if multiple payments for same invoice
+      const allocationsByInvoice = new Map<number, any[]>();
+      for (const item of rawAllocations) {
+        if (!allocationsByInvoice.has(item.invoiceId)) {
+          allocationsByInvoice.set(item.invoiceId, []);
+        }
+        allocationsByInvoice.get(item.invoiceId)!.push(item);
+      }
+
+      for (const [invoiceId, items] of allocationsByInvoice.entries()) {
+          const firstItem = items[0];
+          const fullInvoice = firstItem.invoice;
+          
+          if (!fullInvoice) continue;
+
+          // Flatten taxes
+          const allTaxes = fullInvoice.items.flatMap((item: any) =>
+            item.taxes.map((t: any) => ({
+              taxType: t.taxType,
+              taxCode: t.taxCode,
+              rate: t.rate,
+              amount: t.taxAmount,
+            }))
+          );
+
+          const invoiceAllocations = items.map((i: any) => {
+            const allocRate = i.exchangeRate || "1.0";
+            const invoiceRate = fullInvoice.exchangeRate || "1.0";
+            const currency = fullInvoice.currency || "MXN";
+
+            const finalRate =
+              allocRate === "1.0" && currency !== "MXN" ? invoiceRate : allocRate;
+
+            return {
+              amountAllocated: i.amountAllocated,
+              exchangeRate: finalRate,
+              invoice: {
+                total: fullInvoice.total,
+                subtotal: fullInvoice.subtotal,
+                taxes: allTaxes,
+              },
+            };
+          });
+
+          const summary = calculateCashBasisSummary(invoiceAllocations);
+          
+          const isDeductible = fullInvoice.account?.isDeductible || false;
+          const deductionPercentage = parseFloat(
+            fullInvoice.account?.deductionPercentage || "100.00"
+          );
+          
+          // Only deductible amount of what was PAID
+          const deductibleAmount = isDeductible
+            ? summary.subtotalPaid * (deductionPercentage / 100)
+            : 0;
+
+          if (fullInvoice.invoiceType === "income") {
+            calcTotalIncome += summary.subtotalPaid;
+            incomeInvoiceIds.add(invoiceId);
+            
+            // IVA Charged
+            for (const tax of summary.taxBreakdown) {
+                if (tax.taxCode === "002" && tax.taxType === "transferred") {
+                    calcIvaCharged += tax.amount;
+                } else if (tax.taxCode === "001" && tax.taxType === "withheld") {
+                    calcIsrWithheld += tax.amount;
+                }
+            }
+            
+          } else if (fullInvoice.invoiceType === "expense") {
+            calcTotalExpenses += summary.subtotalPaid;
+            expenseInvoiceIds.add(invoiceId);
+            
+            if (isDeductible) {
+                calcDeductibleExpenses += deductibleAmount;
+                // IVA Creditable
+                 for (const tax of summary.taxBreakdown) {
+                    if (tax.taxCode === "002" && tax.taxType === "transferred") {
+                        calcIvaCreditable += tax.amount;
+                    }
+                }
+            }
+          }
+      }
+  }
+
+  incomeInvoiceCount = incomeInvoiceIds.size;
+  expenseInvoiceCount = expenseInvoiceIds.size;
+
+  if (!declarationForPeriod) {
+      totalIncome = calcTotalIncome;
+      totalExpenses = calcTotalExpenses;
+      // In RESICO, ISR Base is typically just Gross Income.
+      const isrBase = calcTotalIncome; 
+      netAmount = isrBase;
+      
+      const calculatedIsr = calculateISR_RESICO(isrBase, "monthly");
+      estimatedTax = Math.max(0, calculatedIsr - calcIsrWithheld);
+      
+      ivaBalance = calcIvaCharged - calcIvaCreditable;
+  }
 
   // 4. Get History
   const history = await db.query.taxDeclarations.findMany({
@@ -91,6 +207,8 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
       netAmount,
       incomeInvoiceCount,
       expenseInvoiceCount,
+      estimatedTax,
+      ivaBalance,
     },
     history,
   };

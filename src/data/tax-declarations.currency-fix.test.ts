@@ -1,88 +1,82 @@
 import { getTaxDeclarationsDashboardData } from "./tax-declarations";
-import { getDB, invoices, paymentAllocations } from "@/db";
+import { getDB } from "@/db";
 
 // Mock deps
 jest.mock("@/db", () => ({
   getDB: jest.fn(),
-  invoices: {
-    id: { name: 'id' },
-    organizationId: { name: 'organization_id' },
-    invoiceType: { name: 'invoice_type' },
-    currency: { name: 'currency' },
-    exchangeRate: { name: 'exchange_rate' },
-  },
-  taxDeclarations: {
-    organizationId: { name: 'organization_id' },
-    fiscalPeriod: { name: 'fiscal_period' },
-    status: { name: 'status' },
-  },
-  paymentAllocations: {
-    paymentId: { name: 'payment_id' },
-    invoiceId: { name: 'invoice_id' },
-    amountAllocated: { name: 'amount_allocated' },
-    exchangeRate: { name: 'exchange_rate' },
-  },
-  payments: {
-    id: { name: 'id' },
-    organizationId: { name: 'organization_id' },
-    paymentDate: { name: 'payment_date' },
-  }
+  // Schema mocks not strictly needed for this test structure but good to keep
 }));
 
 jest.mock("drizzle-orm", () => {
     const actual = jest.requireActual("drizzle-orm");
     return {
         ...actual,
-        sql: jest.fn((strings, ...values) => {
-            const sqlObj = { type: 'sql', strings, values };
-            (sqlObj as any).mapWith = jest.fn(() => sqlObj);
-            return sqlObj;
-        }),
+        sql: jest.fn(),
         eq: jest.fn(),
         and: jest.fn(),
         gte: jest.fn(),
         lt: jest.fn(),
+        inArray: jest.fn(),
         desc: jest.fn(),
     };
 });
 
+jest.mock("@/lib/cash-basis-utils", () => ({
+    calculateCashBasisSummary: jest.fn().mockReturnValue({
+        subtotalPaid: 2000,
+        taxBreakdown: [],
+        totalPaid: 2000,
+    })
+}));
+
+jest.mock("@/lib/tax-calculations", () => ({
+    calculateISR_RESICO: jest.fn().mockReturnValue(50)
+}));
+
 describe("getTaxDeclarationsDashboardData", () => {
-  it("should return invoice counts and correctly normalized amounts", async () => {
+  it("should return calculated fallback values and counts", async () => {
     const mockDb = {
       query: {
         taxDeclarations: {
             findFirst: jest.fn().mockResolvedValue(null),
             findMany: jest.fn().mockResolvedValue([]),
+        },
+        payments: {
+            findMany: jest.fn().mockResolvedValue([{ id: 1 }]),
+        },
+        paymentAllocations: {
+            findMany: jest.fn().mockResolvedValue([
+                {
+                    invoiceId: 101,
+                    amountAllocated: 100,
+                    exchangeRate: "20.0",
+                    invoice: {
+                        invoiceType: 'income',
+                        total: 100,
+                        subtotal: 100,
+                        exchangeRate: "20.0",
+                        currency: "USD",
+                        items: [], 
+                        account: { isDeductible: false }
+                    }
+                }
+            ]),
         }
-      },
-      select: jest.fn().mockReturnThis(),
-      from: jest.fn().mockReturnThis(),
-      innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      groupBy: jest.fn().mockResolvedValue([
-          { invoiceType: 'income', paidAmount: 100, count: 5 }, // Hypothetical return if we fixed it
-          { invoiceType: 'expense', paidAmount: 50, count: 2 }
-      ]),
+      }
     };
     (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
 
     const result = await getTaxDeclarationsDashboardData(1);
 
-    // 1. Check for Invoice Counts (Bug Reproduction)
-    // currently these properties don't exist in the return type or runtime object
-    expect(result.currentPeriod).toHaveProperty('incomeInvoiceCount');
-    expect(result.currentPeriod).toHaveProperty('expenseInvoiceCount');
-
-    // 2. Check for Currency Normalization in SQL
-    const selectArgs = mockDb.select.mock.calls[0][0];
-    const paidAmountSql = selectArgs.paidAmount;
+    // 1. Check for Invoice Counts
+    expect(result.currentPeriod.incomeInvoiceCount).toBe(1);
     
-    const sqlStrings = paidAmountSql.strings.join("");
-    expect(sqlStrings).toContain("CASE");
-    expect(sqlStrings).toContain("WHEN");
+    // 2. Check for calculated values (mocked utility return)
+    expect(result.currentPeriod.totalIncome).toBe(2000);
+    expect(result.currentPeriod.netAmount).toBe(2000); // isrBase = totalIncome
+    expect(result.currentPeriod.estimatedTax).toBe(50);
     
-    // Check values passed to interpolation
-    expect(paidAmountSql.values).toContainEqual(expect.objectContaining({ name: 'exchange_rate' }));
-    expect(paidAmountSql.values).toContainEqual(expect.objectContaining({ name: 'currency' }));
+    // 3. Check extra fields existence
+    expect(result.currentPeriod).toHaveProperty('ivaBalance');
   });
 });

@@ -19,6 +19,8 @@ interface Props {
     totalExpenses: number;
     incomeInvoiceCount: number;
     expenseInvoiceCount: number;
+    estimatedTax: number;
+    ivaBalance: number;
   };
 }
 
@@ -33,11 +35,21 @@ export function SummaryCards({ data, currentPeriod }: Props) {
   // netAmount is the taxable base (isrBase) from the declaration.
   const netAmount = data ? parseFloat(data.isrBase!) : currentPeriod.netAmount;
 
-  const estimatedTax = data ? parseFloat(data.isrCalculated!) : 0;
-  const taxRate = data ? parseFloat(data.isrRate || "0") : 0;
+  const estimatedTax = data
+    ? parseFloat(data.isrCalculated!)
+    : currentPeriod.estimatedTax;
+
+  let taxRate = 0;
+  if (data) {
+    taxRate = parseFloat(data.isrRate || "0");
+  } else {
+    taxRate = netAmount > 0 ? estimatedTax / netAmount : 0;
+  }
 
   // IVA values
-  const displayIvaBalance = data ? parseFloat(data.ivaBalance || "0") : 0;
+  const displayIvaBalance = data
+    ? parseFloat(data.ivaBalance || "0")
+    : currentPeriod.ivaBalance;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -66,7 +78,6 @@ export function SummaryCards({ data, currentPeriod }: Props) {
         subtitle="Ingresos - Deducibles"
         icon={DollarSign}
         color="neutral"
-        footer="Cálculo informativo"
       />
 
       {/* Estimated Tax Card */}
@@ -76,7 +87,6 @@ export function SummaryCards({ data, currentPeriod }: Props) {
         subtitle={`Tasa del ${(taxRate * 100).toFixed(2)}%`}
         icon={FileText}
         color="blue"
-        footer="Cálculo informativo"
       />
 
       {/* IVA Balance Card */}
@@ -86,7 +96,6 @@ export function SummaryCards({ data, currentPeriod }: Props) {
         subtitle="Cobrado - Acreditable"
         icon={HandCoins}
         color="amber"
-        footer="Cálculo informativo"
       />
     </div>
   );
