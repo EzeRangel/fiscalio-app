@@ -9,7 +9,7 @@
     - [x] Write unit tests for the derivation logic: `src/lib/invoice-utils.test.ts`.
 - [ ] Task: Conductor - User Manual Verification 'Core Logic & Types' (Protocol in workflow.md)
 
-## Phase 2: Data Ingestion Updates [checkpoint: ]
+## Phase 2: Data Ingestion Updates [checkpoint: 3f4d2c7]
 - [x] Task: Update CFDI Processing (Invoices Data Layer) b01c37b
     - [x] Update `src/data/invoices.ts` to use the new `deriveInvoiceType` function.
     - [x] Ensure `savePaymentComplement` and `savePUEPayment` are compatible with the new type strings.
