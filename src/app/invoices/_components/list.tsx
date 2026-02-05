@@ -17,13 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatPrice } from "@/hooks/usePrice";
-import { getCFDIType } from "@/lib/utils";
+import { getCFDIType, getInvoiceType } from "@/lib/utils";
 import { Invoice } from "@/types/invoices";
 import { InferResultType } from "@/types/orm";
 import { Download, Eye, FileText, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { PrivacyBlur } from "@/components/privacy-blur";
-import { CFDI_TYPE } from "@/lib/constants";
+import { CFDI_TYPE, INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
 
 type InvoiceWithContacts = InferResultType<
   "invoices",
@@ -114,9 +114,9 @@ export default function List({
 
     periodInvoices.forEach((inv) => {
       const paid = calculateInvoicePaid(inv);
-      if (inv.invoiceType === "income") {
+      if (inv.invoiceType === "income" || inv.invoiceType === "credit_note_received" || inv.invoiceType === "payment_received" || inv.invoiceType === "payroll_received" || inv.invoiceType === "transfer_received") {
         income += paid;
-      } else if (inv.invoiceType === "expense") {
+      } else {
         expense += paid;
       }
     });
@@ -285,13 +285,13 @@ export default function List({
                             <Badge
                               variant="outline"
                               className={
-                                invoice.cfdiType === "I"
-                                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
-                                  : "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                                // @ts-expect-error keyof typing
+                                INVOICE_TYPE_COLOR[invoice.invoiceType] ||
+                                "bg-gray-500/10"
                               }
                             >
-                              {getCFDIType(
-                                invoice.cfdiType as keyof typeof CFDI_TYPE,
+                              {getInvoiceType(
+                                invoice.invoiceType as keyof typeof INVOICE_TYPE,
                               )}
                             </Badge>
                           </TableCell>

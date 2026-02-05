@@ -152,7 +152,7 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
         ? summary.subtotalPaid * (deductionPercentage / 100)
         : 0;
 
-      if (fullInvoice.invoiceType === "income") {
+      if (fullInvoice.invoiceType === "income" || fullInvoice.invoiceType === "credit_note_received") {
         calcTotalIncome += summary.totalPaid;
         calcTotalIncomeSubtotal += summary.subtotalPaid;
         incomeInvoiceIds.add(invoiceId);
@@ -165,7 +165,7 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
             calcIsrWithheld += tax.amount;
           }
         }
-      } else if (fullInvoice.invoiceType === "expense") {
+      } else if (fullInvoice.invoiceType === "expense" || fullInvoice.invoiceType === "credit_note_issued") {
         calcTotalExpenses += summary.totalPaid;
         expenseInvoiceIds.add(invoiceId);
 

@@ -36,22 +36,13 @@ import {
 } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { EditPaymentDialog } from "./edit-payment-dialog";
-import { INVOICE_TYPE } from "@/lib/constants";
+import { INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
 import { PaymentForms, PaymentMethods, TaxTypes } from "@/types/utils";
 
 interface Props {
   data: CFDI;
   relatedPayments?: PaymentAllocation[];
 }
-
-const INVOICE_TYPE_COLOR = {
-  income:
-    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-  expense: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
-  transfer:
-    "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
-  payment: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-};
 
 const getPaymentStatus = (total: number, paid: number) => {
   if (paid <= 0)

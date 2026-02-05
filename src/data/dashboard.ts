@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte, sql, inArray } from "drizzle-orm";
 import { getDB, invoices, paymentAllocations, payments } from "@/db";
 import { DashboardMetrics, PeriodSelection } from "@/types/dashboard";
 
@@ -21,7 +21,7 @@ export async function getDashboardMetrics(
     999,
   );
 
-  // Cash-Basis Income: sum of payment_allocations where invoice_type = 'income'
+  // Cash-Basis Income: sum of payment_allocations where invoice_type IN ('income', 'credit_note_received')
   const incomeResult = await db
     .select({
       total: sql<string>`sum(
@@ -39,13 +39,13 @@ export async function getDashboardMetrics(
     .where(
       and(
         eq(payments.organizationId, organizationId),
-        eq(invoices.invoiceType, "income"),
+        inArray(invoices.invoiceType, ["income", "credit_note_received"]),
         gte(payments.paymentDate, startOfMonth),
         lte(payments.paymentDate, endOfMonth),
       ),
     );
 
-  // Cash-Basis Expenses: sum of payment_allocations where invoice_type = 'expense'
+  // Cash-Basis Expenses: sum of payment_allocations where invoice_type IN ('expense', 'credit_note_issued')
   const expenseResult = await db
     .select({
       total: sql<string>`sum(
@@ -63,7 +63,7 @@ export async function getDashboardMetrics(
     .where(
       and(
         eq(payments.organizationId, organizationId),
-        eq(invoices.invoiceType, "expense"),
+        inArray(invoices.invoiceType, ["expense", "credit_note_issued"]),
         gte(payments.paymentDate, startOfMonth),
         lte(payments.paymentDate, endOfMonth),
       ),

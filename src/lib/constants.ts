@@ -18,6 +18,25 @@ export const INVOICE_TYPE = {
   transfer_received: "Traslado Recibido",
 };
 
+export const INVOICE_TYPE_COLOR = {
+  income:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  expense: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  credit_note_issued:
+    "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  credit_note_received:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  payment_issued: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  payment_received:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  payroll_issued: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  payroll_received:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  transfer_issued: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
+  transfer_received:
+    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+};
+
 export const TAX_NAMES = {
   "001": "ISR",
   "002": "IVA",
