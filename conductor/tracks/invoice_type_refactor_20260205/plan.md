@@ -1,6 +1,6 @@
 # Implementation Plan: Invoice Type Refactoring & Classification
 
-## Phase 1: Core Logic & Types [checkpoint: ]
+## Phase 1: Core Logic & Types [checkpoint: fbde912]
 - [x] Task: Define Supported Invoice Types 763eb08
     - [x] Create a central constant or type definition for `InvoiceType` (e.g., in `src/types/invoices.ts` or `src/lib/constants.ts`).
     - [x] Update `src/db/schema/invoices.ts` comments or validation if applicable to reflect the new types.
