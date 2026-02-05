@@ -21,7 +21,7 @@
     - [x] Update or create a test in `src/data/invoices.test.ts` to verify a CFDI 'E' results in `credit_note_issued/received`.
 - [ ] Task: Conductor - User Manual Verification 'Data Ingestion Updates' (Protocol in workflow.md)
 
-## Phase 3: Data Migration (Backfill) [checkpoint: ]
+## Phase 3: Data Migration (Backfill) [checkpoint: f2cee33]
 - [x] Task: Create Backfill Script
     - [x] Create `src/scripts/backfill-invoice-types.ts`.
     - [x] Implement logic to query all invoices, determine `isEmitter` by comparing `organization.rfc` with `partner.rfc` (or existing metadata), and update the record.
