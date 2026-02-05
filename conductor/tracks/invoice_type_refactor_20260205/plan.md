@@ -30,7 +30,7 @@
     - [x] Verify a sample of various `cfdiType` records (I, E, P) have the correct `invoiceType`.
 - [ ] Task: Conductor - User Manual Verification 'Data Migration (Backfill)' (Protocol in workflow.md)
 
-## Phase 4: Dashboard & UI Integration [checkpoint: ]
+## Phase 4: Dashboard & UI Integration [checkpoint: 8527e3c]
 - [x] Task: Update Dashboard Aggregations 7261f6a
     - [x] Update `src/data/dashboard.ts` to include `credit_note_*` and `payment_*` in calculations or exclude them from "Standard Income/Expense" as needed.
     - [x] Update `src/data/tax-declarations.ts` to correctly handle `credit_note_received` as a deduction or credit.
