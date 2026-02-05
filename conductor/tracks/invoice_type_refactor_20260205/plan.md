@@ -22,12 +22,12 @@
 - [ ] Task: Conductor - User Manual Verification 'Data Ingestion Updates' (Protocol in workflow.md)
 
 ## Phase 3: Data Migration (Backfill) [checkpoint: ]
-- [ ] Task: Create Backfill Script
-    - [ ] Create `src/scripts/backfill-invoice-types.ts`.
-    - [ ] Implement logic to query all invoices, determine `isEmitter` by comparing `organization.rfc` with `partner.rfc` (or existing metadata), and update the record.
-- [ ] Task: Execute and Verify Backfill
-    - [ ] Run the script on the local database.
-    - [ ] Verify a sample of various `cfdiType` records (I, E, P) have the correct `invoiceType`.
+- [x] Task: Create Backfill Script
+    - [x] Create `src/scripts/backfill-invoice-types.ts`.
+    - [x] Implement logic to query all invoices, determine `isEmitter` by comparing `organization.rfc` with `partner.rfc` (or existing metadata), and update the record.
+- [x] Task: Execute and Verify Backfill
+    - [x] Run the script on the local database.
+    - [x] Verify a sample of various `cfdiType` records (I, E, P) have the correct `invoiceType`.
 - [ ] Task: Conductor - User Manual Verification 'Data Migration (Backfill)' (Protocol in workflow.md)
 
 ## Phase 4: Dashboard & UI Integration [checkpoint: ]
