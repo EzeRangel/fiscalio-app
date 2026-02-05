@@ -32,7 +32,8 @@ export const invoices = pgTable(
     partnerId: integer("partner_id").references(() => businessPartners.id),
 
     // SAT/CFDI identification
-    invoiceType: varchar("invoice_type", { length: 20 }).notNull(),
+    // income, expense, credit_note_issued, credit_note_received, payment_issued, payment_received, payroll_issued, payroll_received, transfer_issued, transfer_received
+    invoiceType: varchar("invoice_type", { length: 25 }).notNull(),
     cfdiType: varchar("cfdi_type", { length: 10 }).notNull(),
     cfdiVersion: varchar("cfdi_version", { length: 10 }).default("4.0"),
     folioFiscal: uuid("folio_fiscal"),

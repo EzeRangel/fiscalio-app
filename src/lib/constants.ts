@@ -8,8 +8,14 @@ export const CFDI_TYPE = {
 export const INVOICE_TYPE = {
   income: "Ingreso",
   expense: "Egreso",
-  transfer: "Traslado",
-  payment: "Pago",
+  credit_note_issued: "Nota de Crédito Emitida",
+  credit_note_received: "Nota de Crédito Recibida",
+  payment_issued: "Pago Emitido",
+  payment_received: "Pago Recibido",
+  payroll_issued: "Nómina Emitida",
+  payroll_received: "Nómina Recibida",
+  transfer_issued: "Traslado Emitido",
+  transfer_received: "Traslado Recibido",
 };
 
 export const TAX_NAMES = {
