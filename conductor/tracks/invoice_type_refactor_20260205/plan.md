@@ -4,9 +4,9 @@
 - [x] Task: Define Supported Invoice Types 763eb08
     - [x] Create a central constant or type definition for `InvoiceType` (e.g., in `src/types/invoices.ts` or `src/lib/constants.ts`).
     - [x] Update `src/db/schema/invoices.ts` comments or validation if applicable to reflect the new types.
-- [ ] Task: Implement Centralized Derivation Logic
-    - [ ] Create `src/lib/invoice-utils.ts` (or update existing) with a `deriveInvoiceType(cfdiType, isEmitter)` function.
-    - [ ] Write unit tests for the derivation logic: `src/lib/invoice-utils.test.ts`.
+- [x] Task: Implement Centralized Derivation Logic 417e0b5
+    - [x] Create `src/lib/invoice-utils.ts` (or update existing) with a `deriveInvoiceType(cfdiType, isEmitter)` function.
+    - [x] Write unit tests for the derivation logic: `src/lib/invoice-utils.test.ts`.
 - [ ] Task: Conductor - User Manual Verification 'Core Logic & Types' (Protocol in workflow.md)
 
 ## Phase 2: Data Ingestion Updates [checkpoint: ]
