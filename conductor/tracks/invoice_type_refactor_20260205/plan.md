@@ -31,9 +31,9 @@
 - [ ] Task: Conductor - User Manual Verification 'Data Migration (Backfill)' (Protocol in workflow.md)
 
 ## Phase 4: Dashboard & UI Integration [checkpoint: ]
-- [ ] Task: Update Dashboard Aggregations
-    - [ ] Update `src/data/dashboard.ts` to include `credit_note_*` and `payment_*` in calculations or exclude them from "Standard Income/Expense" as needed.
-    - [ ] Update `src/data/tax-declarations.ts` to correctly handle `credit_note_received` as a deduction or credit.
-- [ ] Task: Update Invoice Table UI
-    - [ ] Update the display logic in the invoices table (likely `src/app/invoices/page.tsx` or its components) to show user-friendly labels (e.g., "Pago Recibido" instead of "income" for Type P).
+- [x] Task: Update Dashboard Aggregations 7261f6a
+    - [x] Update `src/data/dashboard.ts` to include `credit_note_*` and `payment_*` in calculations or exclude them from "Standard Income/Expense" as needed.
+    - [x] Update `src/data/tax-declarations.ts` to correctly handle `credit_note_received` as a deduction or credit.
+- [x] Task: Update Invoice Table UI 7261f6a
+    - [x] Update the display logic in the invoices table (likely `src/app/invoices/page.tsx` or its components) to show user-friendly labels (e.g., "Pago Recibido" instead of "income" for Type P).
 - [ ] Task: Conductor - User Manual Verification 'Dashboard & UI Integration' (Protocol in workflow.md)
