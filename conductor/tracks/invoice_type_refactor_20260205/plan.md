@@ -10,15 +10,15 @@
 - [ ] Task: Conductor - User Manual Verification 'Core Logic & Types' (Protocol in workflow.md)
 
 ## Phase 2: Data Ingestion Updates [checkpoint: ]
-- [ ] Task: Update CFDI Processing (Invoices Data Layer)
-    - [ ] Update `src/data/invoices.ts` to use the new `deriveInvoiceType` function.
-    - [ ] Ensure `savePaymentComplement` and `savePUEPayment` are compatible with the new type strings.
-- [ ] Task: Update CFDI Processing (Server Actions)
-    - [ ] Update `src/actions/invoices.ts` to use the new `deriveInvoiceType` function.
-- [ ] Task: Update Classification Engine
-    - [ ] Update `src/lib/classification-engine.ts` to handle the expanded `invoiceType` set.
-- [ ] Task: Verify with Integration Test
-    - [ ] Update or create a test in `src/data/invoices.test.ts` to verify a CFDI 'E' results in `credit_note_issued/received`.
+- [x] Task: Update CFDI Processing (Invoices Data Layer) b01c37b
+    - [x] Update `src/data/invoices.ts` to use the new `deriveInvoiceType` function.
+    - [x] Ensure `savePaymentComplement` and `savePUEPayment` are compatible with the new type strings.
+- [x] Task: Update CFDI Processing (Server Actions) b01c37b
+    - [x] Update `src/actions/invoices.ts` to use the new `deriveInvoiceType` function.
+- [x] Task: Update Classification Engine b01c37b
+    - [x] Update `src/lib/classification-engine.ts` to handle the expanded `invoiceType` set.
+- [x] Task: Verify with Integration Test b01c37b
+    - [x] Update or create a test in `src/data/invoices.test.ts` to verify a CFDI 'E' results in `credit_note_issued/received`.
 - [ ] Task: Conductor - User Manual Verification 'Data Ingestion Updates' (Protocol in workflow.md)
 
 ## Phase 3: Data Migration (Backfill) [checkpoint: ]
