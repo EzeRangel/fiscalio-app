@@ -22,6 +22,7 @@ import { getTaxName } from "@/lib/utils";
 import { logAction } from "@/lib/audit-service";
 import { validateInvoice } from "@/lib/fiscal-validation/invoice-rules";
 import { FiscalInvoice } from "@/lib/fiscal-validation/types";
+import { deriveInvoiceType } from "@/lib/invoice-utils";
 
 const insertInvoiceSchema = zfd.formData({
   cfdi: zfd.file(),
@@ -66,7 +67,7 @@ export const saveInvoice = actionClient
 
       // 2. Determine partner info and invoice type
       const isEmitter = organization.rfc === emitterRfc;
-      const invoiceType = isEmitter ? "income" : "expense";
+      const invoiceType = deriveInvoiceType(parsedCFDI.TipoDeComprobante, isEmitter);
       const partnerType = isEmitter ? "client" : "provider";
       const partnerRfc = isEmitter ? receiverRfc : emitterRfc;
       const partnerName = isEmitter

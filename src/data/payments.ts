@@ -13,12 +13,14 @@ import {
   FiscalInvoice,
 } from "@/lib/fiscal-validation";
 
+import { InvoiceTypes } from "@/types/utils";
+
 export async function savePaymentComplement(
   tx: any,
   parsedCFDI: ParsedCFDI,
   organizationId: number,
   partnerId: number,
-  paymentType: "income" | "expense",
+  paymentType: InvoiceTypes,
 ) {
   const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
   const pagosNode = pagosComplement?.Pagos;
@@ -203,7 +205,7 @@ export async function savePUEPayment(
   organizationId: number,
   partnerId: number,
   invoiceId: number,
-  paymentType: "income" | "expense",
+  paymentType: InvoiceTypes,
 ) {
   const allocationToCreate = {
     amount,

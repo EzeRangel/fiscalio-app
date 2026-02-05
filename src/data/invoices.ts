@@ -17,6 +17,8 @@ import { savePaymentComplement, savePUEPayment } from "./payments";
 import { GENERIC_RFC_LIST } from "@/lib/constants";
 import { validateInvoice, FiscalInvoice } from "@/lib/fiscal-validation";
 
+import { deriveInvoiceType } from "@/lib/invoice-utils";
+
 export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
   const { db } = await getDB();
   const organizationId = await getActiveOrganizationId();
@@ -44,7 +46,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 
     // 2. Determine partner info and invoice type
     const isEmitter = organization.rfc === emitterRfc;
-    const invoiceType = isEmitter ? "income" : "expense";
+    const invoiceType = deriveInvoiceType(parsedCFDI.TipoDeComprobante, isEmitter);
     const partnerType = isEmitter ? "client" : "provider";
     const partnerRfc = isEmitter ? receiverRfc : emitterRfc;
     const partnerName = isEmitter
@@ -170,7 +172,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
         parsedCFDI,
         organizationId,
         partner.id,
-        invoiceType as "income" | "expense",
+        invoiceType,
       );
     } else {
       // Auto-generate Payment for PUE
@@ -185,7 +187,7 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
           organizationId,
           partner.id,
           newInvoice.id,
-          invoiceType as "income" | "expense",
+          invoiceType,
         );
 
         await tx

@@ -63,8 +63,12 @@ export function deriveEngineInvoice(
   }
 
   // CFDI/Invoice Type
-  const isIncome = invoice.invoiceType === "income";
-  const isExpense = invoice.invoiceType === "expense";
+  const isIncome =
+    invoice.invoiceType === "income" ||
+    invoice.invoiceType === "credit_note_received";
+  const isExpense =
+    invoice.invoiceType === "expense" ||
+    invoice.invoiceType === "credit_note_issued";
 
   return {
     ...invoice,
