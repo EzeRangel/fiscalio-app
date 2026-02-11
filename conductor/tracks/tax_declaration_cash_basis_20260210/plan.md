@@ -2,7 +2,7 @@
 
 This plan outlines the steps to align the tax declaration logic with cash-basis principles and implement USD to MXN currency normalization.
 
-## Phase 1: Research and Utility Preparation
+## Phase 1: Research and Utility Preparation [checkpoint: 2a82054]
 In this phase, we will analyze the existing calculation logic and prepare utility functions for currency conversion and cash-basis filtering.
 
 - [x] Task: Analyze `src/actions/tax-declarations.ts` and `src/data/tax-declarations.ts` to identify the current data fetching and calculation flow. f1b2c3d
