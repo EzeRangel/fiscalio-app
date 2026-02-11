@@ -1,4 +1,71 @@
-import { calculateCashBasisSummary } from './cash-basis-utils';
+import {
+  calculateCashBasisSummary,
+  normalizeToMXN,
+  getEffectiveExchangeRate,
+  getTaxClassification,
+  getPeriodDateRange,
+} from "./cash-basis-utils";
+
+describe('normalizeToMXN', () => {
+  it('should return the same amount if exchangeRate is 1.0 or null', () => {
+    expect(normalizeToMXN(100)).toBe(100);
+    expect(normalizeToMXN('100', 1.0)).toBe(100);
+    expect(normalizeToMXN(100, null)).toBe(100);
+  });
+
+  it('should multiply amount by exchangeRate', () => {
+    expect(normalizeToMXN(100, 20.5)).toBe(2050);
+    expect(normalizeToMXN('100.50', '20.00')).toBe(2010);
+  });
+
+  it('should handle zero or invalid amounts/rates', () => {
+    expect(normalizeToMXN(0, 20)).toBe(0);
+    expect(normalizeToMXN(100, 0)).toBe(0);
+    expect(normalizeToMXN('invalid', 20)).toBe(0);
+  });
+});
+
+describe('getEffectiveExchangeRate', () => {
+  it('should return 1.0 for MXN even if providedRate is different (though it shouldnt be)', () => {
+    expect(getEffectiveExchangeRate('MXN', '20.0', '19.0')).toBe('20');
+  });
+
+  it('should return providedRate if currency is USD and providedRate is not 1.0', () => {
+    expect(getEffectiveExchangeRate('USD', '20.5', '19.0')).toBe('20.5');
+  });
+
+  it('should fallback to invoiceRate if currency is USD and providedRate is effectively 1.0', () => {
+    expect(getEffectiveExchangeRate('USD', '1.0', '19.5')).toBe('19.5');
+    expect(getEffectiveExchangeRate('USD', 1.0000001, '19.5')).toBe('19.5');
+  });
+
+  it('should return providedRate if providedRate is not 1.0, even if invoiceRate exists', () => {
+    expect(getEffectiveExchangeRate('USD', '20.0', '19.5')).toBe('20');
+  });
+});
+
+describe('getTaxClassification', () => {
+  it('should return correct category and multiplier for each type', () => {
+    expect(getTaxClassification('income')).toEqual({ category: 'income', multiplier: 1 });
+    expect(getTaxClassification('credit_note_issued')).toEqual({ category: 'income', multiplier: -1 });
+    expect(getTaxClassification('expense')).toEqual({ category: 'expense', multiplier: 1 });
+    expect(getTaxClassification('credit_note_received')).toEqual({ category: 'expense', multiplier: -1 });
+    expect(getTaxClassification('other')).toEqual({ category: 'other', multiplier: 0 });
+  });
+});
+
+describe('getPeriodDateRange', () => {
+  it('should return correct startDate and endDate for a fiscal period', () => {
+    const { startDate, endDate } = getPeriodDateRange('2026-01');
+    expect(startDate.getFullYear()).toBe(2026);
+    expect(startDate.getMonth()).toBe(0); // Jan
+    expect(startDate.getDate()).toBe(1);
+
+    expect(endDate.getFullYear()).toBe(2026);
+    expect(endDate.getMonth()).toBe(1); // Feb
+    expect(endDate.getDate()).toBe(1);
+  });
+});
 
 describe('calculateCashBasisSummary', () => {
   it('should return zeros for empty allocations', () => {
