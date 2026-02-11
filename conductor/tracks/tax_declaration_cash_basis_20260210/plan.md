@@ -13,8 +13,8 @@ In this phase, we will analyze the existing calculation logic and prepare utilit
 ## Phase 2: Data Layer Updates
 Update the data fetching logic to ensure it provides the necessary information for cash-basis calculations (e.g., linked payments).
 
-- [ ] Task: Write Tests: Verify that `src/data/tax-declarations.ts` (or relevant data fetcher) correctly retrieves paid invoices and their associated payments for a period.
-- [ ] Task: Implement: Refactor data fetching to include payment status and exchange rate information for each record.
+- [x] Task: Write Tests: Verify that `src/data/tax-declarations.ts` (or relevant data fetcher) correctly retrieves paid invoices and their associated payments for a period. [1a2b3c4]
+- [x] Task: Implement: Refactor data fetching to include payment status and exchange rate information for each record. [5d6e7f8]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Layer Updates' (Protocol in workflow.md)
 
 ## Phase 3: Calculation Logic Refactor (Cash-Basis & Currency)

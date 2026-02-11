@@ -7,7 +7,11 @@ import {
   paymentAllocations,
   payments,
 } from "@/db/schema";
-import { calculateCashBasisSummary } from "@/lib/cash-basis-utils";
+import {
+  calculateCashBasisSummary,
+  getEffectiveExchangeRate,
+  getTaxClassification,
+} from "@/lib/cash-basis-utils";
 import { calculateISR_RESICO } from "@/lib/tax-calculations";
 
 export async function getTaxDeclarationsDashboardData(organizationId: number) {
@@ -117,29 +121,24 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
         })),
       );
 
-                const invoiceAllocations = items.map((i: any) => {
-                  const allocRateStr = String(i.exchangeRate || "1.0");
-                  const allocRateVal = parseFloat(allocRateStr);
-      
-                  const invoiceRateStr = String(fullInvoice.exchangeRate || "1.0");
-                  const currency = fullInvoice.currency || "MXN";
-      
-                  // If allocation rate is effectively 1.0 and currency is not MXN, use invoice rate (fallback)
-                  const finalRate =
-                    Math.abs(allocRateVal - 1.0) < 0.0001 && currency !== "MXN"
-                      ? invoiceRateStr
-                      : allocRateStr;
-      
-                  return {
-                    amountAllocated: i.amountAllocated,
-                    exchangeRate: finalRate,
-                    invoice: {
-                      total: fullInvoice.total,
-                      subtotal: fullInvoice.subtotal,
-                      taxes: allTaxes,
-                    },
-                  };
-                });
+      const invoiceAllocations = items.map((i: any) => {
+        const finalRate = getEffectiveExchangeRate(
+          fullInvoice.currency,
+          i.exchangeRate,
+          fullInvoice.exchangeRate,
+        );
+
+        return {
+          amountAllocated: i.amountAllocated,
+          exchangeRate: finalRate,
+          invoice: {
+            total: fullInvoice.total,
+            subtotal: fullInvoice.subtotal,
+            taxes: allTaxes,
+          },
+        };
+      });
+
       const summary = calculateCashBasisSummary(invoiceAllocations);
 
       const isDeductible = fullInvoice.account?.isDeductible || false;
@@ -152,29 +151,33 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
         ? summary.subtotalPaid * (deductionPercentage / 100)
         : 0;
 
-      if (fullInvoice.invoiceType === "income" || fullInvoice.invoiceType === "credit_note_received") {
-        calcTotalIncome += summary.totalPaid;
-        calcTotalIncomeSubtotal += summary.subtotalPaid;
+      const { category, multiplier } = getTaxClassification(
+        fullInvoice.invoiceType,
+      );
+
+      if (category === "income") {
+        calcTotalIncome += summary.totalPaid * multiplier;
+        calcTotalIncomeSubtotal += summary.subtotalPaid * multiplier;
         incomeInvoiceIds.add(invoiceId);
 
         // IVA Charged
         for (const tax of summary.taxBreakdown) {
           if (tax.taxCode === "002" && tax.taxType === "transferred") {
-            calcIvaCharged += tax.amount;
+            calcIvaCharged += tax.amount * multiplier;
           } else if (tax.taxCode === "001" && tax.taxType === "withheld") {
-            calcIsrWithheld += tax.amount;
+            calcIsrWithheld += tax.amount * multiplier;
           }
         }
-      } else if (fullInvoice.invoiceType === "expense" || fullInvoice.invoiceType === "credit_note_issued") {
-        calcTotalExpenses += summary.totalPaid;
+      } else if (category === "expense") {
+        calcTotalExpenses += summary.totalPaid * multiplier;
         expenseInvoiceIds.add(invoiceId);
 
         if (isDeductible) {
-          calcDeductibleExpenses += deductibleAmount;
+          calcDeductibleExpenses += deductibleAmount * multiplier;
           // IVA Creditable
           for (const tax of summary.taxBreakdown) {
             if (tax.taxCode === "002" && tax.taxType === "transferred") {
-              calcIvaCreditable += tax.amount;
+              calcIvaCreditable += tax.amount * multiplier;
             }
           }
         }
