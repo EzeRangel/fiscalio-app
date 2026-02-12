@@ -10,6 +10,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
   check,
@@ -127,8 +128,13 @@ export const invoices = pgTable(
     return {
       organizationIdIndex: index("idx_invoices_org").on(table.organizationId),
       partnerIdIndex: index("idx_invoices_partner").on(table.partnerId),
-      folioFiscalIndex: index("idx_invoices_folio_fiscal").on(
+      folioFiscalUniqueIndex: uniqueIndex("idx_invoices_org_folio_fiscal_unique").on(
+        table.organizationId,
         table.folioFiscal
+      ),
+      fileHashUniqueIndex: uniqueIndex("idx_invoices_org_file_hash_unique").on(
+        table.organizationId,
+        table.fileHash
       ),
       amountPaidLimit: check("amount_paid_limit", sql`${table.amountPaid} <= ${table.total}`),
     };
