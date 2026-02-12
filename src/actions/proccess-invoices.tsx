@@ -7,6 +7,12 @@ import { CFDIParser } from "@/lib/cfdi-parser";
 import { delay } from "@/lib/utils";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { InvoiceState, UploadItem } from "@/components/upload-item";
+import { getActiveOrganizationId } from "@/lib/session";
+import {
+  checkFileHashUniqueness,
+  checkFolioFiscalUniqueness,
+  generateFileHash,
+} from "@/lib/data-integrity";
 
 async function parseXML(cfdi: File) {
   const xmlContent = await cfdi.text();
@@ -31,6 +37,7 @@ export async function processInvoices(formData: FormData) {
   });
 
   (async () => {
+    const organizationId = await getActiveOrganizationId();
     const initialInvoices = Array.from(invoicesMap.values());
     uiStream.update(
       <div>
@@ -97,7 +104,16 @@ export async function processInvoices(formData: FormData) {
       try {
         await updateStatus("parsing");
         const contents = await file.text();
+
+        // 1. File De-duplication (Hash check)
+        const fileHash = generateFileHash(contents);
+        await checkFileHashUniqueness(organizationId, fileHash);
+
         const cfdi = await parseXML(file);
+        const essentials = CFDIParser.extractEssentials(cfdi);
+
+        // 2. UUID Uniqueness check
+        await checkFolioFiscalUniqueness(organizationId, essentials.uuid);
 
         await updateStatus("validating");
         // TODO: validation logic here
