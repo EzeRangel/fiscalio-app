@@ -16,8 +16,9 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
   // ALL-01: allocation.amount_allocated > 0
   if (amount <= 0) {
     errors.push({
-      code: FISCAL_VALIDATION_RULES.ALLOCATION.POSITIVE_AMOUNT,
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_POSITIVE_AMOUNT,
       message: "El monto de la aplicación debe ser mayor a cero para mantener registros válidos.",
+      severity: "error",
       field: "amount",
     });
   }
@@ -25,8 +26,9 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
   // ALL-02: Allocation invoice must not be cancelled
   if (invoice.status === "cancelled") {
     errors.push({
-      code: FISCAL_VALIDATION_RULES.ALLOCATION.INVOICE_NOT_CANCELLED,
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_INVOICE_NOT_CANCELLED,
       message: "No se sugieren aplicaciones a facturas que figuran como canceladas.",
+      severity: "error",
       field: "invoice.status",
     });
   }
@@ -45,8 +47,9 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
 
   if (existingInvoiceAllocSum + amount > invoiceTotal + 0.001) {
     errors.push({
-      code: FISCAL_VALIDATION_RULES.ALLOCATION.INVOICE_SUM_LIMIT,
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_INVOICE_SUM_LIMIT,
       message: "El total de las aplicaciones registradas excedería el monto total de la factura. Favor de revisar los saldos.",
+      severity: "error",
       field: "amount",
     });
   }
@@ -59,8 +62,9 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
 
   if (existingPaymentAllocSum + amount > paymentAmount + 0.001) {
     errors.push({
-      code: FISCAL_VALIDATION_RULES.ALLOCATION.PAYMENT_SUM_LIMIT,
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_PAYMENT_SUM_LIMIT,
       message: "El total de las aplicaciones excedería el monto disponible en el pago. Se sugiere verificar los montos.",
+      severity: "error",
       field: "amount",
     });
   }
@@ -81,8 +85,9 @@ export function validateAllocation(context: FiscalAllocationContext): FiscalVali
 
     if (payDate < invDate) {
       errors.push({
-        code: FISCAL_VALIDATION_RULES.ALLOCATION.DATE_MISMATCH,
+        code: FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_DATE_MISMATCH,
         message: "La fecha de pago es anterior a la fecha de la factura. Se sugiere revisar la consistencia de las fechas.",
+        severity: "error",
         field: "payment.paymentDate",
       });
     }

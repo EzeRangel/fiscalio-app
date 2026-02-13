@@ -39,8 +39,11 @@ import { EditPaymentDialog } from "./edit-payment-dialog";
 import { INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
 import { PaymentForms, PaymentMethods, TaxTypes } from "@/types/utils";
 
+import { FiscalValidationError } from "@/lib/fiscal-validation";
+import { ValidationMessages } from "./validations";
+
 interface Props {
-  data: CFDI;
+  data: CFDI & { validationErrors?: FiscalValidationError[] | null };
   relatedPayments?: PaymentAllocation[];
 }
 
@@ -75,9 +78,17 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
 
   const totalPaid = calculateInvoicePaid(invoice);
   const paymentStatus = getPaymentStatus(Number(invoice.total), totalPaid);
+  const validationErrors = invoice.validationErrors || [];
 
   return (
     <div className="container mx-auto px-6 py-12 max-w-7xl">
+      {/* Fiscal Validation Errors */}
+      {validationErrors && validationErrors.length > 0 && (
+        <ValidationMessages
+          validations={validationErrors as FiscalValidationError[]}
+        />
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
         <div className="lg:col-span-7 space-y-8">
           <div className="space-y-2">
@@ -97,7 +108,10 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
 
               <Badge
                 variant="outline"
-                className={`font-mono tracking-tighter ${paymentStatus.color}`}
+                className={cn(
+                  "font-mono tracking-tighter",
+                  paymentStatus.color,
+                )}
               >
                 {paymentStatus.label}
               </Badge>

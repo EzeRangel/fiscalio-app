@@ -3,6 +3,7 @@ import { FiscalValidationRuleCode } from "./constants";
 export interface FiscalValidationError {
   code: FiscalValidationRuleCode;
   message: string;
+  severity: "error" | "warning";
   field?: string;
 }
 

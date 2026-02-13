@@ -1,4 +1,5 @@
-import { CheckCircle, Loader2, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, XCircle, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // This interface is shared between the server action and the client component.
 export interface InvoiceState {
@@ -11,6 +12,7 @@ export interface InvoiceState {
     | "saving"
     | "classifying"
     | "success"
+    | "invalid"
     | "error";
   progress: number;
   error?: string;
@@ -25,6 +27,7 @@ export function StatusBadge({ status }: { status: InvoiceState["status"] }) {
     saving: "Guardando",
     classifying: "Clasificando",
     success: "Completada",
+    invalid: "Inconsistencia",
     error: "Error",
   };
 
@@ -39,10 +42,13 @@ export function UploadItem({ upload }: { upload: InvoiceState }) {
         {upload.status === "success" && (
           <CheckCircle className="h-5 w-5 text-green-600" />
         )}
+        {upload.status === "invalid" && (
+          <AlertTriangle className="h-5 w-5 text-amber-600" />
+        )}
         {upload.status === "error" && (
           <XCircle className="h-5 w-5 text-red-600" />
         )}
-        {!["success", "error"].includes(upload.status) && (
+        {!["success", "invalid", "error"].includes(upload.status) && (
           <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
         )}
       </div>
@@ -54,7 +60,7 @@ export function UploadItem({ upload }: { upload: InvoiceState }) {
           <StatusBadge status={upload.status} />
         </div>
         {upload.error && (
-          <p className="text-sm text-red-600 mt-1">{upload.error}</p>
+          <p className={cn("text-sm mt-1", upload.status === "invalid" ? "text-amber-600" : "text-red-600")}>{upload.error}</p>
         )}
       </div>
     </div>

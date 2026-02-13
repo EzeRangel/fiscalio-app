@@ -51,7 +51,7 @@ export async function processInvoices(formData: FormData) {
             <UploadItem key={invoice.id} upload={invoice} />
           ))}
         </div>
-      </div>
+      </div>,
     );
     await delay(1); // Give client time to render initial state
 
@@ -84,7 +84,7 @@ export async function processInvoices(formData: FormData) {
               <UploadItem key={invoice.id} upload={invoice} />
             ))}
           </div>
-        </div>
+        </div>,
       );
     };
 
@@ -94,7 +94,7 @@ export async function processInvoices(formData: FormData) {
 
       const updateStatus = async (
         status: InvoiceState["status"],
-        error?: string
+        error?: string,
       ) => {
         invoicesMap.set(id, { ...invoice, id, status, error });
         renderInvoices();
@@ -121,13 +121,18 @@ export async function processInvoices(formData: FormData) {
         await updateStatus("saving");
         const buf = Buffer.from(contents, "utf-8");
         const xmlbase64 = buf.toString("base64");
-        const recordInvoiceId = await saveNewInvoice(cfdi, xmlbase64);
+        const savedInvoice = await saveNewInvoice(cfdi, xmlbase64, fileHash);
 
         await updateStatus("classifying");
-        await suggestInvoiceClassification(recordInvoiceId);
+        await suggestInvoiceClassification(savedInvoice.id);
 
-        successful++;
-        await updateStatus("success");
+        if (savedInvoice.status === "invalid") {
+          successful++;
+          await updateStatus("invalid", "Guardada con inconsistencias fiscales.");
+        } else {
+          successful++;
+          await updateStatus("success");
+        }
       } catch (error) {
         failed++;
         const errorMessage =

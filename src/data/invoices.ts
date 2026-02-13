@@ -15,15 +15,26 @@ import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { getTaxName } from "@/lib/utils";
 import { savePaymentComplement, savePUEPayment } from "./payments";
 import { GENERIC_RFC_LIST } from "@/lib/constants";
-import { validateInvoice, FiscalInvoice } from "@/lib/fiscal-validation";
+import {
+  validateInvoice,
+  validateResicoRegime,
+  validateIsrWithholding,
+  validateExchangeRate,
+  FiscalInvoice,
+  FiscalValidationError,
+} from "@/lib/fiscal-validation";
 
 import { deriveInvoiceType } from "@/lib/invoice-utils";
 
-export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
+export const saveNewInvoice = async (
+  parsedCFDI: ParsedCFDI,
+  xml: string,
+  fileHash: string,
+) => {
   const { db } = await getDB();
   const organizationId = await getActiveOrganizationId();
 
-  const invoiceId = await db.transaction(async (tx) => {
+  const invoiceRecord = await db.transaction(async (tx) => {
     // 1. Verify organization RFC against the CFDI
     const organization = await tx.query.organizations.findFirst({
       where: eq(organizations.id, organizationId),
@@ -46,7 +57,23 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
 
     // 2. Determine partner info and invoice type
     const isEmitter = organization.rfc === emitterRfc;
-    const invoiceType = deriveInvoiceType(parsedCFDI.TipoDeComprobante, isEmitter);
+    const invoiceType = deriveInvoiceType(
+      parsedCFDI.TipoDeComprobante,
+      isEmitter,
+    );
+
+    // --- RESICO REGIME VALIDATION ---
+    const regimeValidation = validateResicoRegime({
+      type: isEmitter ? "income" : "expense",
+      issuerRegime: parsedCFDI.Emisor.RegimenFiscal,
+      receiverRegime: parsedCFDI.Receptor.RegimenFiscalReceptor,
+    });
+
+    if (!regimeValidation.isValid) {
+      throw new Error(regimeValidation.errors[0].message);
+    }
+    // -------------------------------
+
     const partnerType = isEmitter ? "client" : "provider";
     const partnerRfc = isEmitter ? receiverRfc : emitterRfc;
     const partnerName = isEmitter
@@ -118,6 +145,67 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       throw new Error("El CFDI no contiene una fecha de timbrado.");
     }
 
+    // Gather Taxes for validations
+    const allTaxes: {
+      taxType: "transferred" | "withheld";
+      taxCode: string;
+      rate: string;
+    }[] = [];
+
+    for (const c of conceptos) {
+      const traslados =
+        c.Impuestos?.Traslados && Array.isArray(c.Impuestos.Traslados.Traslado)
+          ? c.Impuestos.Traslados.Traslado
+          : c.Impuestos?.Traslados?.Traslado
+            ? [c.Impuestos.Traslados.Traslado]
+            : [];
+
+      const retenciones =
+        c.Impuestos?.Retenciones &&
+        Array.isArray(c.Impuestos.Retenciones.Retencion)
+          ? c.Impuestos.Retenciones.Retencion
+          : c.Impuestos?.Retenciones?.Retencion
+            ? [c.Impuestos.Retenciones.Retencion]
+            : [];
+
+      traslados.forEach((t: any) =>
+        allTaxes.push({
+          taxType: "transferred",
+          taxCode: t.Impuesto,
+          rate: t.TasaOCuota,
+        }),
+      );
+      retenciones.forEach((r: any) =>
+        allTaxes.push({
+          taxType: "withheld",
+          taxCode: r.Impuesto,
+          rate: r.TasaOCuota,
+        }),
+      );
+    }
+
+    // --- FISCAL COMPLIANCE VALIDATIONS ---
+    const validationErrors: FiscalValidationError[] = [];
+
+    // ISR Withholding (Warning if missing)
+    const isrValidation = validateIsrWithholding({
+      cfdiType: parsedCFDI.TipoDeComprobante,
+      receiverRfc: parsedCFDI.Receptor.Rfc,
+      taxes: allTaxes,
+    });
+    if (!isrValidation.isValid) {
+      validationErrors.push(...isrValidation.errors);
+    }
+
+    // Exchange Rate (Warning if invalid)
+    const exchangeValidation = validateExchangeRate({
+      currency: parsedCFDI.Moneda,
+      exchangeRate: parsedCFDI.TipoCambio,
+    });
+    if (!exchangeValidation.isValid) {
+      validationErrors.push(...exchangeValidation.errors);
+    }
+
     const fiscalInvoiceToCheck: FiscalInvoice = {
       id: 0,
       total: parsedCFDI.Total,
@@ -127,10 +215,10 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       allocations: [],
     };
 
-    const validation = validateInvoice(fiscalInvoiceToCheck);
-    if (!validation.isValid) {
+    const integrityValidation = validateInvoice(fiscalInvoiceToCheck);
+    if (!integrityValidation.isValid) {
       throw new Error(
-        `Error de validación fiscal: ${validation.errors[0].message}`,
+        `Error de validación fiscal: ${integrityValidation.errors[0].message}`,
       );
     }
 
@@ -162,6 +250,9 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
         taxRegimeReceiver: parsedCFDI.Receptor.RegimenFiscalReceptor,
         cfdiUse: parsedCFDI.Receptor.UsoCFDI,
         xmlContent: xml,
+        fileHash: fileHash,
+        validationErrors: validationErrors.length > 0 ? validationErrors : null,
+        status: validationErrors.length > 0 ? "invalid" : "active",
       })
       .returning();
 
@@ -262,10 +353,10 @@ export const saveNewInvoice = async (parsedCFDI: ParsedCFDI, xml: string) => {
       }
     }
 
-    return newInvoice.id;
+    return newInvoice;
   });
 
-  return invoiceId;
+  return invoiceRecord;
 };
 
 // TODO: Mejorar la función para obtener todas las facturas, enviar filtros como parámetros.

@@ -24,27 +24,22 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   }, 0);
 
   // INV-03: Total allocated amount <= invoice.total
-  // We check against amountPaid AND allocatedSum just to be sure, or just allocatedSum?
-  // Spec says "Total allocated amount <= invoice.total".
-  // Also check amountPaid consistency? Spec says amountPaid is derived.
-  // We'll trust amountPaid is supposed to be the sum, but we check both if possible.
-  // Let's assume amountPaid IS the sum of allocations in a consistent state.
-  // If amountPaid > total, that's an error.
   if (amountPaid > total + 0.001) {
     errors.push({
-      code: FISCAL_VALIDATION_RULES.INVOICE.ALLOCATION_LIMIT,
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
       message: "El monto pagado excede el total de la factura. Favor de revisar la consistencia de los datos registrados.",
+      severity: "error",
       field: "amountPaid",
     });
   }
 
   if (allocatedSum > total + 0.001) {
-     // Avoid double error if amountPaid is consistent with allocatedSum
-     const alreadyReported = errors.some(e => e.code === FISCAL_VALIDATION_RULES.INVOICE.ALLOCATION_LIMIT);
+     const alreadyReported = errors.some(e => e.code === FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT);
      if (!alreadyReported) {
         errors.push({
-            code: FISCAL_VALIDATION_RULES.INVOICE.ALLOCATION_LIMIT,
+            code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
             message: "La suma de las aplicaciones excede el total de la factura. Se sugiere verificar los montos.",
+            severity: "error",
             field: "allocations",
         });
      }
@@ -53,40 +48,140 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   // INV-04: Payment status is always derived
   if (invoice.paymentStatus === "paid" && amountPaid < total - 0.001) {
     errors.push({
-      code: FISCAL_VALIDATION_RULES.INVOICE.PAYMENT_STATUS_DERIVED,
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
       message: "La factura figura como pagada pero el monto registrado es menor al total. Favor de verificar la información.",
+      severity: "error",
       field: "paymentStatus",
     });
   }
 
   if (invoice.paymentStatus === "pending" && amountPaid > 0.001) {
       errors.push({
-        code: FISCAL_VALIDATION_RULES.INVOICE.PAYMENT_STATUS_DERIVED,
+        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
         message: "La factura figura como pendiente pero tiene pagos registrados. Se sugiere revisar el estado de pago.",
+        severity: "error",
         field: "paymentStatus",
       });
   }
 
   if (invoice.paymentStatus === "partial" && Math.abs(amountPaid - total) < 0.001) {
       errors.push({
-        code: FISCAL_VALIDATION_RULES.INVOICE.PAYMENT_STATUS_DERIVED,
+        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
         message: "La factura figura como parcial pero parece estar pagada en su totalidad.",
+        severity: "error",
         field: "paymentStatus",
       });
   }
 
 
   // INV-02: A cancelled invoice cannot accept new payment allocations.
-  // Interpreted as: validation fails if cancelled invoice has active allocations.
   if (invoice.status === "cancelled" && allocations.length > 0) {
-    // Assuming allocations passed here are active ones.
-    // If allocations have a status, we should check it, but the type doesn't have it yet.
-    // Assuming passed allocations are "valid" existentially.
     errors.push({
-        code: FISCAL_VALIDATION_RULES.INVOICE.CANCELLED_NO_ALLOCATIONS,
+        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_CANCELLED_NO_ALLOCATIONS,
         message: "Una factura cancelada no debería tener aplicaciones de pago activas en los registros.",
+        severity: "error",
         field: "status",
     });
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+export interface ResicoRegimeParams {
+  type: "income" | "expense";
+  issuerRegime: string | null;
+  receiverRegime: string | null;
+}
+
+/**
+ * Validates that the invoice belongs to a RESICO (626) context.
+ * For Income: Issuer must be 626.
+ * For Expense: Receiver must be 626.
+ */
+export function validateResicoRegime(params: ResicoRegimeParams): FiscalValidationResult {
+  const errors: FiscalValidationError[] = [];
+
+  if (params.type === "income" && params.issuerRegime !== "626") {
+    errors.push({
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_NON_RESICO_REGIME,
+      message: "El emisor del CFDI de ingreso debe estar bajo el régimen RESICO (626).",
+      severity: "error",
+      field: "issuerRegime",
+    });
+  } else if (params.type === "expense" && params.receiverRegime !== "626") {
+    errors.push({
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_NON_RESICO_REGIME,
+      message: "El receptor del CFDI de egreso debe ser una organización RESICO (626).",
+      severity: "error",
+      field: "receiverRegime",
+    });
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+export interface IsrWithholdingParams {
+  cfdiType: string;
+  receiverRfc: string;
+  taxes: { taxType: "transferred" | "withheld", taxCode: string, rate: string }[];
+}
+
+/**
+ * Validates 1.25% ISR withholding for legal entity receivers on income invoices.
+ */
+export function validateIsrWithholding(params: IsrWithholdingParams): FiscalValidationResult {
+  const errors: FiscalValidationError[] = [];
+
+  // Logic: If Receptor.Rfc length is 12 (Legal Entity) AND TipoDeComprobante is "I" (Income).
+  if (params.receiverRfc.length === 12 && params.cfdiType === "I") {
+    const isrWithholding = params.taxes.find(
+      t => t.taxType === "withheld" && t.taxCode === "001"
+    );
+
+    if (!isrWithholding || Math.abs(parseFloat(isrWithholding.rate) - 0.0125) > 0.00001) {
+      errors.push({
+        code: FISCAL_VALIDATION_RULES.USER_FACING.INVOICE_MISSING_ISR_WITHHOLDING,
+        message: "Falta la retención de ISR del 1.25% requerida para operaciones con personas morales.",
+        severity: "warning",
+        field: "taxes",
+      });
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+export interface ExchangeRateParams {
+  currency: string;
+  exchangeRate: number | string | undefined;
+}
+
+/**
+ * Validates that foreign currency invoices have a valid exchange rate (> 1.0).
+ */
+export function validateExchangeRate(params: ExchangeRateParams): FiscalValidationResult {
+  const errors: FiscalValidationError[] = [];
+
+  if (params.currency !== "MXN") {
+    const rate = typeof params.exchangeRate === "string" ? parseFloat(params.exchangeRate) : params.exchangeRate;
+
+    if (!rate || rate <= 1.0) {
+      errors.push({
+        code: FISCAL_VALIDATION_RULES.USER_FACING.INVOICE_INVALID_EXCHANGE_RATE,
+        message: "El tipo de cambio debe ser mayor a 1.0 para facturas en moneda extranjera.",
+        severity: "warning",
+        field: "exchangeRate",
+      });
+    }
   }
 
   return {
