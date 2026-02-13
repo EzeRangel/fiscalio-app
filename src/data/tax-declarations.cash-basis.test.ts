@@ -90,7 +90,7 @@ describe("getTaxDeclarationsDashboardData Cash-Basis", () => {
     expect(result.currentPeriod.incomeInvoiceCount).toBe(1);
   });
 
-  it("should handle credit notes correctly", async () => {
+  it("should handle credit notes correctly as reductions", async () => {
     // 1. Mock a payment for a credit note issued (income reduction)
     mockDb.query.payments.findMany.mockResolvedValue([{ id: 20 }]);
 
@@ -119,14 +119,36 @@ describe("getTaxDeclarationsDashboardData Cash-Basis", () => {
 
     const result = await getTaxDeclarationsDashboardData(1);
 
-    // Current implementation will likely ignore it or treat it as income if we don't fix it
-    // If it ignores it, totalIncome will be 0.
-    // If it treats it as income, totalIncome will be 200.
-    // We WANT it to be -200 (or subtracted from other income).
-    
-    // For this test with ONLY a credit note:
+    // multiplier -1 applies
     expect(result.currentPeriod.totalIncome).toBe(-200);
     expect(result.currentPeriod.netAmount).toBe(-172.41);
+  });
+
+  it("should calculate expenses based on allocation, not invoice total", async () => {
+    mockDb.query.payments.findMany.mockResolvedValue([{ id: 40 }]);
+
+    mockDb.query.paymentAllocations.findMany.mockResolvedValue([
+      {
+        invoiceId: 401,
+        amountAllocated: "100.00", // Paid only 100
+        exchangeRate: "1.0",
+        invoice: {
+            id: 401,
+            invoiceType: 'expense',
+            total: "1000.00", // Total is 1000
+            subtotal: "1000.00",
+            currency: "MXN",
+            items: [],
+            account: { isDeductible: true, deductionPercentage: "100.00" }
+        }
+      }
+    ]);
+
+    const result = await getTaxDeclarationsDashboardData(1);
+
+    expect(result.currentPeriod.totalExpenses).toBe(100);
+    // calcDeductibleExpenses in DashboardData is not returned in the object, 
+    // but totalExpenses is.
   });
 
   it("should handle USD normalization correctly in the data layer", async () => {

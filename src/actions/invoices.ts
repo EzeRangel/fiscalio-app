@@ -20,7 +20,14 @@ import { getDB } from "@/db";
 import { ActionError } from "@/lib/errors";
 import { getTaxName } from "@/lib/utils";
 import { logAction } from "@/lib/audit-service";
-import { validateInvoice } from "@/lib/fiscal-validation/invoice-rules";
+import {
+  validateInvoice,
+  validateResicoRegime,
+  validateIsrWithholding,
+  validateExchangeRate,
+  FISCAL_VALIDATION_RULES,
+  FiscalValidationError,
+} from "@/lib/fiscal-validation";
 import { FiscalInvoice } from "@/lib/fiscal-validation/types";
 import { deriveInvoiceType } from "@/lib/invoice-utils";
 
@@ -67,7 +74,23 @@ export const saveInvoice = actionClient
 
       // 2. Determine partner info and invoice type
       const isEmitter = organization.rfc === emitterRfc;
-      const invoiceType = deriveInvoiceType(parsedCFDI.TipoDeComprobante, isEmitter);
+      const invoiceType = deriveInvoiceType(
+        parsedCFDI.TipoDeComprobante,
+        isEmitter
+      );
+
+      // --- RESICO REGIME VALIDATION ---
+      const regimeValidation = validateResicoRegime({
+        type: isEmitter ? "income" : "expense",
+        issuerRegime: parsedCFDI.Emisor.RegimenFiscal,
+        receiverRegime: parsedCFDI.Receptor.RegimenFiscalReceptor,
+      });
+
+      if (!regimeValidation.isValid) {
+        throw new ActionError(regimeValidation.errors[0].message);
+      }
+      // -------------------------------
+
       const partnerType = isEmitter ? "client" : "provider";
       const partnerRfc = isEmitter ? receiverRfc : emitterRfc;
       const partnerName = isEmitter
@@ -126,7 +149,65 @@ export const saveInvoice = actionClient
         throw new ActionError(`El CFDI no tiene una fecha de timbrado`);
       }
 
-      // Validate Invoice Invariants
+      // 4. Gather Taxes for validations
+      const allTaxes: {
+        taxType: "transferred" | "withheld";
+        taxCode: string;
+        rate: string;
+      }[] = [];
+
+      for (const c of conceptos) {
+        const traslados = Array.isArray(c.Impuestos?.Traslados?.Traslado)
+          ? c.Impuestos.Traslados.Traslado
+          : c.Impuestos?.Traslados?.Traslado
+          ? [c.Impuestos.Traslados.Traslado]
+          : [];
+
+        const retenciones = Array.isArray(c.Impuestos?.Retenciones?.Retencion)
+          ? c.Impuestos.Retenciones.Retencion
+          : c.Impuestos?.Retenciones?.Retencion
+          ? [c.Impuestos.Retenciones.Retencion]
+          : [];
+
+        traslados.forEach((t) =>
+          allTaxes.push({
+            taxType: "transferred",
+            taxCode: t.Impuesto,
+            rate: t.TasaOCuota,
+          })
+        );
+        retenciones.forEach((r) =>
+          allTaxes.push({
+            taxType: "withheld",
+            taxCode: r.Impuesto,
+            rate: r.TasaOCuota,
+          })
+        );
+      }
+
+      // --- FISCAL COMPLIANCE VALIDATIONS ---
+      const validationErrors: FiscalValidationError[] = [];
+
+      // ISR Withholding (Warning if missing)
+      const isrValidation = validateIsrWithholding({
+        cfdiType: parsedCFDI.TipoDeComprobante,
+        receiverRfc: parsedCFDI.Receptor.Rfc,
+        taxes: allTaxes,
+      });
+      if (!isrValidation.isValid) {
+        validationErrors.push(...isrValidation.errors);
+      }
+
+      // Exchange Rate (Warning if invalid)
+      const exchangeValidation = validateExchangeRate({
+        currency: parsedCFDI.Moneda,
+        exchangeRate: parsedCFDI.TipoCambio,
+      });
+      if (!exchangeValidation.isValid) {
+        validationErrors.push(...exchangeValidation.errors);
+      }
+
+      // 5. Validate Invoice Invariants
       const fiscalInvoiceToCheck: FiscalInvoice = {
         id: 0, // Not yet created
         total: parsedCFDI.Total,
@@ -136,14 +217,14 @@ export const saveInvoice = actionClient
         allocations: [],
       };
 
-      const validation = validateInvoice(fiscalInvoiceToCheck);
-      if (!validation.isValid) {
+      const integrityValidation = validateInvoice(fiscalInvoiceToCheck);
+      if (!integrityValidation.isValid) {
         throw new ActionError(
-          `Inconsistencia detectada en los registros: ${validation.errors[0].message}`
+          `Inconsistencia detectada en los registros: ${integrityValidation.errors[0].message}`
         );
       }
 
-      // 4. Insert the main invoice
+      // 6. Insert the main invoice
       const [newInvoice] = await tx
         .insert(invoices)
         .values({
@@ -172,10 +253,12 @@ export const saveInvoice = actionClient
           taxRegimeReceiver: parsedCFDI.Receptor.RegimenFiscalReceptor,
           cfdiUse: parsedCFDI.Receptor.UsoCFDI,
           xmlContent,
+          validationErrors: validationErrors.length > 0 ? validationErrors : null,
+          status: validationErrors.length > 0 ? "invalid" : "active",
         })
         .returning();
 
-      // 5. Insert invoice items and their taxes
+      // 7. Insert invoice items and their taxes
       for (const [index, c] of conceptos.entries()) {
         const [newItem] = await tx
           .insert(invoiceItems)
@@ -246,10 +329,10 @@ export const saveInvoice = actionClient
         tx,
       });
 
-      return newInvoice.id;
+      return newInvoice;
     });
 
     revalidatePath("/");
 
-    return { invoiceId };
+    return { invoice: invoiceRecord };
   });

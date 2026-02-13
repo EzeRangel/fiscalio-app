@@ -6,7 +6,15 @@ import { calculateCashBasisSummary } from "@/lib/cash-basis-utils";
 // Mock dependencies
 jest.mock("@/db");
 jest.mock("@/lib/session");
-jest.mock("@/lib/cash-basis-utils");
+jest.mock("@/lib/cash-basis-utils", () => ({
+  calculateCashBasisSummary: jest.fn(),
+  getEffectiveExchangeRate: jest.fn((c, p, i) => p || i || "1.0"),
+  getTaxClassification: jest.fn((type) => {
+    if (type === "income") return { category: "income", multiplier: 1 };
+    if (type === "expense") return { category: "expense", multiplier: 1 };
+    return { category: "other", multiplier: 0 };
+  }),
+}));
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));

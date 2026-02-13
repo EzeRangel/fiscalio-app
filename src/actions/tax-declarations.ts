@@ -17,7 +17,11 @@ import { getActiveOrganizationId } from "@/lib/session";
 import { zfd } from "zod-form-data";
 import { revalidatePath } from "next/cache";
 import { calculateDiff, logAction } from "@/lib/audit-service";
-import { calculateCashBasisSummary } from "@/lib/cash-basis-utils";
+import {
+  calculateCashBasisSummary,
+  getEffectiveExchangeRate,
+  getTaxClassification,
+} from "@/lib/cash-basis-utils";
 
 const createTaxDeclarationDraftSchema = z.object({
   fiscalPeriod: z
@@ -49,17 +53,14 @@ export const createTaxDeclarationDraft = actionClient
       where: and(
         eq(taxDeclarations.organizationId, organizationId),
         eq(taxDeclarations.fiscalPeriod, fiscalPeriod),
-        eq(taxDeclarations.declarationType, declarationType)
+        eq(taxDeclarations.declarationType, declarationType),
       ),
     });
 
-    if (existingDeclaration) {
-      if (existingDeclaration.status === "draft") {
-        throw new Error(
-          "Ya existe un borrador de estimación para este período y tipo."
-        );
-      }
-      throw new Error("Ya existe una estimación para este período y tipo.");
+    if (existingDeclaration && existingDeclaration.status !== "draft") {
+      throw new Error(
+        "Ya existe una declaración finalizada para este período.",
+      );
     }
 
     const [year, month] = fiscalPeriod.split("-").map(Number);
@@ -80,35 +81,47 @@ export const createTaxDeclarationDraft = actionClient
         and(
           eq(payments.organizationId, organizationId),
           gte(payments.paymentDate, startDate),
-          lt(payments.paymentDate, endDate)
-        )
+          lt(payments.paymentDate, endDate),
+          eq(invoices.status, "active"),
+        ),
       );
 
-    // 3. Create initial taxDeclaration entry
-    const [newDeclaration] = await db
-      .insert(taxDeclarations)
-      .values({
-        organizationId,
-        fiscalPeriod,
-        declarationType,
-        taxRegime: organization.taxRegime.code,
-        totalIncome: "0",
-        totalExpenses: "0",
-        deductibleExpenses: "0",
-        ivaCharged: "0",
-        ivaCreditable: "0",
-        ivaBalance: "0",
-        isrBase: "0",
-        isrCalculated: "0",
-        isrWithheld: "0",
-        isrProvisional: "0",
-        isrBalance: "0",
-        status: "draft",
-      })
-      .returning();
+    // 3. Create or Use existing taxDeclaration entry
+    let declarationId: number;
 
-    if (!newDeclaration) {
-      throw new Error("Error al generar la estimación de impuestos.");
+    if (existingDeclaration) {
+      declarationId = existingDeclaration.id;
+      // Clear existing snapshot entries for this declaration to start fresh
+      await db
+        .delete(declarationInvoices)
+        .where(eq(declarationInvoices.declarationId, declarationId));
+    } else {
+      const [newDeclaration] = await db
+        .insert(taxDeclarations)
+        .values({
+          organizationId,
+          fiscalPeriod,
+          declarationType,
+          taxRegime: organization.taxRegime.code,
+          totalIncome: "0",
+          totalExpenses: "0",
+          deductibleExpenses: "0",
+          ivaCharged: "0",
+          ivaCreditable: "0",
+          ivaBalance: "0",
+          isrBase: "0",
+          isrCalculated: "0",
+          isrWithheld: "0",
+          isrProvisional: "0",
+          isrBalance: "0",
+          status: "draft",
+        })
+        .returning();
+
+      if (!newDeclaration) {
+        throw new Error("Error al generar la estimación de impuestos.");
+      }
+      declarationId = newDeclaration.id;
     }
 
     // 4. Aggregate data and create snapshot entries
@@ -153,18 +166,16 @@ export const createTaxDeclarationDraft = actionClient
           taxCode: t.taxCode,
           rate: t.rate,
           amount: t.taxAmount,
-        }))
+        })),
       );
 
       // Prepare allocations for this invoice in this period
       const invoiceAllocations = items.map((i: any) => {
-        const allocRate = i.allocation.exchangeRate || "1.0";
-        const invoiceRate = fullInvoice.exchangeRate || "1.0";
-        const currency = fullInvoice.currency || "MXN";
-
-        // Fallback logic for past calculations
-        const finalRate =
-          allocRate === "1.0" && currency !== "MXN" ? invoiceRate : allocRate;
+        const finalRate = getEffectiveExchangeRate(
+          fullInvoice.currency,
+          i.allocation.exchangeRate,
+          fullInvoice.exchangeRate,
+        );
 
         return {
           amountAllocated: i.allocation.amountAllocated,
@@ -181,18 +192,22 @@ export const createTaxDeclarationDraft = actionClient
 
       const isDeductible = fullInvoice.account?.isDeductible || false;
       const deductionPercentage = parseFloat(
-        fullInvoice.account?.deductionPercentage || "100.00"
+        fullInvoice.account?.deductionPercentage || "100.00",
       );
 
-      const includedAmount = summary.totalPaid;
+      const { category, multiplier } = getTaxClassification(
+        fullInvoice.invoiceType,
+      );
+
+      const includedAmount = summary.totalPaid * multiplier;
       const deductibleAmount = isDeductible
-        ? summary.subtotalPaid * (deductionPercentage / 100)
+        ? summary.subtotalPaid * (deductionPercentage / 100) * multiplier
         : 0;
 
-      if (fullInvoice.invoiceType === "income") {
-        totalIncome += summary.subtotalPaid;
-      } else if (fullInvoice.invoiceType === "expense") {
-        totalExpenses += summary.subtotalPaid;
+      if (category === "income") {
+        totalIncome += summary.subtotalPaid * multiplier;
+      } else if (category === "expense") {
+        totalExpenses += summary.totalPaid * multiplier;
         if (isDeductible) {
           deductibleExpenses += deductibleAmount;
         }
@@ -203,26 +218,28 @@ export const createTaxDeclarationDraft = actionClient
       let ivaType: string | null = null;
 
       for (const tax of summary.taxBreakdown) {
-        if (tax.taxCode === "002") { // IVA
+        if (tax.taxCode === "002") {
+          // IVA
           if (tax.taxType === "transferred") {
-            periodIvaAmount += tax.amount;
-            if (fullInvoice.invoiceType === "income") {
-              ivaCharged += tax.amount;
+            periodIvaAmount += tax.amount * multiplier;
+            if (category === "income") {
+              ivaCharged += tax.amount * multiplier;
               ivaType = "charged";
-            } else if (fullInvoice.invoiceType === "expense" && isDeductible) {
-              ivaCreditable += tax.amount;
+            } else if (category === "expense" && isDeductible) {
+              ivaCreditable += tax.amount * multiplier;
               ivaType = "creditable";
             }
           }
-        } else if (tax.taxCode === "001" && tax.taxType === "withheld") { // ISR Withheld
-            if (fullInvoice.invoiceType === "income") {
-                totalIsrWithheld += tax.amount;
-            }
+        } else if (tax.taxCode === "001" && tax.taxType === "withheld") {
+          // ISR Withheld
+          if (category === "income") {
+            totalIsrWithheld += tax.amount * multiplier;
+          }
         }
       }
 
       declarationInvoicesBatch.push({
-        declarationId: newDeclaration.id,
+        declarationId: declarationId,
         invoiceId: fullInvoice.id,
         appliedAccountCode: fullInvoice.account?.accountCode || null,
         appliedAccountName: fullInvoice.account?.accountName || null,
@@ -266,9 +283,9 @@ export const createTaxDeclarationDraft = actionClient
         isrBalance: isrBalance.toString(),
         updatedAt: new Date(),
       })
-      .where(eq(taxDeclarations.id, newDeclaration.id));
+      .where(eq(taxDeclarations.id, declarationId));
 
-    return newDeclaration;
+    return { id: declarationId };
   });
 
 // New schema for validating a declaration
@@ -285,7 +302,7 @@ export const validateTaxDeclaration = actionClient
     const declaration = await db.query.taxDeclarations.findFirst({
       where: and(
         eq(taxDeclarations.id, declarationId),
-        eq(taxDeclarations.organizationId, organizationId)
+        eq(taxDeclarations.organizationId, organizationId),
       ),
     });
 
@@ -295,7 +312,7 @@ export const validateTaxDeclaration = actionClient
 
     if (declaration.status !== "draft") {
       throw new Error(
-        "Solo se pueden verificar estimaciones en estado de borrador."
+        "Solo se pueden verificar estimaciones en estado de borrador.",
       );
     }
 
@@ -320,7 +337,7 @@ export const validateTaxDeclaration = actionClient
 const fileTaxDeclarationSchema = zfd.formData({
   declarationId: zfd.numeric(),
   acknowledgmentNumber: zfd.text(
-    z.string().min(1, "El número de acuse es requerido.")
+    z.string().min(1, "El número de acuse es requerido."),
   ),
 });
 
@@ -333,132 +350,71 @@ export const fileTaxDeclaration = actionClient
     const declaration = await db.query.taxDeclarations.findFirst({
       where: and(
         eq(taxDeclarations.id, declarationId),
-        eq(taxDeclarations.organizationId, organizationId)
+        eq(taxDeclarations.organizationId, organizationId),
       ),
     });
 
-        if (!declaration) {
+    if (!declaration) {
+      throw new Error("Estimación no encontrada.");
+    }
 
-          throw new Error("Estimación no encontrada.");
+    if (declaration.status !== "validated") {
+      throw new Error(
+        "Solo se pueden marcar como finalizadas las estimaciones en estado 'verificado'.",
+      );
+    }
 
-        }
+    await db
 
-    
+      .update(taxDeclarations)
 
-        if (declaration.status !== "validated") {
+      .set({
+        status: "filed",
 
-          throw new Error(
+        acknowledgmentNumber: acknowledgmentNumber,
 
-            "Solo se pueden marcar como finalizadas las estimaciones en estado 'verificado'."
+        filedAt: new Date(),
 
-          );
+        updatedAt: new Date(),
+      })
 
-        }
+      .where(eq(taxDeclarations.id, declarationId))
 
-    
+      .returning();
 
-        await db
+    if (declaration) {
+      const changes = calculateDiff(
+        {
+          status: declaration.status,
 
-          .update(taxDeclarations)
+          acknowledgmentNumber: declaration.acknowledgmentNumber,
+        },
 
-          .set({
+        { status: "filed", acknowledgmentNumber: acknowledgmentNumber },
+      );
 
-            status: "filed",
+      await logAction({
+        organizationId,
 
-            acknowledgmentNumber: acknowledgmentNumber,
+        entityType: "tax_declaration",
 
-            filedAt: new Date(),
+        entityId: declarationId,
 
-            updatedAt: new Date(),
+        action: "updated",
 
-          })
+        changes,
 
-          .where(eq(taxDeclarations.id, declarationId))
+        metadata: {
+          source: "manual",
 
-          .returning();
-
-    
-
-        if (declaration) {
-
-          const changes = calculateDiff(
-
-            {
-
-              status: declaration.status,
-
-              acknowledgmentNumber: declaration.acknowledgmentNumber,
-
-            },
-
-            { status: "filed", acknowledgmentNumber: acknowledgmentNumber }
-
-          );
-
-    
-
-                      await logAction({
-
-    
-
-                        organizationId,
-
-    
-
-                        entityType: "tax_declaration",
-
-    
-
-                        entityId: declarationId,
-
-    
-
-                        action: "updated",
-
-    
-
-                        changes,
-
-    
-
-                        metadata: {
-
-    
-
-                          source: "manual",
-
-    
-
-                          reason: "Finalizar revisión de estimación",
-
-    
-
-                        },
-
-    
-
-                      });
-
-    
-
-                
-
-    
-
-          
-
-        }
-
-    
-
-        // revalidatePath might be needed here depending on UI implementation
-
-        revalidatePath(`/tax-declarations/${declarationId}`);
-
-    
-
-        return { success: true, message: "Revisión finalizada exitosamente." };
-
+          reason: "Finalizar revisión de estimación",
+        },
       });
+    }
 
-    
+    // revalidatePath might be needed here depending on UI implementation
+
+    revalidatePath(`/tax-declarations/${declarationId}`);
+
+    return { success: true, message: "Revisión finalizada exitosamente." };
+  });

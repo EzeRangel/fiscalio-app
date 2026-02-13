@@ -1,8 +1,15 @@
 import "server-only";
 
-import { and, eq, gte, lte, sql, inArray } from "drizzle-orm";
-import { getDB, invoices, paymentAllocations, payments } from "@/db";
+import { and, eq, gte, lte, sql, inArray, desc } from "drizzle-orm";
+import {
+  getDB,
+  invoices,
+  paymentAllocations,
+  payments,
+  taxDeclarations,
+} from "@/db";
 import { DashboardMetrics, PeriodSelection } from "@/types/dashboard";
+import { parse } from "date-fns";
 
 export async function getDashboardMetrics(
   organizationId: number,
@@ -42,6 +49,7 @@ export async function getDashboardMetrics(
         inArray(invoices.invoiceType, ["income", "credit_note_received"]),
         gte(payments.paymentDate, startOfMonth),
         lte(payments.paymentDate, endOfMonth),
+        eq(invoices.status, "active"),
       ),
     );
 
@@ -66,14 +74,30 @@ export async function getDashboardMetrics(
         inArray(invoices.invoiceType, ["expense", "credit_note_issued"]),
         gte(payments.paymentDate, startOfMonth),
         lte(payments.paymentDate, endOfMonth),
+        eq(invoices.status, "active"),
       ),
     );
 
   const income = Number(incomeResult[0]?.total || 0);
   const expenses = Number(expenseResult[0]?.total || 0);
 
-  // Next tax declaration is usually the 17th of the following month
-  const nextDeclarationDate = new Date(period.year, period.month + 1, 17);
+  let nextDeclarationDate = new Date(period.year, period.month, 17);
+
+  const [lastDeclaration] = await db
+    .select()
+    .from(taxDeclarations)
+    .where(eq(taxDeclarations.organizationId, organizationId))
+    .orderBy(desc(taxDeclarations.id))
+    .limit(1);
+
+  if (lastDeclaration.status !== "filed") {
+    const declaration = parse(
+      lastDeclaration.fiscalPeriod,
+      "yyyy-mm",
+      new Date(),
+    );
+    nextDeclarationDate = declaration;
+  }
 
   return {
     income,
