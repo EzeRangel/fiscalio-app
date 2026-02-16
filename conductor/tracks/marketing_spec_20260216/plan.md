@@ -16,7 +16,7 @@ Focus on defining the core messaging pillars and keyword strategy tailored to th
 ## Phase 2: Ad Copy Generation
 Drafting high-intent ad copy variations for Google Search.
 
-- [ ] Task: Draft Google Search Ad Headlines (Max 30 chars)
+- [x] Task: Draft Google Search Ad Headlines (Max 30 chars) [70c2f5e]
     - [ ] Create at least 5 variations focusing on "Effortless Automation" and "RESICO".
 - [ ] Task: Draft Google Search Ad Descriptions (Max 90 chars)
     - [ ] Create at least 3 compelling descriptions with clear CTAs for the "RESICO Practical Guide".
