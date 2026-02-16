@@ -22,6 +22,10 @@
 - **Message:** Built from the ground up for the unique requirements of RESICO freelancers.
 - **Angle:** Specialized accuracy that generic accounting tools can't match.
 
+### Pillar 3: Privacy & Speed (Offline-First)
+- **Message:** Blazing fast performance with total data privacy. Your data never leaves your device.
+- **Angle:** The power of a database with the security of an offline tool.
+
 ## 3. Keyword Strategy (Google Search)
 
 ### Theme: Automation & Efficiency
@@ -43,7 +47,28 @@
     - `beneficios fiscales RESICO`
     - `impuestos para programadores`
 
+### Theme: Alternatives/Pain Points
+- **Primary Keywords:**
+    - `alternativa excel facturas`
+    - `mejor herramienta contable mexico`
+- **Secondary Keywords:**
+    - `dejar de usar excel para contabilidad`
+
 ## 4. Google Search Ad Copy
+
+### Headlines (Max 30 chars)
+1. `Automatiza tu RESICO hoy` (25 chars)
+2. `Clasificación CFDI automática` (29 chars)
+3. `Software para Freelancers Tech` (30 chars)
+4. `Guía Práctica RESICO Gratis` (27 chars)
+5. `Adiós a Excel en RESICO` (23 chars)
+6. `Contabilidad Rápida y Privada` (29 chars)
+
+### Descriptions (Max 90 chars)
+1. `Deja de clasificar facturas a mano. Fiscalio lo hace por ti. Descarga la guía RESICO.` (86 chars)
+2. `El software contable que aprende de ti. Optimizado para freelancers tech en RESICO.` (83 chars)
+3. `Privacidad total y automatización real. Únete a la lista de espera y obtén tu guía.` (83 chars)
+4. `¿Cansado de Excel? Automatiza tu contabilidad RESICO con Fiscalio. Guía gratuita aquí.` (86 chars)
 
 ## 5. Messaging Angle Mapping
 
