@@ -43,9 +43,12 @@
     - `beneficios fiscales RESICO`
     - `impuestos para programadores`
 
-### Theme: Alternatives/Pain Points
-- **Primary Keywords:**
-    - `alternativa excel facturas`
-    - `mejor herramienta contable mexico`
-- **Secondary Keywords:**
-    - `dejar de usar excel para contabilidad`
+## 4. Google Search Ad Copy
+
+### Headlines (Max 30 chars)
+1. `Automatiza tu RESICO hoy` (25 chars)
+2. `Clasificación CFDI automática` (29 chars)
+3. `Software para Freelancers Tech` (30 chars)
+4. `Guía Práctica RESICO Gratis` (27 chars)
+5. `Adiós a Excel en RESICO` (23 chars)
+6. `Contabilidad Rápida y Privada` (29 chars)
