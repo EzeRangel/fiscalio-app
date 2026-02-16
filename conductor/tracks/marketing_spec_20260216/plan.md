@@ -11,7 +11,7 @@ Focus on defining the core messaging pillars and keyword strategy tailored to th
 - [x] Task: Finalize Keyword Strategy for Google Search [42f5a7d]
     - [ ] Research and group keywords related to "Automation" and "Efficiency".
     - [ ] Map keyword groups to the defined messaging angles.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Strategy Definition' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Research & Strategy Definition' (Protocol in workflow.md) [eeac38f]
 
 ## Phase 2: Ad Copy Generation [checkpoint: d262ad5]
 Drafting high-intent ad copy variations for Google Search.
@@ -23,13 +23,13 @@ Drafting high-intent ad copy variations for Google Search.
 - [x] Task: Review and Refine Copy for ICP Alignment [6499bee]
     - [ ] Ensure tone and language resonate with tech-savvy freelancers.
     - [ ] Verify character limits for all copy.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Ad Copy Generation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Ad Copy Generation' (Protocol in workflow.md) [d262ad5]
 
-## Phase 3: Marketing Spec Finalization
+## Phase 3: Marketing Spec Finalization [checkpoint: f8b5f61]
 Consolidating all research, strategy, and copy into a final document.
 
 - [x] Task: Compile Final Marketing Spec Document [bf7e276]
     - [ ] Include audience personas, keyword groups, messaging pillars, and all ad copy variations.
 - [x] Task: Final Review against Acceptance Criteria [4225d26]
     - [ ] Verify all criteria from `spec.md` are met.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Marketing Spec Finalization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Marketing Spec Finalization' (Protocol in workflow.md) [f8b5f61]
