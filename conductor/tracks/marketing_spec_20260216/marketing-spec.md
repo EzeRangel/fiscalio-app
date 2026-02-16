@@ -45,8 +45,10 @@
 
 ## 4. Google Search Ad Copy
 
-### Descriptions (Max 90 chars)
-1. `Deja de clasificar facturas a mano. Fiscalio lo hace por ti. Descarga la guía RESICO.` (86 chars)
-2. `El software contable que aprende de ti. Optimizado para freelancers tech en RESICO.` (83 chars)
-3. `Privacidad total y automatización real. Únete a la lista de espera y obtén tu guía.` (83 chars)
-4. `¿Cansado de Excel? Automatiza tu contabilidad RESICO con Fiscalio. Guía gratuita aquí.` (86 chars)
+## 5. Messaging Angle Mapping
+
+| Pillar | Headline | Description |
+| --- | --- | --- |
+| **Automation** | `Automatiza tu RESICO hoy`, `Clasificación CFDI automática` | `Deja de clasificar facturas a mano. Fiscalio lo hace por ti.` |
+| **RESICO Optimized** | `Guía Práctica RESICO Gratis`, `Software para Freelancers Tech` | `El software contable que aprende de ti. Optimizado para freelancers tech.` |
+| **Privacy / Alternatives** | `Contabilidad Rápida y Privada`, `Adiós a Excel en RESICO` | `Privacidad total y automatización real.`, `¿Cansado de Excel?` |
