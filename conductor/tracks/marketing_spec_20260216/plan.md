@@ -2,7 +2,7 @@
 
 This plan outlines the creation of the Marketing Specification and Google Search Ad copy to target Technology Freelancers for the Fiscalio alpha launch.
 
-## Phase 1: Research & Strategy Definition
+## Phase 1: Research & Strategy Definition [checkpoint: eeac38f]
 Focus on defining the core messaging pillars and keyword strategy tailored to the ICP.
 
 - [x] Task: Define Audience Personas and Messaging Pillars [5e0a969]
