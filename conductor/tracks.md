@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Marketing Spec & Ads Copy - Alpha Launch**
+- [x] **Track: Marketing Spec & Ads Copy - Alpha Launch**
 *Link: [./tracks/marketing_spec_20260216/](./tracks/marketing_spec_20260216/)*
