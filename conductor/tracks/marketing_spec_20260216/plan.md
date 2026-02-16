@@ -28,7 +28,7 @@ Drafting high-intent ad copy variations for Google Search.
 ## Phase 3: Marketing Spec Finalization
 Consolidating all research, strategy, and copy into a final document.
 
-- [ ] Task: Compile Final Marketing Spec Document
+- [x] Task: Compile Final Marketing Spec Document [bf7e276]
     - [ ] Include audience personas, keyword groups, messaging pillars, and all ad copy variations.
 - [ ] Task: Final Review against Acceptance Criteria
     - [ ] Verify all criteria from `spec.md` are met.
