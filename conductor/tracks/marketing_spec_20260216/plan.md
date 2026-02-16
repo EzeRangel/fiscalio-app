@@ -13,7 +13,7 @@ Focus on defining the core messaging pillars and keyword strategy tailored to th
     - [ ] Map keyword groups to the defined messaging angles.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Strategy Definition' (Protocol in workflow.md)
 
-## Phase 2: Ad Copy Generation
+## Phase 2: Ad Copy Generation [checkpoint: d262ad5]
 Drafting high-intent ad copy variations for Google Search.
 
 - [x] Task: Draft Google Search Ad Headlines (Max 30 chars) [70c2f5e]
