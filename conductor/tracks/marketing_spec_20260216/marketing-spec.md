@@ -1,5 +1,8 @@
 # Marketing Specification: Fiscalio Alpha Launch
 
+## Executive Summary
+**Campaign Goal:** Drive high-intent Technology Freelancers in the RESICO regime to the Fiscalio waitlist and increase downloads of the "RESICO Practical Guide" through targeted Google Search Ads.
+
 ## 1. Audience Personas
 
 ### Primary Persona: The Tech-Savvy Freelancer ("Alex")
