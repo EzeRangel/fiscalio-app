@@ -22,6 +22,30 @@
 - **Message:** Built from the ground up for the unique requirements of RESICO freelancers.
 - **Angle:** Specialized accuracy that generic accounting tools can't match.
 
-### Pillar 3: Privacy & Speed (Offline-First)
-- **Message:** Blazing fast performance with total data privacy. Your data never leaves your device.
-- **Angle:** The power of a database with the security of an offline tool.
+## 3. Keyword Strategy (Google Search)
+
+### Theme: Automation & Efficiency
+- **Primary Keywords:**
+    - `automatizar contabilidad`
+    - `clasificador facturas SAT`
+    - `software contable automatizado`
+- **Secondary Keywords:**
+    - `contabilidad para freelancers`
+    - `gestión de facturas RESICO`
+    - `ahorrar tiempo impuestos`
+
+### Theme: Specialized RESICO
+- **Primary Keywords:**
+    - `guía práctica RESICO`
+    - `declaración mensual RESICO`
+    - `contabilidad RESICO tech`
+- **Secondary Keywords:**
+    - `beneficios fiscales RESICO`
+    - `impuestos para programadores`
+
+### Theme: Alternatives/Pain Points
+- **Primary Keywords:**
+    - `alternativa excel facturas`
+    - `mejor herramienta contable mexico`
+- **Secondary Keywords:**
+    - `dejar de usar excel para contabilidad`
