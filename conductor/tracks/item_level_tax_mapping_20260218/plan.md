@@ -4,8 +4,8 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
 
 ## Phase 1: Database Consistency & Validation Logic
 
-### [ ] Task: Update Fiscal Validation Constants
-- [ ] Add new validation rule codes to `src/lib/fiscal-validation/constants.ts`:
+### [x] Task: Update Fiscal Validation Constants (13d8d1b)
+- [x] Add new validation rule codes to `src/lib/fiscal-validation/constants.ts`:
     - `INVOICE_SUBTOTAL_INCONSISTENCY`: Sum of items minus discounts != header subtotal.
     - `INVOICE_MISSING_ITEM_TAXES`: Item-level tax data is missing.
 
