@@ -18,15 +18,15 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
     - Logic: `Math.abs((SUM(items.subtotal) - SUM(items.discount)) - invoice.subtotal) < 0.01`.
 - [x] **Verify Coverage:** Run `pnpm test __tests__/lib/fiscal-validation/tax-base-consistency.test.ts` and check coverage.
 
-### [ ] Task: Implement Item-Level Tax Fallback Distribution
-- [ ] **Write Failing Tests (Red Phase):**
+### [x] Task: Implement Item-Level Tax Fallback Distribution (bb73254)
+- [x] **Write Failing Tests (Red Phase):**
     - Create `__tests__/lib/invoice-utils.test.ts`.
     - Test case: Invoice with header taxes but no item taxes. Verify proportional distribution across 2-3 items.
-- [ ] **Implement to Pass Tests (Green Phase):**
+- [x] **Implement to Pass Tests (Green Phase):**
     - Add `distributeHeaderTaxesToItems` utility in `src/lib/invoice-utils.ts`.
     - Logic: `ItemTax = HeaderTax * (item.subtotal / invoice.subtotal)`.
     - Update `src/actions/invoices.ts` (or the relevant processing action) to call this utility when item taxes are missing during saving.
-- [ ] **Verify Coverage:** Run tests and ensure distribution logic is correct and handles division by zero (empty subtotal).
+- [x] **Verify Coverage:** Run tests and ensure distribution logic is correct and handles division by zero (empty subtotal).
 
 ### [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Consistency & Validation Logic' (Protocol in workflow.md)
 
