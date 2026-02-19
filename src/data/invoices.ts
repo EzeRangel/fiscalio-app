@@ -24,7 +24,7 @@ import {
   FiscalValidationError,
 } from "@/lib/fiscal-validation";
 
-import { deriveInvoiceType } from "@/lib/invoice-utils";
+import { deriveInvoiceType, distributeHeaderTaxesToItems } from "@/lib/invoice-utils";
 
 export const saveNewInvoice = async (
   parsedCFDI: ParsedCFDI,
@@ -290,6 +290,30 @@ export const saveNewInvoice = async (
           .where(eq(invoices.id, newInvoice.id));
       }
 
+      // Check if any item has taxes. If not, we'll use the fallback distribution.
+      const hasItemTaxes = conceptos.some((c) => {
+        const hasTraslados =
+          c.Impuestos?.Traslados &&
+          (Array.isArray(c.Impuestos.Traslados.Traslado)
+            ? c.Impuestos.Traslados.Traslado.length > 0
+            : Boolean(c.Impuestos.Traslados.Traslado));
+        const hasRetenciones =
+          c.Impuestos?.Retenciones &&
+          (Array.isArray(c.Impuestos.Retenciones.Retencion)
+            ? c.Impuestos.Retenciones.Retencion.length > 0
+            : Boolean(c.Impuestos.Retenciones.Retencion));
+        return hasTraslados || hasRetenciones;
+      });
+
+      const fallbackTaxes = !hasItemTaxes
+        ? distributeHeaderTaxesToItems(
+            parsedCFDI.Impuestos?.TotalImpuestosTrasladados,
+            parsedCFDI.Impuestos?.TotalImpuestosRetenidos,
+            conceptos.map((c) => ({ subtotal: c.Importe })),
+            parsedCFDI.SubTotal,
+          )
+        : [];
+
       // Standard invoice: Insert items and their taxes
       for (const [index, c] of conceptos.entries()) {
         const [newItem] = await tx
@@ -308,44 +332,57 @@ export const saveNewInvoice = async (
           })
           .returning();
 
-        const traslados =
-          c.Impuestos?.Traslados &&
-          Array.isArray(c.Impuestos.Traslados.Traslado)
-            ? c.Impuestos.Traslados.Traslado
-            : c.Impuestos?.Traslados?.Traslado
-              ? [c.Impuestos.Traslados.Traslado]
-              : [];
+        let taxesToInsert = [];
 
-        const retenciones =
-          c.Impuestos?.Retenciones &&
-          Array.isArray(c.Impuestos.Retenciones.Retencion)
-            ? c.Impuestos.Retenciones.Retencion
-            : c.Impuestos?.Retenciones?.Retencion
-              ? [c.Impuestos.Retenciones.Retencion]
-              : [];
+        if (hasItemTaxes) {
+          const traslados =
+            c.Impuestos?.Traslados &&
+            Array.isArray(c.Impuestos.Traslados.Traslado)
+              ? c.Impuestos.Traslados.Traslado
+              : c.Impuestos?.Traslados?.Traslado
+                ? [c.Impuestos.Traslados.Traslado]
+                : [];
 
-        const taxesToInsert = [
-          ...traslados.map((t: any) => ({
-            itemId: newItem.id,
-            taxType: "transferred" as const,
-            taxCode: t.Impuesto,
-            taxName: getTaxName(t.Impuesto),
-            factor: t.TipoFactor,
-            rate: t.TasaOCuota,
-            baseAmount: t.Base,
-            taxAmount: t.Importe,
-          })),
-          ...retenciones.map((r: any) => ({
-            itemId: newItem.id,
-            taxType: "withheld" as const,
-            taxCode: r.Impuesto,
-            taxName: getTaxName(r.Impuesto),
-            factor: r.TipoFactor,
-            rate: r.TasaOCuota,
-            baseAmount: r.Base,
-            taxAmount: r.Importe,
-          })),
-        ];
+          const retenciones =
+            c.Impuestos?.Retenciones &&
+            Array.isArray(c.Impuestos.Retenciones.Retencion)
+              ? c.Impuestos.Retenciones.Retencion
+              : c.Impuestos?.Retenciones?.Retencion
+                ? [c.Impuestos.Retenciones.Retencion]
+                : [];
+
+          taxesToInsert = [
+            ...traslados.map((t: any) => ({
+              itemId: newItem.id,
+              taxType: "transferred" as const,
+              taxCode: t.Impuesto,
+              taxName: getTaxName(t.Impuesto),
+              factor: t.TipoFactor,
+              rate: t.TasaOCuota,
+              baseAmount: t.Base,
+              taxAmount: t.Importe,
+            })),
+            ...retenciones.map((r: any) => ({
+              itemId: newItem.id,
+              taxType: "withheld" as const,
+              taxCode: r.Impuesto,
+              taxName: getTaxName(r.Impuesto),
+              factor: r.TipoFactor,
+              rate: r.TasaOCuota,
+              baseAmount: r.Base,
+              taxAmount: r.Importe,
+            })),
+          ];
+        } else {
+          // Use fallback distribution
+          const itemFallback = fallbackTaxes[index];
+          if (itemFallback) {
+            taxesToInsert = itemFallback.taxes.map((t) => ({
+              itemId: newItem.id,
+              ...t,
+            }));
+          }
+        }
 
         if (taxesToInsert.length > 0) {
           await tx.insert(invoiceTaxes).values(taxesToInsert);

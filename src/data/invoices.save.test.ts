@@ -78,7 +78,7 @@ describe("saveNewInvoice - Partner creation logic", () => {
     Emisor: {
       Rfc: mockOrg.rfc,
       Nombre: "My Org",
-      RegimenFiscal: "601",
+      RegimenFiscal: "626",
     },
     Receptor: {
       Rfc: partnerRfc,
@@ -199,5 +199,36 @@ describe("saveNewInvoice - Partner creation logic", () => {
 
       const partnerInserts = mockTx.insert.mock.calls.filter((call: any) => call[0] === businessPartners);
       expect(partnerInserts).toHaveLength(1);
+  });
+
+  it("should distribute header taxes to items when item taxes are missing", async () => {
+    const specificRfc = "ABC123456789";
+    const cfdi = createMockCFDI(specificRfc, "Partner Name");
+    
+    // Ensure header taxes are present but concepts have NO taxes
+    (cfdi as any).Impuestos = {
+      TotalImpuestosTrasladados: "16.00",
+      TotalImpuestosRetenidos: "1.25",
+    };
+    // Item in createMockCFDI already has no taxes by default in its schema
+    
+    mockTx.query.businessPartners.findFirst.mockResolvedValue({ id: 2 });
+    
+    // For invoice items
+    const { invoiceItems, invoiceTaxes } = require("@/db/schema");
+    
+    await saveNewInvoice(cfdi as any, "<xml/>");
+
+    // Verify fallback distribution was called and inserted
+    const taxInserts = mockTx.insert.mock.calls.filter((call: any) => call[0] === invoiceTaxes);
+    expect(taxInserts.length).toBeGreaterThan(0);
+    
+    // Check that we inserted both IVA and ISR
+    const insertedTaxes = mockTx.values.mock.calls.find(call => 
+      Array.isArray(call[0]) && call[0].some(t => t.taxCode === "002")
+    )[0];
+    
+    expect(insertedTaxes).toContainEqual(expect.objectContaining({ taxCode: "002", taxAmount: "16.00" }));
+    expect(insertedTaxes).toContainEqual(expect.objectContaining({ taxCode: "001", taxAmount: "1.25" }));
   });
 });
