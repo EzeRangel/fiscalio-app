@@ -2,7 +2,7 @@
 
 This plan outlines the implementation of item-level tax mapping, tax base consistency validation, and granular tax proration for partial payments.
 
-## Phase 1: Database Consistency & Validation Logic
+## Phase 1: Database Consistency & Validation Logic [checkpoint: 7d2d0cd]
 
 ### [x] Task: Update Fiscal Validation Constants (13d8d1b)
 - [x] Add new validation rule codes to `src/lib/fiscal-validation/constants.ts`:
