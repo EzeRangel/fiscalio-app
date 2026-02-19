@@ -9,14 +9,14 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
     - `INVOICE_SUBTOTAL_INCONSISTENCY`: Sum of items minus discounts != header subtotal.
     - `INVOICE_MISSING_ITEM_TAXES`: Item-level tax data is missing.
 
-### [ ] Task: Implement Tax Base Consistency Validation
-- [ ] **Write Failing Tests (Red Phase):**
+### [x] Task: Implement Tax Base Consistency Validation (20e9553)
+- [x] **Write Failing Tests (Red Phase):**
     - Create `__tests__/lib/fiscal-validation/tax-base-consistency.test.ts`.
     - Test cases for consistent and inconsistent subtotals (considering rounding tolerance).
-- [ ] **Implement to Pass Tests (Green Phase):**
+- [x] **Implement to Pass Tests (Green Phase):**
     - Add `validateTaxBaseConsistency` function in `src/lib/fiscal-validation/invoice-rules.ts`.
     - Logic: `Math.abs((SUM(items.subtotal) - SUM(items.discount)) - invoice.subtotal) < 0.01`.
-- [ ] **Verify Coverage:** Run `pnpm test __tests__/lib/fiscal-validation/tax-base-consistency.test.ts` and check coverage.
+- [x] **Verify Coverage:** Run `pnpm test __tests__/lib/fiscal-validation/tax-base-consistency.test.ts` and check coverage.
 
 ### [ ] Task: Implement Item-Level Tax Fallback Distribution
 - [ ] **Write Failing Tests (Red Phase):**
