@@ -137,6 +137,25 @@ describe("Invoice Validation Rules", () => {
         expect(result.isValid).toBe(false);
         expect(result.errors[0].code).toBe(FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_NON_RESICO_REGIME);
       });
+
+      it("should return valid if expense invoice has receiver regime 626", () => {
+        const result = validateResicoRegime({
+          type: "expense",
+          issuerRegime: "601",
+          receiverRegime: "626"
+        });
+        expect(result.isValid).toBe(true);
+      });
+
+      it("should return invalid if expense invoice has receiver regime other than 626", () => {
+        const result = validateResicoRegime({
+          type: "expense",
+          issuerRegime: "601",
+          receiverRegime: "601"
+        });
+        expect(result.isValid).toBe(false);
+        expect(result.errors[0].code).toBe(FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_NON_RESICO_REGIME);
+      });
     });
 
     describe("validateIsrWithholding", () => {

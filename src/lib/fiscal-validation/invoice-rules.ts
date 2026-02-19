@@ -77,11 +77,18 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
   // INV-02: A cancelled invoice cannot accept new payment allocations.
   if (invoice.status === "cancelled" && allocations.length > 0) {
     errors.push({
-        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_CANCELLED_NO_ALLOCATIONS,
-        message: "Una factura cancelada no debería tener aplicaciones de pago activas en los registros.",
-        severity: "error",
-        field: "status",
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_CANCELLED_NO_ALLOCATIONS,
+      message:
+        "Una factura cancelada no debería tener aplicaciones de pago activas en los registros.",
+      severity: "error",
+      field: "status",
     });
+  }
+
+  // INT-INV-06: Tax Base Consistency (Items sum matches subtotal)
+  const taxBaseResult = validateTaxBaseConsistency(invoice);
+  if (!taxBaseResult.isValid) {
+    errors.push(...taxBaseResult.errors);
   }
 
   return {
@@ -182,6 +189,50 @@ export function validateExchangeRate(params: ExchangeRateParams): FiscalValidati
         field: "exchangeRate",
       });
     }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Validates that the sum of item subtotals minus discounts equals the invoice subtotal.
+ * Logic: Math.abs((SUM(items.subtotal) - SUM(items.discount)) - invoice.subtotal) < 0.01
+ */
+export function validateTaxBaseConsistency(invoice: FiscalInvoice): FiscalValidationResult {
+  const errors: FiscalValidationError[] = [];
+
+  if (!invoice.items || invoice.items.length === 0) {
+    return { isValid: true, errors: [] };
+  }
+
+  const invoiceSubtotal =
+    typeof invoice.subtotal === "string"
+      ? (parseFloat(invoice.subtotal) || 0)
+      : (invoice.subtotal || 0);
+
+  const itemsNetTotal = invoice.items.reduce((sum, item) => {
+    const subtotal =
+      typeof item.subtotal === "string"
+        ? (parseFloat(item.subtotal) || 0)
+        : (item.subtotal || 0);
+    const discount =
+      typeof item.discount === "string"
+        ? (parseFloat(item.discount || "0") || 0)
+        : (item.discount || 0);
+    return sum + (subtotal - discount);
+  }, 0);
+
+  if (Math.abs(itemsNetTotal - (invoiceSubtotal as number)) > 0.01) {
+    errors.push({
+      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_SUBTOTAL_INCONSISTENCY,
+      message:
+        "La suma de los subtotales de los conceptos menos descuentos no coincide con el subtotal de la factura.",
+      severity: "error",
+      field: "subtotal",
+    });
   }
 
   return {
