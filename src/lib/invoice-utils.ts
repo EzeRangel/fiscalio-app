@@ -1,4 +1,5 @@
 import { InvoiceTypes } from "@/types/utils";
+import { SAT_TAX_CODES, DEFAULT_TAX_RATES } from "./constants";
 
 /**
  * Derives the internal invoice type based on the CFDI type and the organization's role.
@@ -68,9 +69,9 @@ export function distributeHeaderTaxesToItems(
     if (taxes > 0) {
       itemTaxes.push({
         taxType: "transferred",
-        taxCode: "002",
+        taxCode: SAT_TAX_CODES.IVA,
         taxName: "IVA",
-        rate: "0.160000",
+        rate: DEFAULT_TAX_RATES.IVA,
         factor: "Tasa",
         baseAmount: itemSubtotal.toFixed(2),
         taxAmount: (taxes * proportion).toFixed(2),
@@ -80,9 +81,9 @@ export function distributeHeaderTaxesToItems(
     if (withholdings > 0) {
       itemTaxes.push({
         taxType: "withheld",
-        taxCode: "001",
+        taxCode: SAT_TAX_CODES.ISR,
         taxName: "ISR",
-        rate: "0.012500",
+        rate: DEFAULT_TAX_RATES.ISR_RESICO,
         factor: "Tasa",
         baseAmount: itemSubtotal.toFixed(2),
         taxAmount: (withholdings * proportion).toFixed(2),

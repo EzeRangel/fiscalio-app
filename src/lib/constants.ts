@@ -43,6 +43,17 @@ export const TAX_NAMES = {
   "003": "IEPS",
 };
 
+export const SAT_TAX_CODES = {
+  ISR: "001",
+  IVA: "002",
+  IEPS: "003",
+} as const;
+
+export const DEFAULT_TAX_RATES = {
+  IVA: "0.160000",
+  ISR_RESICO: "0.012500",
+} as const;
+
 export const TAX_TYPES = {
   transferred: "Trasladado",
   withheld: "Retenido",
