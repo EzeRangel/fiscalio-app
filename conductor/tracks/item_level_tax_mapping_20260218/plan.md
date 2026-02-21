@@ -43,13 +43,13 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
         - `PaidAmount = itemTax.taxAmount * Factor`.
 - [x] **Verify Coverage:** Run tests and ensure high-precision decimals are maintained.
 
-### [ ] Task: Integrate Proration into Tax Declaration Logic
-- [ ] **Write Failing Tests (Red Phase):**
+### [x] Task: Integrate Proration into Tax Declaration Logic (d5bfba8)
+- [x] **Write Failing Tests (Red Phase):**
     - Identify current tax declaration data fetching in `src/data/tax-declarations.ts` or `src/actions/tax-declarations.ts`.
     - Write integration tests in `__tests__/data/tax-declarations.proration.test.ts` for a declaration with partial payments.
-- [ ] **Implement to Pass Tests (Green Phase):**
+- [x] **Implement to Pass Tests (Green Phase):**
     - Refactor tax declaration logic to use the item-level proration utility or update the SQL queries to perform this calculation.
     - Ensure both IVA (transferred) and ISR (withheld) are correctly calculated for the period.
-- [ ] **Verify Coverage:** Run integration tests and ensure the final tax estimation matches manual calculation.
+- [x] **Verify Coverage:** Run integration tests and ensure the final tax estimation matches manual calculation.
 
 ### [ ] Task: Conductor - User Manual Verification 'Phase 2: Proration & Calculation Engine' (Protocol in workflow.md)
