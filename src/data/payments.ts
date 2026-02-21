@@ -109,6 +109,7 @@ export async function savePaymentComplement(
           invoice: {
             id: linkedInvoice.id,
             total: linkedInvoice.total,
+            subtotal: linkedInvoice.subtotal,
             amountPaid: linkedInvoice.amountPaid || "0",
             paymentStatus: linkedInvoice.paymentStatus || "pending",
             status: linkedInvoice.status || "active",
@@ -153,6 +154,7 @@ export async function savePaymentComplement(
         const updatedInvoiceState: FiscalInvoice = {
           id: linkedInvoice.id,
           total: linkedInvoice.total,
+          subtotal: linkedInvoice.subtotal,
           amountPaid: totalPaid,
           paymentStatus: status,
           status: linkedInvoice.status || "active",
@@ -243,6 +245,7 @@ export async function savePUEPayment(
     invoice: {
       id: linkedInvoice.id,
       total: linkedInvoice.total,
+      subtotal: linkedInvoice.subtotal,
       amountPaid: linkedInvoice.amountPaid || "0",
       paymentStatus: linkedInvoice.paymentStatus || "pending",
       status: linkedInvoice.status || "active",

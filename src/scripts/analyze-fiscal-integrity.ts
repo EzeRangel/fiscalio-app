@@ -2,7 +2,11 @@ import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { DB_PATH } from "@/lib/db-path";
 import * as schema from "../db/schema";
-import { validateInvoice, validatePayment, validateAllocation } from "@/lib/fiscal-validation";
+import {
+  validateInvoice,
+  validatePayment,
+  validateAllocation,
+} from "@/lib/fiscal-validation";
 
 async function analyze() {
   const pg = new PGlite(DB_PATH);
@@ -23,16 +27,19 @@ async function analyze() {
     const validation = validateInvoice({
       id: inv.id,
       total: inv.total,
+      subtotal: inv.subtotal,
       amountPaid: inv.amountPaid || "0",
       paymentStatus: inv.paymentStatus || "pending",
       status: inv.status || "active",
-      allocations: inv.allocations.map(a => ({ amount: a.amountAllocated })),
+      allocations: inv.allocations.map((a) => ({ amount: a.amountAllocated })),
     });
 
     if (!validation.isValid) {
       invoiceViolations++;
       console.error(`[Invoice #${inv.id}] ${inv.folioFiscal || "No Folio"}:`);
-      validation.errors.forEach(e => console.error(`  - ${e.code}: ${e.message}`));
+      validation.errors.forEach((e) =>
+        console.error(`  - ${e.code}: ${e.message}`),
+      );
     }
   }
 
@@ -50,13 +57,15 @@ async function analyze() {
       id: pay.id,
       amount: pay.amount,
       paymentDate: pay.paymentDate,
-      allocations: pay.allocations.map(a => ({ amount: a.amountAllocated })),
+      allocations: pay.allocations.map((a) => ({ amount: a.amountAllocated })),
     });
 
     if (!validation.isValid) {
       paymentViolations++;
       console.error(`[Payment #${pay.id}]:`);
-      validation.errors.forEach(e => console.error(`  - ${e.code}: ${e.message}`));
+      validation.errors.forEach((e) =>
+        console.error(`  - ${e.code}: ${e.message}`),
+      );
     }
   }
 
@@ -74,10 +83,15 @@ async function analyze() {
     // We validate each allocation in its context.
     // To be efficient, we might need more data, but let's do basic context.
     const validation = validateAllocation({
-      allocation: { amount: alloc.amountAllocated, invoiceId: alloc.invoiceId, paymentId: alloc.paymentId },
+      allocation: {
+        amount: alloc.amountAllocated,
+        invoiceId: alloc.invoiceId,
+        paymentId: alloc.paymentId,
+      },
       invoice: {
         id: alloc.invoice.id,
         total: alloc.invoice.total,
+        subtotal: alloc.invoice.subtotal,
         amountPaid: alloc.invoice.amountPaid || "0",
         paymentStatus: alloc.invoice.paymentStatus || "pending",
         status: alloc.invoice.status || "active",
@@ -94,21 +108,29 @@ async function analyze() {
     if (!validation.isValid) {
       allocationViolations++;
       console.error(`[Allocation #${alloc.id}]:`);
-      validation.errors.forEach(e => console.error(`  - ${e.code}: ${e.message}`));
+      validation.errors.forEach((e) =>
+        console.error(`  - ${e.code}: ${e.message}`),
+      );
     }
   }
 
   console.log("\n--- Summary ---");
-  console.log(`Invoices checked: ${allInvoices.length} (${invoiceViolations} violations)`);
-  console.log(`Payments checked: ${allPayments.length} (${paymentViolations} violations)`);
-  console.log(`Allocations checked: ${allAllocations.length} (${allocationViolations} violations)`);
+  console.log(
+    `Invoices checked: ${allInvoices.length} (${invoiceViolations} violations)`,
+  );
+  console.log(
+    `Payments checked: ${allPayments.length} (${paymentViolations} violations)`,
+  );
+  console.log(
+    `Allocations checked: ${allAllocations.length} (${allocationViolations} violations)`,
+  );
 
   await pg.close();
 }
 
 analyze()
   .then(() => process.exit(0))
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
     process.exit(1);
   });

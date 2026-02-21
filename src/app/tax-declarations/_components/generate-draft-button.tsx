@@ -20,11 +20,13 @@ export function GenerateDraftButton({
   const router = useRouter();
   const { execute, status } = useAction(createTaxDeclarationDraft, {
     onSuccess: ({ data }) => {
-      toast.success(`Estimación para ${data.fiscalPeriod} creada exitosamente.`);
+      toast.success(`Estimación para ${period} creada exitosamente.`);
       router.push(`/tax-declarations/${data.id}`);
     },
     onError: ({ error }) => {
-      toast.error(error.serverError || "Hubo un error al generar la estimación.");
+      toast.error(
+        error.serverError || "Hubo un error al generar la declaración.",
+      );
     },
   });
 
@@ -41,7 +43,7 @@ export function GenerateDraftButton({
       ) : (
         <PlusCircle className="mr-2 h-4 w-4" />
       )}
-      {isExecuting ? "Generando..." : "Generar Estimación"}
+      {isExecuting ? "Generando..." : "Generar Declaración"}
     </Button>
   );
 }

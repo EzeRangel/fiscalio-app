@@ -22,6 +22,8 @@ import { relations } from "drizzle-orm";
 import { invoiceItems } from "./invoiceItems";
 import { paymentAllocations } from "./paymentAllocations";
 import { chartOfAccounts } from "./chartOfAccounts";
+import z from "zod/v4";
+import { fiscalValidationSchema } from "@/types/invoices";
 
 export const invoices = pgTable(
   "invoices",
@@ -55,7 +57,7 @@ export const invoices = pgTable(
     subtotal: decimal("subtotal", { precision: 15, scale: 2 }).notNull(),
     discount: decimal("discount", { precision: 15, scale: 2 }).default("0"),
     totalTaxes: decimal("total_taxes", { precision: 15, scale: 2 }).default(
-      "0"
+      "0",
     ),
     totalWithholdings: decimal("total_withholdings", {
       precision: 15,
@@ -68,7 +70,7 @@ export const invoices = pgTable(
     paymentForm: varchar("payment_form", { length: 10 }),
     paymentStatus: varchar("payment_status", { length: 20 }).default("pending"),
     amountPaid: decimal("amount_paid", { precision: 15, scale: 2 }).default(
-      "0"
+      "0",
     ),
 
     // SAT fiscal data
@@ -84,7 +86,7 @@ export const invoices = pgTable(
 
     // ! DEPRECATED
     processingStatus: varchar("processing_status", { length: 20 }).default(
-      "pending"
+      "pending",
     ),
     extractionConfidence: decimal("extraction_confidence", {
       precision: 5,
@@ -92,7 +94,9 @@ export const invoices = pgTable(
     }),
     aiClassification: jsonb("ai_classification"),
     // ---
-    validationErrors: jsonb("validation_errors").array(),
+    validationErrors: jsonb("validation_errors")
+      .$type<z.infer<typeof fiscalValidationSchema>>()
+      .array(),
     accountId: integer("account_id").references(() => chartOfAccounts.id),
     costCenter: varchar("cost_center", { length: 50 }),
     department: varchar("department", { length: 50 }),
@@ -116,7 +120,7 @@ export const invoices = pgTable(
     cancellationReason: text("cancellation_reason"),
     cancellationDate: timestamp("cancellation_date"),
     substituteInvoiceId: integer("substitute_invoice_id").references(
-      (): AnyPgColumn => invoices.id
+      (): AnyPgColumn => invoices.id,
     ),
 
     notes: text("notes"),
@@ -128,17 +132,19 @@ export const invoices = pgTable(
     return {
       organizationIdIndex: index("idx_invoices_org").on(table.organizationId),
       partnerIdIndex: index("idx_invoices_partner").on(table.partnerId),
-      folioFiscalUniqueIndex: uniqueIndex("idx_invoices_org_folio_fiscal_unique").on(
-        table.organizationId,
-        table.folioFiscal
-      ),
+      folioFiscalUniqueIndex: uniqueIndex(
+        "idx_invoices_org_folio_fiscal_unique",
+      ).on(table.organizationId, table.folioFiscal),
       fileHashUniqueIndex: uniqueIndex("idx_invoices_org_file_hash_unique").on(
         table.organizationId,
-        table.fileHash
+        table.fileHash,
       ),
-      amountPaidLimit: check("amount_paid_limit", sql`${table.amountPaid} <= ${table.total}`),
+      amountPaidLimit: check(
+        "amount_paid_limit",
+        sql`${table.amountPaid} <= ${table.total}`,
+      ),
     };
-  }
+  },
 );
 
 export const invoiceRelations = relations(invoices, ({ one, many }) => ({

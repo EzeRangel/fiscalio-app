@@ -24,7 +24,11 @@ import {
   FiscalValidationError,
 } from "@/lib/fiscal-validation";
 
-import { deriveInvoiceType, distributeHeaderTaxesToItems } from "@/lib/invoice-utils";
+import {
+  deriveInvoiceType,
+  distributeHeaderTaxesToItems,
+} from "@/lib/invoice-utils";
+import { InvoiceTaxInsert } from "@/types/invoice-taxes";
 
 export const saveNewInvoice = async (
   parsedCFDI: ParsedCFDI,
@@ -209,6 +213,7 @@ export const saveNewInvoice = async (
     const fiscalInvoiceToCheck: FiscalInvoice = {
       id: 0,
       total: parsedCFDI.Total,
+      subtotal: parsedCFDI.SubTotal,
       amountPaid: 0,
       paymentStatus: "pending",
       status: "active",
@@ -332,7 +337,7 @@ export const saveNewInvoice = async (
           })
           .returning();
 
-        let taxesToInsert = [];
+        let taxesToInsert: InvoiceTaxInsert[] = [];
 
         if (hasItemTaxes) {
           const traslados =

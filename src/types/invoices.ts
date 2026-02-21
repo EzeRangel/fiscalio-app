@@ -1,7 +1,7 @@
 import { invoices } from "@/db";
 import { InferResultType } from "./orm";
 import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export type Invoice = typeof invoices.$inferSelect;
 export type InvoiceDetails = InferResultType<
@@ -15,18 +15,22 @@ export type InvoiceDetails = InferResultType<
 >;
 
 export const insertInvoiceSchema = createInsertSchema(invoices, {
-  amountPaid: (schema) => schema.refine((v) => !v || parseFloat(v) >= 0, {
-    message: "Amount paid cannot be negative",
-  }),
-}).refine((data) => {
+  amountPaid: (schema) =>
+    schema.refine((v) => !v || parseFloat(v) >= 0, {
+      message: "Amount paid cannot be negative",
+    }),
+}).refine(
+  (data) => {
     if (data.amountPaid && data.total) {
-        return parseFloat(data.amountPaid) <= parseFloat(data.total);
+      return parseFloat(data.amountPaid) <= parseFloat(data.total);
     }
     return true;
-}, {
+  },
+  {
     message: "Amount paid cannot exceed total",
     path: ["amountPaid"],
-});
+  },
+);
 
 export type ProcessingInvoice =
   | {
@@ -52,3 +56,10 @@ export type ProcessingInvoice =
       successful: number;
       failed: number;
     };
+
+export const fiscalValidationSchema = z.object({
+  code: z.string(), // todo: Refine this later
+  message: z.string(),
+  severity: z.enum(["error", "warning"]),
+  field: z.string().optional(),
+});

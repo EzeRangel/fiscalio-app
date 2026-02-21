@@ -64,7 +64,8 @@ export const updatePaymentAction = actionClient
 
         const paymentValidation = validatePayment(fiscalPayment);
         const futureDateError = paymentValidation.errors.find(
-          (e) => e.code === FISCAL_VALIDATION_RULES.INTEGRITY.PAYMENT_NO_FUTURE_DATE,
+          (e) =>
+            e.code === FISCAL_VALIDATION_RULES.INTEGRITY.PAYMENT_NO_FUTURE_DATE,
         );
         if (futureDateError) {
           throw new ActionError(futureDateError.message);
@@ -83,6 +84,7 @@ export const updatePaymentAction = actionClient
             invoice: {
               id: allocation.invoice.id,
               total: allocation.invoice.total,
+              subtotal: allocation.invoice.subtotal,
               amountPaid: allocation.invoice.amountPaid || 0,
               paymentStatus: allocation.invoice.paymentStatus || "pending",
               status: allocation.invoice.status || "active",
@@ -95,7 +97,9 @@ export const updatePaymentAction = actionClient
 
           const result = validateAllocation(validationContext);
           const dateError = result.errors.find(
-            (e) => e.code === FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_DATE_MISMATCH,
+            (e) =>
+              e.code ===
+              FISCAL_VALIDATION_RULES.INTEGRITY.ALLOCATION_DATE_MISMATCH,
           );
           if (dateError) {
             throw new ActionError(

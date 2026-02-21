@@ -43,7 +43,7 @@ import { FiscalValidationError } from "@/lib/fiscal-validation";
 import { ValidationMessages } from "./validations";
 
 interface Props {
-  data: CFDI & { validationErrors?: FiscalValidationError[] | null };
+  data: CFDI;
   relatedPayments?: PaymentAllocation[];
 }
 
