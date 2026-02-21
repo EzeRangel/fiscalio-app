@@ -32,16 +32,16 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
 
 ## Phase 2: Proration & Calculation Engine
 
-### [ ] Task: Implement Granular Tax Proration Logic
-- [ ] **Write Failing Tests (Red Phase):**
+### [x] Task: Implement Granular Tax Proration Logic (a75f1c0)
+- [x] **Write Failing Tests (Red Phase):**
     - Create `__tests__/lib/proration-utils.test.ts`.
     - Test case: Calculate "Paid" tax for a partial payment allocation at the item level.
-- [ ] **Implement to Pass Tests (Green Phase):**
+- [x] **Implement to Pass Tests (Green Phase):**
     - Create `src/lib/proration-utils.ts`.
     - Implement `calculatePaidTaxForItem(allocation, itemTax)`:
         - `Factor = allocation.amountAllocated / invoice.total`.
         - `PaidAmount = itemTax.taxAmount * Factor`.
-- [ ] **Verify Coverage:** Run tests and ensure high-precision decimals are maintained.
+- [x] **Verify Coverage:** Run tests and ensure high-precision decimals are maintained.
 
 ### [ ] Task: Integrate Proration into Tax Declaration Logic
 - [ ] **Write Failing Tests (Red Phase):**
