@@ -26,6 +26,7 @@
 - **FiscalValidator:** Custom internal library for enforcing RESICO accounting invariants across entities.
 - **ClassificationEngine:** Autonomous engine for pattern detection and rule generation.
 - **AuditService:** Custom internal utility for type-safe audit logging and diff calculation.
+- **ProrationUtils:** Internal logic for high-precision, item-level tax proration based on cash-flow.
 - **js-cookie:** For client-side cookie management.
 
 ## Testing & Quality Assurance
