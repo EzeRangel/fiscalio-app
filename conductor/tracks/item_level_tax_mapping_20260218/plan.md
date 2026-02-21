@@ -30,7 +30,7 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
 
 ### [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Consistency & Validation Logic' (Protocol in workflow.md)
 
-## Phase 2: Proration & Calculation Engine
+## Phase 2: Proration & Calculation Engine [checkpoint: 42212b9]
 
 ### [x] Task: Implement Granular Tax Proration Logic (a75f1c0)
 - [x] **Write Failing Tests (Red Phase):**
@@ -52,4 +52,4 @@ This plan outlines the implementation of item-level tax mapping, tax base consis
     - Ensure both IVA (transferred) and ISR (withheld) are correctly calculated for the period.
 - [x] **Verify Coverage:** Run integration tests and ensure the final tax estimation matches manual calculation.
 
-### [ ] Task: Conductor - User Manual Verification 'Phase 2: Proration & Calculation Engine' (Protocol in workflow.md)
+### [x] Task: Conductor - User Manual Verification 'Phase 2: Proration & Calculation Engine' (Protocol in workflow.md) (42212b9)
