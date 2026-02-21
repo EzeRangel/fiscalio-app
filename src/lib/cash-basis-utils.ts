@@ -1,3 +1,5 @@
+import { calculatePaidTaxForItem } from "./proration-utils";
+
 export interface TaxBreakdownItem {
   taxType: string;
   taxCode: string;
@@ -127,16 +129,23 @@ export function calculateCashBasisSummary(
 
     if (invoiceTotal === 0) continue;
 
-    const ratio = amountAllocated / invoiceTotal;
-
     summary.totalPaid += amountAllocated * exchangeRate;
     summary.subtotalPaid +=
-      parseFloat(allocation.invoice.subtotal.toString()) * ratio * exchangeRate;
+      calculatePaidTaxForItem(
+        amountAllocated,
+        invoiceTotal,
+        parseFloat(allocation.invoice.subtotal.toString())
+      ) * exchangeRate;
 
     // Process granular taxes if available
     if (allocation.invoice.taxes && allocation.invoice.taxes.length > 0) {
       for (const tax of allocation.invoice.taxes) {
-        const taxAmount = parseFloat(tax.amount.toString()) * ratio * exchangeRate;
+        const taxAmount =
+          calculatePaidTaxForItem(
+            amountAllocated,
+            invoiceTotal,
+            parseFloat(tax.amount.toString())
+          ) * exchangeRate;
         
         // Aggregate totals
         if (tax.taxType === 'transferred') {
@@ -164,9 +173,17 @@ export function calculateCashBasisSummary(
     } else {
       // Fallback to simplistic calculation if no granular taxes provided
       summary.taxesPaid +=
-        parseFloat((allocation.invoice.totalTaxes ?? 0).toString()) * ratio * exchangeRate;
+        calculatePaidTaxForItem(
+          amountAllocated,
+          invoiceTotal,
+          parseFloat((allocation.invoice.totalTaxes ?? 0).toString())
+        ) * exchangeRate;
       summary.withholdingsPaid +=
-        parseFloat((allocation.invoice.totalWithholdings ?? 0).toString()) * ratio * exchangeRate;
+        calculatePaidTaxForItem(
+          amountAllocated,
+          invoiceTotal,
+          parseFloat((allocation.invoice.totalWithholdings ?? 0).toString())
+        ) * exchangeRate;
     }
   }
 

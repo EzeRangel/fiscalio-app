@@ -15,10 +15,7 @@ export function calculatePaidTaxForItem(
     return 0;
   }
 
-  // Factor = AmountAllocated / InvoiceTotal
-  // We use high-precision floating point for the factor
-  const factor = amountAllocated / invoiceTotal;
-
-  // PaidAmount = taxAmount * Factor
-  return taxAmount * factor;
+  // PaidAmount = (amountAllocated * taxAmount) / invoiceTotal
+  // We multiply first to maintain precision before the division
+  return (amountAllocated * taxAmount) / invoiceTotal;
 }
