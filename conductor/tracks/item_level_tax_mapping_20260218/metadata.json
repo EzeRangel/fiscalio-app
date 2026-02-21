@@ -1,8 +1,0 @@
-{
-  "track_id": "item_level_tax_mapping_20260218",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-18T10:00:00Z",
-  "updated_at": "2026-02-18T10:00:00Z",
-  "description": "To support detailed tax reporting, taxes must be mapped at the item level. 1. Tax Base Consistency: - Logic: SUM(invoice_items.subtotal) - SUM(invoice_items.discount) must equal invoices.subtotal. 2. Prorated Tax Calculation (for Partial Payments): - Algorithm: When a partial payment is registered in payment_allocations, calculate the "Tax Proportion": - Factor=AmountAllocated/InvoiceTotal - Action: Use this Factor to determine the portion of IVA and ISR considered "paid" for the current tax period"
-}
