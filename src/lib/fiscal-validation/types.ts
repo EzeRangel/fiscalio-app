@@ -33,13 +33,22 @@ export interface FiscalPayment {
   allocations?: FiscalAllocation[];
 }
 
+export interface FiscalInvoiceItem {
+  id?: number;
+  subtotal: number | string;
+  discount?: number | string;
+}
+
 export interface FiscalInvoice {
   id: number;
+  subtotal: number | string;
+  discount?: number | string;
   total: number | string;
   amountPaid: number | string;
   paymentStatus: string;
   status: string; // active, cancelled
   allocations?: FiscalAllocation[];
+  items?: FiscalInvoiceItem[];
   invoiceDate?: Date; // Optional for backward compatibility/simplicity if not always available
 }
 

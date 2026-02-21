@@ -98,14 +98,14 @@ export default async function TaxDeclarationsPage() {
 
               <div className="space-y-3">
                 <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
-                  Estimaciones Fiscales
+                  Declaraciones Fiscales
                   <span className="block text-muted-foreground text-2xl mt-2">
                     Cálculos informativos
                   </span>
                 </h1>
                 <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
                   Crea borradores, encuentra inconsistencias y revisa que todo
-                  vaya bien para tus estimaciones
+                  vaya bien para tus declaraciones
                 </p>
               </div>
             </div>
@@ -161,8 +161,6 @@ export default async function TaxDeclarationsPage() {
 
       <section className="container mx-auto px-6 py-8">
         <div className="grid gap-6">
-          <DisclaimerBanner />
-          
           {/* Metrics Grid */}
           <SummaryCards data={declaration!} currentPeriod={currentPeriod} />
 
@@ -240,7 +238,9 @@ export default async function TaxDeclarationsPage() {
                         Utilidad Neta
                       </span>
                       <span className="font-mono font-semibold text-primary">
-                        <PrivacyBlur>{formatCurrency(netAmount)}</PrivacyBlur>
+                        <PrivacyBlur>
+                          {formatCurrency(totalIncome - totalExpenses)}
+                        </PrivacyBlur>
                       </span>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export default async function TaxDeclarationsPage() {
                         </div>
                         <div className="space-y-2">
                           <p className="text-sm font-medium">
-                            Estimación Generada
+                            Declaración Calculada
                           </p>
                           <p className="text-xs text-muted-foreground font-mono">
                             Lista para revisión
@@ -267,7 +267,7 @@ export default async function TaxDeclarationsPage() {
                         >
                           <Button size="lg" className="gap-2 font-mono">
                             <Eye className="h-4 w-4" />
-                            Revisar Estimación
+                            Revisar Declaración
                           </Button>
                         </Link>
                       </>
@@ -277,7 +277,7 @@ export default async function TaxDeclarationsPage() {
                           <FileText className="h-6 w-6 text-muted-foreground" />
                         </div>
                         <div className="space-y-2">
-                          <p className="text-sm font-medium">Sin Estimación</p>
+                          <p className="text-sm font-medium">Sin Declaración</p>
                           <p className="text-xs text-muted-foreground font-mono">
                             Genera el borrador para este período
                           </p>
@@ -300,14 +300,14 @@ export default async function TaxDeclarationsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <CardTitle className="text-xl font-light tracking-tight">
-                    Historial de Estimaciones
+                    Historial
                   </CardTitle>
                   <CardDescription className="font-mono text-xs">
-                    Estimaciones calculadas anteriormente
+                    Declaraciones calculadas anteriormente
                   </CardDescription>
                 </div>
                 <div className="text-xs font-mono text-muted-foreground">
-                  {history.length} estimaciones
+                  {history.length} declaraciones
                 </div>
               </div>
             </CardHeader>

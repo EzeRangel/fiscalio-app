@@ -7,9 +7,9 @@ export default async function Home() {
         <div className="container mx-auto px-6 py-16">
           <div className="max-w-3xl space-y-6">
             <h1 className="text-6xl font-light tracking-tight leading-[1.1]">
-              Panel de Control
+              Fiscalio
               <span className="block text-muted-foreground mt-2">
-                CFDI Assistant
+                Panel de Control
               </span>
             </h1>
 

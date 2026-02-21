@@ -46,6 +46,9 @@ export function InvoiceItem({ data: item }: Props) {
           <p className="text-lg font-mono font-semibold text-foreground">
             <PrivacyBlur>{formatCurrency(item.invoice.total)}</PrivacyBlur>
           </p>
+          <span className="text-xs text-muted-foreground">
+            {item.invoice.currency}
+          </span>
         </div>
       </div>
 

@@ -23,7 +23,7 @@ export function ValidateDeclarationButton({
     },
     onError: ({ error }) => {
       toast.error(
-        error.serverError || "Hubo un error al verificar los cálculos."
+        error.serverError || "Hubo un error al verificar los cálculos.",
       );
     },
   });
@@ -42,7 +42,7 @@ export function ValidateDeclarationButton({
       ) : (
         <ShieldCheck className="mr-2 h-4 w-4" />
       )}
-      {isExecuting ? "Verificando..." : "Verificar y Bloquear Estimación"}
+      {isExecuting ? "Verificando..." : "Verificar y Bloquear Declaración"}
     </Button>
   );
 }

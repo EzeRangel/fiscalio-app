@@ -75,7 +75,7 @@ export function SummaryCards({ data, currentPeriod }: Props) {
       <SummaryCard
         title="Base Gravable"
         value={formatCurrency(netAmount)}
-        subtitle="Ingresos - Deducibles"
+        subtitle="Ingresos Brutos"
         icon={DollarSign}
         color="neutral"
       />

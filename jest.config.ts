@@ -38,7 +38,7 @@ const config: Config = {
   //   "/node_modules/"
   // ],
 
-  // Indicates which provider should be used to instrument code for coverage
+  // Indicates which provider should be used to find information about your tests
   coverageProvider: "v8",
 
   // A list of reporter names that Jest uses when writing coverage reports

@@ -9,5 +9,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Item-Level Tax Mapping and Proration**
+- [~] **Track: Item-Level Tax Mapping and Proration**
 *Link: [./tracks/item_level_tax_mapping_20260218/](./tracks/item_level_tax_mapping_20260218/)*

@@ -35,7 +35,7 @@ export function FileDeclarationDialog({
     },
     onError: ({ error }) => {
       toast.error(
-        error.serverError || "Hubo un error al guardar la información."
+        error.serverError || "Hubo un error al guardar la información.",
       );
     },
   });
@@ -52,7 +52,7 @@ export function FileDeclarationDialog({
         <form action={execute}>
           <DialogHeader>
             <DialogTitle className="text-xl font-light tracking-tight">
-              Registrar Acuse de Estimación
+              Registrar Acuse de Declaración
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
               Ingresa el número de acuse proporcionado por el SAT después de
