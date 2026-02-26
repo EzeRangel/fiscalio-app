@@ -9,5 +9,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Implement IVA Acreditation Correctly**
+- [x] **Track: Implement IVA Acreditation Correctly**
 *Link: [./tracks/iva_accreditation_20260226/](./tracks/iva_accreditation_20260226/)*
