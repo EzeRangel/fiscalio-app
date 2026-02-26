@@ -93,3 +93,27 @@ export function distributeHeaderTaxesToItems(
     return { taxes: itemTaxes };
   });
 }
+
+/**
+ * Calculates the creditable IVA based on total IVA and the accreditation percentage.
+ * 
+ * @param totalIva The total IVA amount paid
+ * @param percentage The accreditation percentage (0-100)
+ * @returns The calculated creditable IVA as a string formatted to 2 decimal places
+ */
+export function calculateCreditableIva(
+  totalIva: string | number | null | undefined,
+  percentage: string | number | null | undefined
+): string {
+  const iva =
+    typeof totalIva === "string" ? parseFloat(totalIva) : totalIva || 0;
+  const pct =
+    typeof percentage === "string" ? parseFloat(percentage) : percentage || 0;
+
+  if (iva <= 0 || pct <= 0) {
+    return "0.00";
+  }
+
+  const result = iva * (pct / 100);
+  return result.toFixed(2);
+}

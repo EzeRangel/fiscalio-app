@@ -1,4 +1,4 @@
-import { distributeHeaderTaxesToItems } from "@/lib/invoice-utils";
+import { distributeHeaderTaxesToItems, calculateCreditableIva } from "@/lib/invoice-utils";
 
 describe("distributeHeaderTaxesToItems", () => {
   it("should distribute header taxes proportionally to items based on subtotal", () => {
@@ -68,5 +68,33 @@ describe("distributeHeaderTaxesToItems", () => {
     ];
     const result = distributeHeaderTaxesToItems(0, 0, items, 100);
     expect(result[0].taxes).toHaveLength(0);
+  });
+});
+
+describe("calculateCreditableIva", () => {
+  it("should calculate 0 creditable IVA if percentage is 0", () => {
+    expect(calculateCreditableIva(100.00, 0)).toBe("0.00");
+    expect(calculateCreditableIva("100.00", "0.00")).toBe("0.00");
+  });
+
+  it("should calculate full IVA if percentage is 100", () => {
+    expect(calculateCreditableIva(16.00, 100)).toBe("16.00");
+    expect(calculateCreditableIva("16.00", "100.00")).toBe("16.00");
+  });
+
+  it("should calculate proportional IVA for partial accreditation", () => {
+    expect(calculateCreditableIva(16.00, 50)).toBe("8.00");
+    expect(calculateCreditableIva("16.00", "50.00")).toBe("8.00");
+    expect(calculateCreditableIva(16.00, 25.5)).toBe("4.08");
+  });
+
+  it("should handle null or undefined IVA by returning 0.00", () => {
+    expect(calculateCreditableIva(null, 100)).toBe("0.00");
+    expect(calculateCreditableIva(undefined, 100)).toBe("0.00");
+  });
+
+  it("should handle null or undefined percentage by returning 0.00", () => {
+    expect(calculateCreditableIva(16.00, null)).toBe("0.00");
+    expect(calculateCreditableIva(16.00, undefined)).toBe("0.00");
   });
 });
