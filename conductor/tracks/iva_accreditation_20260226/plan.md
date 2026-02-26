@@ -17,10 +17,10 @@ Focus on updating the database schema to support the new `ivaAccreditationPercen
 ## Phase 2: Core Logic and Utils [checkpoint: ]
 Implement the calculation logic for "IVA Acreditable" based on the account percentage.
 
-- [ ] Task: Implement `calculateCreditableIva` Utility [ ]
-    - [ ] Write unit tests for the calculation logic (`IVA * percentage`).
-    - [ ] Create a utility function in `src/lib/invoice-utils.ts` to perform the calculation.
-    - [ ] Ensure it handles rounding correctly for financial data.
+- [x] Task: Implement `calculateCreditableIva` Utility [adcf174]
+    - [x] Write unit tests for the calculation logic (`IVA * percentage`).
+    - [x] Create a utility function in `src/lib/invoice-utils.ts` to perform the calculation.
+    - [x] Ensure it handles rounding correctly for financial data.
 - [ ] Task: Integrate Calculation into Invoice Data Retrieval [ ]
     - [ ] Update the invoice data fetching logic to include the calculated "IVA Acreditable".
     - [ ] Verify that changing an account's percentage correctly updates the calculation.
