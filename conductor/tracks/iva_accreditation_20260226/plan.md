@@ -2,17 +2,17 @@
 
 This plan outlines the implementation of a system for managing "IVA Acreditable" (Creditable VAT) for expenses in the RESICO regime by adding an accreditation percentage to the Chart of Accounts.
 
-## Phase 1: Database and Schema Updates [checkpoint: ]
+## Phase 1: Database and Schema Updates [checkpoint: 1690cc9]
 Focus on updating the database schema to support the new `ivaAccreditationPercentage` field.
 
 - [x] Task: Update Drizzle Schema for Accounts [90f03e5]
     - [x] Add `ivaAccreditationPercentage` to the `accounts` table.
-    - [x] Set a default value of 100 for existing and new accounts (or null depending on type).
+    - [x] Set a default value of 0.00 for existing and new accounts (or null depending on type). [1690cc9]
     - [x] Generate and run migrations to update the local PGLite database.
 - [x] Task: Update Zod Schemas and Types [e7a3707]
     - [x] Update the `Account` Zod schema to include the new field with validation (0-100).
     - [x] Update the corresponding TypeScript types and interfaces.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database and Schema Updates' (Protocol in workflow.md) [ ]
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Database and Schema Updates' (Protocol in workflow.md) [1690cc9]
 
 ## Phase 2: Core Logic and Utils [checkpoint: ]
 Implement the calculation logic for "IVA Acreditable" based on the account percentage.
