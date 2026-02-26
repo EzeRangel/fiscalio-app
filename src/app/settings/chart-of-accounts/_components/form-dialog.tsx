@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 "use client";
 
 import { createAccount } from "@/actions/chart-of-accounts";
@@ -42,7 +40,7 @@ import {
   AccountFormValues,
 } from "@/types/chart-of-accounts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, Info } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -70,6 +68,7 @@ export function AccountFormDialog({ accounts = [] }: Props) {
       satCode: "",
       isDeductible: false,
       deductionPercentage: "100.00",
+      ivaAccreditationPercentage: "0.00",
       description: "",
       isActive: true,
     },
@@ -286,56 +285,103 @@ export function AccountFormDialog({ accounts = [] }: Props) {
             <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/20">
               <h4 className="text-sm font-medium">Configuración Fiscal</h4>
 
-              <FormField
-                control={form.control}
-                name="isDeductible"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-sm font-medium">
-                        Cuenta Deducible
-                      </FormLabel>
-                      <FormDescription className="text-xs">
-                        Esta cuenta es deducible de impuestos
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {form.watch("isDeductible") && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="deductionPercentage"
+                  name="isDeductible"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Porcentaje de Deducción</FormLabel>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-background">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-xs font-medium">
+                          Deducible ISR
+                        </FormLabel>
+                        <FormDescription className="text-[10px]">
+                          Deducible para ISR
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch("isDeductible") && (
+                  <FormField
+                    control={form.control}
+                    name="deductionPercentage"
+                    render={({ field }) => (
+                      <FormItem className="rounded-lg border p-3 bg-background">
+                        <FormLabel className="text-xs font-medium">
+                          % Deducción ISR
+                        </FormLabel>
+                        <FormControl>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              className="font-mono h-8 text-xs"
+                              placeholder="100.00"
+                              {...field}
+                            />
+                            <span className="text-xs text-muted-foreground">
+                              %
+                            </span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              {/* IVA Accreditation */}
+              <div className="grid grid-cols-1 gap-4">
+                <FormField
+                  control={form.control}
+                  name="ivaAccreditationPercentage"
+                  render={({ field }) => (
+                    <FormItem className="rounded-lg border p-3 bg-background">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FormLabel className="text-xs font-medium">
+                          % IVA Acreditable
+                        </FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs max-w-xs">
+                                Porcentaje del IVA pagado que puede ser acreditado para esta cuenta.
+                                Por ejemplo, 50% para gastos compartidos entre negocio y personal.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <FormControl>
                         <div className="flex items-center gap-2">
                           <Input
-                            className="font-mono"
-                            placeholder="100.00"
+                            className="font-mono h-8 text-xs"
+                            placeholder="0.00"
                             {...field}
                           />
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             %
                           </span>
                         </div>
                       </FormControl>
-                      <FormDescription className="text-xs">
-                        Porcentaje deducible del gasto (normalmente 100%)
+                      <FormDescription className="text-[10px]">
+                        IVA acreditable para declaraciones de impuestos
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
+              </div>
             </div>
 
             <FormField
