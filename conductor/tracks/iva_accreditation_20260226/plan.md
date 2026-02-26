@@ -35,13 +35,13 @@ Update the UI to allow users to configure the accreditation percentage.
     - [x] Verify that the form correctly saves the new field to the database via server actions.
 - [x] Task: Conductor - User Manual Verification 'Phase 3: UI Implementation - Chart of Accounts' (Protocol in workflow.md) [f8995db]
 
-## Phase 4: UI Implementation - Invoices and Declarations [checkpoint: ]
+## Phase 4: UI Implementation - Invoices and Declarations [checkpoint: 2660e49]
 Reflect the creditable IVA in the invoice views and the tax declaration summary.
 
 - [x] Task: Update Invoice View UI [c022d84]
     - [x] Display the "IVA Acreditable" value in the invoice details or list view.
     - [x] Add visual indicators to help the user understand how it was calculated.
-- [~] Task: Update Tax Declaration Integrated Summary [ ]
-    - [ ] Modify the Tax Declaration view to include the total "IVA Acreditable" for the period.
-    - [ ] Update the final "IVA to Pay" calculation to use the total creditable IVA.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: UI Implementation - Invoices and Declarations' (Protocol in workflow.md) [ ]
+- [x] Task: Update Tax Declaration Integrated Summary [9690061]
+    - [x] Modify the Tax Declaration view to include the total "IVA Acreditable" for the period.
+    - [x] Update the final "IVA to Pay" calculation to use the total creditable IVA.
+- [x] Task: Conductor - User Manual Verification 'Phase 4: UI Implementation - Invoices and Declarations' (Protocol in workflow.md) [2660e49]
