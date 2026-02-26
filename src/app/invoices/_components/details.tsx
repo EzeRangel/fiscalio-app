@@ -41,6 +41,7 @@ import { PaymentForms, PaymentMethods, TaxTypes } from "@/types/utils";
 
 import { FiscalValidationError } from "@/lib/fiscal-validation";
 import { ValidationMessages } from "./validations";
+import { calculateCreditableIva } from "@/lib/invoice-utils";
 
 interface Props {
   data: CFDI;
@@ -325,7 +326,11 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
       {!isPaymentComplement ? (
         <div className="mb-16">
           {invoice.accountId ? (
-            <ClassificationAssigned account={invoice.account!} />
+            <ClassificationAssigned
+              account={invoice.account!}
+              totalTaxes={invoice.totalTaxes}
+              invoiceType={invoice.invoiceType}
+            />
           ) : (
             <ClassificationFeedback invoice={invoice} />
           )}

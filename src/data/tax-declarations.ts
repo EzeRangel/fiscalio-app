@@ -172,13 +172,19 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
         calcTotalExpenses += summary.totalPaid * multiplier;
         expenseInvoiceIds.add(invoiceId);
 
+        const ivaAccreditationPercentage = parseFloat(
+          fullInvoice.account?.ivaAccreditationPercentage || "0.00"
+        );
+
         if (isDeductible) {
           calcDeductibleExpenses += deductibleAmount * multiplier;
-          // IVA Creditable
-          for (const tax of summary.taxBreakdown) {
-            if (tax.taxCode === "002" && tax.taxType === "transferred") {
-              calcIvaCreditable += tax.amount * multiplier;
-            }
+        }
+
+        // IVA Creditable (based on accreditation percentage, regardless of ISR deductibility)
+        for (const tax of summary.taxBreakdown) {
+          if (tax.taxCode === "002" && tax.taxType === "transferred") {
+            calcIvaCreditable +=
+              tax.amount * (ivaAccreditationPercentage / 100) * multiplier;
           }
         }
       }

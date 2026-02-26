@@ -194,6 +194,9 @@ export const createTaxDeclarationDraft = actionClient
       const deductionPercentage = parseFloat(
         fullInvoice.account?.deductionPercentage || "100.00",
       );
+      const ivaAccreditationPercentage = parseFloat(
+        fullInvoice.account?.ivaAccreditationPercentage || "0.00",
+      );
 
       const { category, multiplier } = getTaxClassification(
         fullInvoice.invoiceType,
@@ -221,12 +224,15 @@ export const createTaxDeclarationDraft = actionClient
         if (tax.taxCode === "002") {
           // IVA
           if (tax.taxType === "transferred") {
-            periodIvaAmount += tax.amount * multiplier;
             if (category === "income") {
+              periodIvaAmount += tax.amount * multiplier;
               ivaCharged += tax.amount * multiplier;
               ivaType = "charged";
-            } else if (category === "expense" && isDeductible) {
-              ivaCreditable += tax.amount * multiplier;
+            } else if (category === "expense") {
+              const creditableAmount =
+                tax.amount * (ivaAccreditationPercentage / 100) * multiplier;
+              ivaCreditable += creditableAmount;
+              periodIvaAmount += creditableAmount; // For snapshot, we store the creditable part for expenses
               ivaType = "creditable";
             }
           }
