@@ -81,6 +81,18 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
   const paymentStatus = getPaymentStatus(Number(invoice.total), totalPaid);
   const validationErrors = invoice.validationErrors || [];
 
+  const totalIva = invoice.items.reduce((sum, item) => {
+    return (
+      sum +
+      item.taxes.reduce((itemSum, tax) => {
+        if (tax.taxCode === "002" && tax.taxType === "transferred") {
+          return itemSum + parseFloat(tax.taxAmount);
+        }
+        return itemSum;
+      }, 0)
+    );
+  }, 0);
+
   return (
     <div className="container mx-auto px-6 py-12 max-w-7xl">
       {/* Fiscal Validation Errors */}
@@ -328,7 +340,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
           {invoice.accountId ? (
             <ClassificationAssigned
               account={invoice.account!}
-              totalTaxes={invoice.totalTaxes}
+              totalIva={totalIva}
               invoiceType={invoice.invoiceType}
             />
           ) : (

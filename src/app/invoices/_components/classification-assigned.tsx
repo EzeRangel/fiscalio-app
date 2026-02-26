@@ -11,13 +11,13 @@ import {
 
 interface Props {
   account: Account;
-  totalTaxes?: string | number | null;
+  totalIva?: string | number | null;
   invoiceType?: string;
 }
 
 export default function ClassificationAssigned({
   account,
-  totalTaxes,
+  totalIva,
   invoiceType,
 }: Props) {
   const isExpense = invoiceType === "expense";
@@ -45,7 +45,7 @@ export default function ClassificationAssigned({
           </div>
 
           <div className="flex items-center gap-12">
-            {isExpense && totalTaxes && totalTaxes !== "0.00" && (
+            {isExpense && totalIva && totalIva !== "0.00" && (
               <div className="text-right border-r border-border pr-12 last:border-0 last:pr-0">
                 <div className="flex items-center justify-end gap-1.5 mb-1">
                   <span className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -66,7 +66,7 @@ export default function ClassificationAssigned({
                 </div>
                 <div className="text-2xl font-mono font-medium text-emerald-600 dark:text-emerald-400">
                   <PrivacyBlur>
-                    ${calculateCreditableIva(totalTaxes, accreditationPercentage)}
+                    ${calculateCreditableIva(totalIva, accreditationPercentage)}
                   </PrivacyBlur>
                 </div>
               </div>
