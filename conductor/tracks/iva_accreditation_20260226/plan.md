@@ -26,14 +26,14 @@ Implement the calculation logic for "IVA Acreditable" based on the account perce
     - [x] Verify that changing an account's percentage correctly updates the calculation.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Core Logic and Utils' (Protocol in workflow.md) [94154ca]
 
-## Phase 3: UI Implementation - Chart of Accounts [checkpoint: ]
+## Phase 3: UI Implementation - Chart of Accounts [checkpoint: f8995db]
 Update the UI to allow users to configure the accreditation percentage.
 
 - [x] Task: Update Account Creation/Edit Form [d304dd5]
     - [x] Add a numeric input for the `ivaAccreditationPercentage`.
     - [x] Include clear labels and help text explaining its purpose (business-relatedness).
     - [x] Verify that the form correctly saves the new field to the database via server actions.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: UI Implementation - Chart of Accounts' (Protocol in workflow.md) [ ]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: UI Implementation - Chart of Accounts' (Protocol in workflow.md) [f8995db]
 
 ## Phase 4: UI Implementation - Invoices and Declarations [checkpoint: ]
 Reflect the creditable IVA in the invoice views and the tax declaration summary.
