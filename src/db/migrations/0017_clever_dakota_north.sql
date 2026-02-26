@@ -1,0 +1,1 @@
+ALTER TABLE "chart_of_accounts" ADD COLUMN "iva_accreditation_percentage" numeric(5, 2) DEFAULT '100.00';

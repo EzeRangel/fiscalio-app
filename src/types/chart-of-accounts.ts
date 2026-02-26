@@ -12,6 +12,7 @@ export const AccountFormSchema = z.object({
   satCode: z.string().max(20).optional(),
   isDeductible: z.boolean().default(false),
   deductionPercentage: z.string().default("100.00"),
+  ivaAccreditationPercentage: z.string().default("100.00"),
   description: z.string().optional(),
   isActive: z.boolean().default(true),
 });
