@@ -14,7 +14,7 @@ Focus on updating the database schema to support the new `ivaAccreditationPercen
     - [x] Update the corresponding TypeScript types and interfaces.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Database and Schema Updates' (Protocol in workflow.md) [1690cc9]
 
-## Phase 2: Core Logic and Utils [checkpoint: ]
+## Phase 2: Core Logic and Utils [checkpoint: 94154ca]
 Implement the calculation logic for "IVA Acreditable" based on the account percentage.
 
 - [x] Task: Implement `calculateCreditableIva` Utility [adcf174]
@@ -24,7 +24,7 @@ Implement the calculation logic for "IVA Acreditable" based on the account perce
 - [x] Task: Integrate Calculation into Invoice Data Retrieval [deb40eb]
     - [x] Update the invoice data fetching logic to include the calculated "IVA Acreditable".
     - [x] Verify that changing an account's percentage correctly updates the calculation.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Logic and Utils' (Protocol in workflow.md) [ ]
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Core Logic and Utils' (Protocol in workflow.md) [94154ca]
 
 ## Phase 3: UI Implementation - Chart of Accounts [checkpoint: ]
 Update the UI to allow users to configure the accreditation percentage.
