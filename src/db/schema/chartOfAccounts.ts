@@ -40,7 +40,7 @@ export const chartOfAccounts = pgTable(
     ivaAccreditationPercentage: decimal("iva_accreditation_percentage", {
       precision: 5,
       scale: 2,
-    }).default("100.00"),
+    }).default("0.00"),
 
     description: text("description"),
     isActive: boolean("is_active").default(true),

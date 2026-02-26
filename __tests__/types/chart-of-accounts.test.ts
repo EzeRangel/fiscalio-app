@@ -20,11 +20,11 @@ describe("AccountFormSchema", () => {
     }
   });
 
-  it("should default ivaAccreditationPercentage to 100.00 if not provided", () => {
+  it("should default ivaAccreditationPercentage to 0.00 if not provided", () => {
     const result = AccountFormSchema.safeParse(baseAccount);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.ivaAccreditationPercentage).toBe("100.00");
+      expect(result.data.ivaAccreditationPercentage).toBe("0.00");
     }
   });
 });
