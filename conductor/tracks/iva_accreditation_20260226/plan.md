@@ -29,10 +29,10 @@ Implement the calculation logic for "IVA Acreditable" based on the account perce
 ## Phase 3: UI Implementation - Chart of Accounts [checkpoint: ]
 Update the UI to allow users to configure the accreditation percentage.
 
-- [ ] Task: Update Account Creation/Edit Form [ ]
-    - [ ] Add a numeric input for the `ivaAccreditationPercentage`.
-    - [ ] Include clear labels and help text explaining its purpose (business-relatedness).
-    - [ ] Verify that the form correctly saves the new field to the database via server actions.
+- [x] Task: Update Account Creation/Edit Form [d304dd5]
+    - [x] Add a numeric input for the `ivaAccreditationPercentage`.
+    - [x] Include clear labels and help text explaining its purpose (business-relatedness).
+    - [x] Verify that the form correctly saves the new field to the database via server actions.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: UI Implementation - Chart of Accounts' (Protocol in workflow.md) [ ]
 
 ## Phase 4: UI Implementation - Invoices and Declarations [checkpoint: ]
