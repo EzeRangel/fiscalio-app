@@ -38,9 +38,9 @@ Update the UI to allow users to configure the accreditation percentage.
 ## Phase 4: UI Implementation - Invoices and Declarations [checkpoint: ]
 Reflect the creditable IVA in the invoice views and the tax declaration summary.
 
-- [ ] Task: Update Invoice View UI [ ]
-    - [ ] Display the "IVA Acreditable" value in the invoice details or list view.
-    - [ ] Add visual indicators to help the user understand how it was calculated.
+- [x] Task: Update Invoice View UI [c022d84]
+    - [x] Display the "IVA Acreditable" value in the invoice details or list view.
+    - [x] Add visual indicators to help the user understand how it was calculated.
 - [ ] Task: Update Tax Declaration Integrated Summary [ ]
     - [ ] Modify the Tax Declaration view to include the total "IVA Acreditable" for the period.
     - [ ] Update the final "IVA to Pay" calculation to use the total creditable IVA.
