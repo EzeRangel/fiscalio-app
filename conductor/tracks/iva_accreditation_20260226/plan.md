@@ -21,9 +21,9 @@ Implement the calculation logic for "IVA Acreditable" based on the account perce
     - [x] Write unit tests for the calculation logic (`IVA * percentage`).
     - [x] Create a utility function in `src/lib/invoice-utils.ts` to perform the calculation.
     - [x] Ensure it handles rounding correctly for financial data.
-- [ ] Task: Integrate Calculation into Invoice Data Retrieval [ ]
-    - [ ] Update the invoice data fetching logic to include the calculated "IVA Acreditable".
-    - [ ] Verify that changing an account's percentage correctly updates the calculation.
+- [x] Task: Integrate Calculation into Invoice Data Retrieval [deb40eb]
+    - [x] Update the invoice data fetching logic to include the calculated "IVA Acreditable".
+    - [x] Verify that changing an account's percentage correctly updates the calculation.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Logic and Utils' (Protocol in workflow.md) [ ]
 
 ## Phase 3: UI Implementation - Chart of Accounts [checkpoint: ]
