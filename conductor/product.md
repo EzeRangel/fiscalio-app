@@ -13,7 +13,7 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 
 - **Autonomous Classification System:** An adaptive engine that learns from patterns to suggest account classifications and autonomously generates new rules based on observed user behavior and high-confidence patterns.
 - **Tax Estimation Support:** Creating preliminary tax estimations and financial reports tailored to the RESICO regime for informational purposes.
-- **Data Integrity Layer:** Enforcing strict RESICO-aligned rules (e.g., "Cash-Basis") to ensure data consistency and accuracy in estimations, including **item-level tax mapping and granular proration for partial payments**. Supported by robust validation (including file de-duplication and UUID uniqueness checks) and tools for manual data correction.
+- **Data Integrity Layer:** Enforcing strict RESICO-aligned rules (e.g., "Cash-Basis") to ensure data consistency and accuracy in estimations, including **item-level tax mapping, granular proration for partial payments, and account-level IVA accreditation percentage tracking**. Supported by robust validation (including file de-duplication and UUID uniqueness checks) and tools for manual data correction.
 - **CFDI Validation:** Automatically validating invoices against official SAT requirements to ensure compliance.
 - **Business Partner Analytics:** Real-time tracking of invoice volumes and financial balance for clients and providers.
 - **System-Wide Audit Log:** Comprehensive traceability for critical operations, tracking changes in invoices, payments, and configurations for compliance and debugging.
