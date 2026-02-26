@@ -9,9 +9,9 @@ Focus on updating the database schema to support the new `ivaAccreditationPercen
     - [x] Add `ivaAccreditationPercentage` to the `accounts` table.
     - [x] Set a default value of 100 for existing and new accounts (or null depending on type).
     - [x] Generate and run migrations to update the local PGLite database.
-- [ ] Task: Update Zod Schemas and Types [ ]
-    - [ ] Update the `Account` Zod schema to include the new field with validation (0-100).
-    - [ ] Update the corresponding TypeScript types and interfaces.
+- [x] Task: Update Zod Schemas and Types [e7a3707]
+    - [x] Update the `Account` Zod schema to include the new field with validation (0-100).
+    - [x] Update the corresponding TypeScript types and interfaces.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database and Schema Updates' (Protocol in workflow.md) [ ]
 
 ## Phase 2: Core Logic and Utils [checkpoint: ]
