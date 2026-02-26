@@ -5,10 +5,10 @@ This plan outlines the implementation of a system for managing "IVA Acreditable"
 ## Phase 1: Database and Schema Updates [checkpoint: ]
 Focus on updating the database schema to support the new `ivaAccreditationPercentage` field.
 
-- [ ] Task: Update Drizzle Schema for Accounts [ ]
-    - [ ] Add `ivaAccreditationPercentage` to the `accounts` table.
-    - [ ] Set a default value of 100 for existing and new accounts (or null depending on type).
-    - [ ] Generate and run migrations to update the local PGLite database.
+- [x] Task: Update Drizzle Schema for Accounts [90f03e5]
+    - [x] Add `ivaAccreditationPercentage` to the `accounts` table.
+    - [x] Set a default value of 100 for existing and new accounts (or null depending on type).
+    - [x] Generate and run migrations to update the local PGLite database.
 - [ ] Task: Update Zod Schemas and Types [ ]
     - [ ] Update the `Account` Zod schema to include the new field with validation (0-100).
     - [ ] Update the corresponding TypeScript types and interfaces.
