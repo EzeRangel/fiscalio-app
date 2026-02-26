@@ -1,0 +1,8 @@
+{
+  "track_id": "iva_accreditation_20260226",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-26T12:00:00Z",
+  "updated_at": "2026-02-26T12:00:00Z",
+  "description": "Implement IVA Acreditation Correctly. Context This app started as a general tax organization where in some SAT regimes they can deduce ISR from spendings. This is not possible in RESICO as ISR is calculated under the cash-basis principle only from Gross Income. The case is different with IVA tax as IVA can be creditable from spendings, only those spents that are strictly related to the business. The goal of this task is to prepare the system to use the chart of accounts to add fields for letting the user add wich spent can be creditable, is like the ISR deductible also like percentage."
+}
