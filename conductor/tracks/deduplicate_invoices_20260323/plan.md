@@ -13,30 +13,30 @@ Clean up the dashboard and invoice lists by hiding "Pago" (Payment Complement) a
 ## Implementation Steps
 
 ### Phase 1: Database Schema & Relationships
-- [ ] Task: Add `linkedPayments` relation to `invoices` in `src/db/schema/invoices.ts`.
-    - [ ] Define a `many-to-one` relationship from `invoices` to `payments` using `invoices.folioFiscal` as the source and `payments.cfdiPaymentId` as the reference.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema & Relationships' (Protocol in workflow.md)
+- [x] Task: Add `linkedPayments` relation to `invoices` in `src/db/schema/invoices.ts`. [7cf5d29]
+    - [x] Define a `many-to-one` relationship from `invoices` to `payments` using `invoices.folioFiscal` as the source and `payments.cfdiPaymentId` as the reference.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Database Schema & Relationships' (Protocol in workflow.md) [7cf5d29]
 
 ### Phase 2: Data Fetching Layer
-- [ ] Task: Update `getInvoicesByPeriod` in `src/data/invoices.ts` to fetch `linkedPayments`.
-    - [ ] Include `linkedPayments` and its `allocations` in the `with` query.
-- [ ] Task: Update `getLatestInvoices` in `src/data/invoices.ts` to fetch `linkedPayments`.
-- [ ] Task: Update `getInvoicesByOrganization` in `src/data/invoices.ts` to fetch `linkedPayments`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Fetching Layer' (Protocol in workflow.md)
+- [x] Task: Update `getInvoicesByPeriod` in `src/data/invoices.ts` to fetch `linkedPayments`. [7cf5d29]
+    - [x] Include `linkedPayments` and its `allocations` in the `with` query.
+- [x] Task: Update `getLatestInvoices` in `src/data/invoices.ts` to fetch `linkedPayments`. [7cf5d29]
+- [x] Task: Update `getInvoicesByOrganization` in `src/data/invoices.ts` to fetch `linkedPayments`. [7cf5d29]
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Data Fetching Layer' (Protocol in workflow.md) [7cf5d29]
 
 ### Phase 3: Filtering Logic Utility
-- [ ] Task: Create `isInvoiceLinked` utility in `src/lib/invoice-utils.ts`.
-    - [ ] Logic for "P": Check if `linkedPayments` array exists and has at least one allocation.
-    - [ ] Logic for "E": Check if `substituteInvoiceId` is not null.
-- [ ] Task: Write unit tests for `isInvoiceLinked` in `src/lib/invoice-utils.test.ts`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Filtering Logic Utility' (Protocol in workflow.md)
+- [x] Task: Create `isInvoiceLinked` utility in `src/lib/invoice-utils.ts`. [7cf5d29]
+    - [x] Logic for "P": Check if `linkedPayments` array exists and has at least one allocation.
+    - [x] Logic for "E": Check if `substituteInvoiceId` is not null.
+- [x] Task: Write unit tests for `isInvoiceLinked` in `src/lib/invoice-utils.test.ts`. [7cf5d29]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Filtering Logic Utility' (Protocol in workflow.md) [7cf5d29]
 
 ### Phase 4: UI Integration
-- [ ] Task: Apply filtering in `src/components/invoices/invoices-list.tsx`.
-    - [ ] Filter out invoices where `isInvoiceLinked` is true.
-- [ ] Task: Apply filtering in `src/app/invoices/_components/list.tsx`.
-    - [ ] Filter out invoices where `isInvoiceLinked` is true.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: UI Integration' (Protocol in workflow.md)
+- [x] Task: Apply filtering in `src/components/invoices/invoices-list.tsx`. [7cf5d29]
+    - [x] Filter out invoices where `isInvoiceLinked` is true.
+- [x] Task: Apply filtering in `src/app/invoices/_components/list.tsx`. [7cf5d29]
+    - [x] Filter out invoices where `isInvoiceLinked` is true.
+- [x] Task: Conductor - User Manual Verification 'Phase 4: UI Integration' (Protocol in workflow.md) [7cf5d29]
 
 ## Verification & Testing
 - **Automated Tests:**
