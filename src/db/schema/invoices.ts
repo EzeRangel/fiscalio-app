@@ -22,6 +22,7 @@ import { relations } from "drizzle-orm";
 import { invoiceItems } from "./invoiceItems";
 import { paymentAllocations } from "./paymentAllocations";
 import { chartOfAccounts } from "./chartOfAccounts";
+import { payments } from "./payments";
 import z from "zod/v4";
 import { fiscalValidationSchema } from "@/types/invoices";
 
@@ -166,4 +167,5 @@ export const invoiceRelations = relations(invoices, ({ one, many }) => ({
     fields: [invoices.accountId],
     references: [chartOfAccounts.id],
   }),
+  linkedPayments: many(payments),
 }));

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { formatPrice } from "@/hooks/usePrice";
 import { getCFDIType, getInvoiceType } from "@/lib/utils";
+import { isInvoiceLinked } from "@/lib/invoice-utils";
 import { Invoice } from "@/types/invoices";
 import { InferResultType } from "@/types/orm";
 import { Download, Eye, FileText, MoreHorizontal } from "lucide-react";
@@ -27,7 +29,11 @@ import { CFDI_TYPE, INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
 
 type InvoiceWithContacts = InferResultType<
   "invoices",
-  { businessPartner: true; allocations: true }
+  {
+    businessPartner: true;
+    allocations: true;
+    linkedPayments: { allocations: true };
+  }
 >;
 
 interface Props {
@@ -87,7 +93,9 @@ export default function List({
   //   return matchesSearch && matchesType;
   // });
 
-  const filteredInvoices = invoices;
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter((invoice) => !isInvoiceLinked(invoice));
+  }, [invoices]);
 
   const groupedInvoices =
     periodGroup === "none"
@@ -114,7 +122,13 @@ export default function List({
 
     periodInvoices.forEach((inv) => {
       const paid = calculateInvoicePaid(inv);
-      if (inv.invoiceType === "income" || inv.invoiceType === "credit_note_received" || inv.invoiceType === "payment_received" || inv.invoiceType === "payroll_received" || inv.invoiceType === "transfer_received") {
+      if (
+        inv.invoiceType === "income" ||
+        inv.invoiceType === "credit_note_received" ||
+        inv.invoiceType === "payment_received" ||
+        inv.invoiceType === "payroll_received" ||
+        inv.invoiceType === "transfer_received"
+      ) {
         income += paid;
       } else {
         expense += paid;

@@ -420,6 +420,11 @@ export const getInvoicesByOrganization = async (
     with: {
       businessPartner: true,
       allocations: true,
+      linkedPayments: {
+        with: {
+          allocations: true,
+        },
+      },
     },
   });
 };
@@ -457,6 +462,11 @@ export const getLatestInvoices = async (organizationId: number) => {
     with: {
       businessPartner: true,
       allocations: true,
+      linkedPayments: {
+        with: {
+          allocations: true,
+        },
+      },
     },
   });
 };
@@ -488,6 +498,11 @@ export const getInvoicesByPeriod = async (
     with: {
       businessPartner: true,
       allocations: true,
+      linkedPayments: {
+        with: {
+          allocations: true,
+        },
+      },
     },
   });
 };

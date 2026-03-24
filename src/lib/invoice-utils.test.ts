@@ -1,4 +1,47 @@
-import { deriveInvoiceType } from "./invoice-utils";
+import { deriveInvoiceType, isInvoiceLinked } from "./invoice-utils";
+
+describe("isInvoiceLinked", () => {
+  it("should return false for regular income invoices", () => {
+    expect(isInvoiceLinked({ invoiceType: "income" })).toBe(false);
+  });
+
+  it("should return true for payment_received with allocations", () => {
+    expect(
+      isInvoiceLinked({
+        invoiceType: "payment_received",
+        linkedPayments: [{ allocations: [{ id: 1 }] }],
+      })
+    ).toBe(true);
+  });
+
+  it("should return false for payment_received without allocations", () => {
+    expect(
+      isInvoiceLinked({
+        invoiceType: "payment_received",
+        linkedPayments: [{ allocations: [] }],
+      })
+    ).toBe(false);
+    expect(isInvoiceLinked({ invoiceType: "payment_received" })).toBe(false);
+  });
+
+  it("should return true for credit_note_issued with substituteInvoiceId", () => {
+    expect(
+      isInvoiceLinked({
+        invoiceType: "credit_note_issued",
+        substituteInvoiceId: 123,
+      })
+    ).toBe(true);
+  });
+
+  it("should return false for credit_note_issued without substituteInvoiceId", () => {
+    expect(
+      isInvoiceLinked({
+        invoiceType: "credit_note_issued",
+        substituteInvoiceId: null,
+      })
+    ).toBe(false);
+  });
+});
 
 describe("deriveInvoiceType", () => {
   it("should derive 'income' for type 'I' when organization is the emitter", () => {
@@ -42,10 +85,10 @@ describe("deriveInvoiceType", () => {
   });
 
   it("should default to 'income' for unknown types when emitter", () => {
-    expect(deriveInvoiceType("X" as any, true)).toBe("income");
+    expect(deriveInvoiceType("UNKNOWN_TYPE" as any, true)).toBe("income");
   });
 
   it("should default to 'expense' for unknown types when receiver", () => {
-    expect(deriveInvoiceType("X" as any, false)).toBe("expense");
+    expect(deriveInvoiceType("UNKNOWN_TYPE" as any, false)).toBe("expense");
   });
 });

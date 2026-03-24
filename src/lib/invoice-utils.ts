@@ -1,9 +1,45 @@
 import { InvoiceTypes } from "@/types/utils";
 import { SAT_TAX_CODES, DEFAULT_TAX_RATES } from "./constants";
 
+export interface InvoiceWithLinkage {
+  invoiceType: string;
+  substituteInvoiceId?: number | null;
+  linkedPayments?: {
+    allocations?: { id: number | string }[];
+  }[];
+}
+
+/**
+ * Determines if an invoice should be hidden (deduplicated) because it is linked
+ * to a primary "Ingreso" invoice that already reflects the transaction.
+ */
+export function isInvoiceLinked(invoice: InvoiceWithLinkage): boolean {
+  // 1. Hide Payment Complements (P) if they have allocations to an Ingreso
+  if (
+    invoice.invoiceType === "payment_issued" ||
+    invoice.invoiceType === "payment_received"
+  ) {
+    const hasAllocations =
+      invoice.linkedPayments?.some(
+        (p) => p.allocations && p.allocations.length > 0
+      ) || false;
+    return hasAllocations;
+  }
+
+  // 2. Hide Credit Notes (E) if they are linked as a substitution
+  if (
+    invoice.invoiceType === "credit_note_issued" ||
+    invoice.invoiceType === "credit_note_received"
+  ) {
+    return !!invoice.substituteInvoiceId;
+  }
+
+  return false;
+}
+
 /**
  * Derives the internal invoice type based on the CFDI type and the organization's role.
- * 
+...
  * @param cfdiType The SAT CFDI type (I, E, P, N, T)
  * @param isEmitter Whether the organization is the emitter of the document
  * @returns A descriptive InvoiceTypes string

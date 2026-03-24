@@ -1,11 +1,13 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, FileText } from "lucide-react";
 import { formatPrice } from "@/hooks/usePrice";
 import { getInvoiceType } from "@/lib/utils";
+import { isInvoiceLinked } from "@/lib/invoice-utils";
 import { Button } from "../ui/button";
 import { PrivacyBlur } from "../privacy-blur";
 import {
@@ -21,7 +23,7 @@ import { InvoiceTypes } from "@/types/utils";
 
 type InvoiceWithBusinessPartner = InferResultType<
   "invoices",
-  { businessPartner: true; allocations: true }
+  { businessPartner: true; allocations: true; linkedPayments: { allocations: true } }
 >;
 
 interface Props {
@@ -53,7 +55,11 @@ const calculateInvoicePaid = (invoice: InvoiceWithBusinessPartner) => {
 };
 
 export function InvoicesList({ invoices }: Props) {
-  const hasInvoices = !!invoices && invoices.length >= 1;
+  const filteredInvoices = useMemo(() => {
+    return (invoices || []).filter((invoice) => !isInvoiceLinked(invoice));
+  }, [invoices]);
+
+  const hasInvoices = filteredInvoices.length >= 1;
 
   return (
     <section className="space-y-6">
@@ -63,7 +69,7 @@ export function InvoicesList({ invoices }: Props) {
             Facturas Recientes
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            Documentos fiscales del mes en curso — {invoices?.length || 0}{" "}
+            Documentos fiscales del mes en curso — {filteredInvoices.length}{" "}
             registros
           </p>
         </div>
@@ -101,7 +107,7 @@ export function InvoicesList({ invoices }: Props) {
           </Empty>
         ) : (
           <>
-            {invoices?.map((invoice) => {
+            {filteredInvoices.map((invoice) => {
               const totalPaid = calculateInvoicePaid(invoice);
               const status = getPaymentStatus(Number(invoice.total), totalPaid);
 

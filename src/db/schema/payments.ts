@@ -16,6 +16,7 @@ import { businessPartners } from './businessPartners';
 import { bankAccounts } from './bankAccounts';
 import { relations } from 'drizzle-orm';
 import { paymentAllocations } from './paymentAllocations';
+import { invoices } from './invoices';
 
 export const payments = pgTable(
   'payments',
@@ -69,4 +70,8 @@ export const paymentRelations = relations(payments, ({ one, many }) => ({
     references: [bankAccounts.id],
   }),
   allocations: many(paymentAllocations),
+  invoice: one(invoices, {
+    fields: [payments.cfdiPaymentId],
+    references: [invoices.folioFiscal],
+  }),
 }));
