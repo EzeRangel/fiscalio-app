@@ -29,7 +29,7 @@ Implement the client-side filtering logic for search and CFDI type.
     - [x] Verify the header count updates in real-time
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Filtering Implementation' (Protocol in workflow.md) 803b21f
 
-## Phase 3: Dynamic Grouping & Totals
+## Phase 3: Dynamic Grouping & Totals [checkpoint: 657fa46]
 Ensure that the list grouping and summary totals are reactive to the filtered data.
 
 - [x] Task: Refactor `List` component for reactive grouping d99cdc6, 9d1a697
@@ -39,7 +39,7 @@ Ensure that the list grouping and summary totals are reactive to the filtered da
 - [x] Task: Verify Summary Totals d99cdc6, 9d1a697
     - [x] Create unit tests for summary total calculations with filtered data
     - [x] Ensure `calculatePeriodTotals` in `List` correctly reflects the filtered set
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Dynamic Grouping & Totals' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Dynamic Grouping & Totals' (Protocol in workflow.md) 657fa46
 
 ## Phase 4: Polish & Final Verification
 Final touches on UI/UX and comprehensive testing.
