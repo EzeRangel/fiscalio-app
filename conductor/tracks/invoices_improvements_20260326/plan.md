@@ -2,7 +2,7 @@
 
 This plan outlines the steps to implement interactive client-side filtering and dynamic period-based grouping for the `/invoices` page.
 
-## Phase 1: State Management & Component Restructuring
+## Phase 1: State Management & Component Restructuring [checkpoint: bf345c4]
 Refactor the `/invoices` page to use a client-side wrapper that manages shared state for filtering and grouping.
 
 - [x] Task: Create `InvoicesClient` wrapper component 0c71aa6
@@ -15,7 +15,7 @@ Refactor the `/invoices` page to use a client-side wrapper that manages shared s
 - [x] Task: Connect `Filters` to shared state 0c71aa6
     - [x] Update `Filters` component to accept `value` and `onChange` props for all controls
     - [x] Remove local state from `Filters`
-- [~] Task: Conductor - User Manual Verification 'Phase 1: State Management & Component Restructuring' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: State Management & Component Restructuring' (Protocol in workflow.md) bf345c4
 
 ## Phase 2: Filtering Implementation
 Implement the client-side filtering logic for search and CFDI type.
