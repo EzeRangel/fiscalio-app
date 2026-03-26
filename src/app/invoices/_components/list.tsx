@@ -101,10 +101,16 @@ export default function List({
       : filteredInvoices.reduce(
           (acc, invoice) => {
             let key = "";
+            const date = new Date(invoice.invoiceDate);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const periodFromDate = `${year}-${month}`;
+
             if (periodGroup === "month") {
-              key = invoice.accountingPeriod || "Sin periodo";
+              key = invoice.accountingPeriod || periodFromDate;
             } else if (periodGroup === "year") {
-              key = invoice.accountingPeriod?.substring(0, 4) || "Sin periodo";
+              key =
+                invoice.accountingPeriod?.substring(0, 4) || year.toString();
             }
             if (!acc[key]) acc[key] = [];
             acc[key].push(invoice);

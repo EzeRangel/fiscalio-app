@@ -55,6 +55,18 @@ describe("List Component Grouping and Totals", () => {
       businessPartner: { legalName: "Partner A", rfc: "RFC1" },
       allocations: [{ amountAllocated: "1000.00" }], // Partially paid
     },
+    {
+      id: 4,
+      internalFolio: "F4",
+      total: "300.00",
+      currency: "MXN",
+      invoiceDate: "2024-03-05",
+      accountingPeriod: null, // Test fallback to invoiceDate
+      cfdiType: "E",
+      invoiceType: "expense",
+      businessPartner: { legalName: "Partner C", rfc: "RFC3" },
+      allocations: [{ amountAllocated: "300.00" }],
+    },
   ];
 
   it("should render a flat list when periodGroup is 'none'", () => {
@@ -63,6 +75,7 @@ describe("List Component Grouping and Totals", () => {
     expect(screen.getByText("F1")).toBeInTheDocument();
     expect(screen.getByText("F2")).toBeInTheDocument();
     expect(screen.getByText("F3")).toBeInTheDocument();
+    expect(screen.getByText("F4")).toBeInTheDocument();
   });
 
   it("should group by month and display totals", () => {
@@ -71,20 +84,23 @@ describe("List Component Grouping and Totals", () => {
     // Check month headers with flexible matchers and getAllByText
     expect(screen.getAllByText(/enero/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/febrero/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/marzo/i).length).toBeGreaterThanOrEqual(1);
 
     // In Jan: Income 1000, Expense 500
     // In Feb: Income 1000, Expense 0
+    // In Mar: Income 0, Expense 300
     expect(screen.getAllByText("$1,000.00").length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText("$500.00").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("$300.00").length).toBeGreaterThanOrEqual(1);
   });
 
   it("should group by year and display totals", () => {
     render(<List invoices={mockInvoices as any} periodGroup="year" />);
 
     expect(screen.getAllByText("2024").length).toBeGreaterThanOrEqual(1);
-    // Year total: Income (1000 + 1000) = 2000, Expense 500
+    // Year total: Income (1000 + 1000) = 2000, Expense (500 + 300) = 800
     expect(screen.getAllByText("$2,000.00").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("$500.00").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("$1,500.00").length).toBeGreaterThanOrEqual(1); // Net
+    expect(screen.getAllByText("$800.00").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("$1,200.00").length).toBeGreaterThanOrEqual(1); // Net
   });
 });
