@@ -32,14 +32,14 @@ Implement the client-side filtering logic for search and CFDI type.
 ## Phase 3: Dynamic Grouping & Totals
 Ensure that the list grouping and summary totals are reactive to the filtered data.
 
-- [ ] Task: Refactor `List` component for reactive grouping
-    - [ ] Create unit tests for reactive grouping in `src/app/invoices/_components/list.test.tsx`
-    - [ ] Ensure `List` uses the pre-filtered invoices for its grouping logic
-    - [ ] Verify that empty groups are not rendered
-- [ ] Task: Verify Summary Totals
-    - [ ] Create unit tests for summary total calculations with filtered data
-    - [ ] Ensure `calculatePeriodTotals` in `List` correctly reflects the filtered set
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Dynamic Grouping & Totals' (Protocol in workflow.md)
+- [x] Task: Refactor `List` component for reactive grouping d99cdc6, 9d1a697
+    - [x] Create unit tests for reactive grouping in `__tests__/components/list.test.tsx`
+    - [x] Ensure `List` uses the pre-filtered invoices for its grouping logic
+    - [x] Verify that empty groups are not rendered
+- [x] Task: Verify Summary Totals d99cdc6, 9d1a697
+    - [x] Create unit tests for summary total calculations with filtered data
+    - [x] Ensure `calculatePeriodTotals` in `List` correctly reflects the filtered set
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Dynamic Grouping & Totals' (Protocol in workflow.md)
 
 ## Phase 4: Polish & Final Verification
 Final touches on UI/UX and comprehensive testing.
