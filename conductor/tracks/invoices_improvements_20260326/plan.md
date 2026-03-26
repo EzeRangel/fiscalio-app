@@ -5,17 +5,17 @@ This plan outlines the steps to implement interactive client-side filtering and 
 ## Phase 1: State Management & Component Restructuring
 Refactor the `/invoices` page to use a client-side wrapper that manages shared state for filtering and grouping.
 
-- [ ] Task: Create `InvoicesClient` wrapper component
-    - [ ] Create `src/app/invoices/_components/invoices-client.tsx`
-    - [ ] Define state for `searchQuery`, `filterType`, and `periodGroup`
-    - [ ] Move the `invoices` data fetching (or receiving) to this component
-- [ ] Task: Refactor `src/app/invoices/page.tsx`
-    - [ ] Update `InvoicesList` server component to pass data to `InvoicesClient`
-    - [ ] Remove direct rendering of `Filters` and `List` from `page.tsx`
-- [ ] Task: Connect `Filters` to shared state
-    - [ ] Update `Filters` component to accept `value` and `onChange` props for all controls
-    - [ ] Remove local state from `Filters`
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: State Management & Component Restructuring' (Protocol in workflow.md)
+- [x] Task: Create `InvoicesClient` wrapper component 0c71aa6
+    - [x] Create `src/app/invoices/_components/invoices-client.tsx`
+    - [x] Define state for `searchQuery`, `filterType`, and `periodGroup`
+    - [x] Move the `invoices` data fetching (or receiving) to this component
+- [x] Task: Refactor `src/app/invoices/page.tsx` 0c71aa6
+    - [x] Update `InvoicesList` server component to pass data to `InvoicesClient`
+    - [x] Remove direct rendering of `Filters` and `List` from `page.tsx`
+- [x] Task: Connect `Filters` to shared state 0c71aa6
+    - [x] Update `Filters` component to accept `value` and `onChange` props for all controls
+    - [x] Remove local state from `Filters`
+- [~] Task: Conductor - User Manual Verification 'Phase 1: State Management & Component Restructuring' (Protocol in workflow.md)
 
 ## Phase 2: Filtering Implementation
 Implement the client-side filtering logic for search and CFDI type.
