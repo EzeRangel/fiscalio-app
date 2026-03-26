@@ -6,12 +6,14 @@ import { Download } from "lucide-react";
 import Filters from "./filters";
 import List from "./list";
 import { InferResultType } from "@/types/orm";
+import { isInvoiceLinked } from "@/lib/invoice-utils";
 
 type InvoiceWithContacts = InferResultType<
   "invoices",
   {
     businessPartner: true;
     allocations: true;
+    linkedPayments: { allocations: true };
   }
 >;
 
@@ -28,6 +30,9 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
 
   const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
+      // Filter out linked invoices (like individual payments in a complement)
+      if (isInvoiceLinked(invoice)) return false;
+
       const matchesSearch =
         !searchQuery ||
         invoice.businessPartner?.rfc
@@ -36,11 +41,10 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
         invoice.businessPartner?.legalName
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        invoice.internalFolio
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        invoice.internalFolio?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesType = filterType === "all" || invoice.invoiceType === filterType;
+      const matchesType =
+        filterType === "all" || invoice.invoiceType === filterType;
 
       return matchesSearch && matchesType;
     });

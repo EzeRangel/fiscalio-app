@@ -93,9 +93,7 @@ export default function List({
   //   return matchesSearch && matchesType;
   // });
 
-  const filteredInvoices = useMemo(() => {
-    return invoices.filter((invoice) => !isInvoiceLinked(invoice));
-  }, [invoices]);
+  const filteredInvoices = invoices;
 
   const groupedInvoices =
     periodGroup === "none"
