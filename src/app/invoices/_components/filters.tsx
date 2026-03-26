@@ -10,15 +10,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar, Filter, Search } from "lucide-react";
-import { useState } from "react";
 
 type PeriodGroup = "month" | "year" | "none";
 
-export default function Filters() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [cfdiTypeFilter, setCfdiTypeFilter] = useState<string>("all");
-  const [periodGroup, setPeriodGroup] = useState<PeriodGroup>("month");
+interface FiltersProps {
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  cfdiTypeFilter: string;
+  onCfdiTypeChange: (value: string) => void;
+  periodGroup: PeriodGroup;
+  onPeriodGroupChange: (value: PeriodGroup) => void;
+}
 
+export default function Filters({
+  searchQuery,
+  onSearchChange,
+  cfdiTypeFilter,
+  onCfdiTypeChange,
+  periodGroup,
+  onPeriodGroupChange,
+}: FiltersProps) {
   return (
     <div className="border-b border-border bg-background sticky top-0 z-10">
       <div className="container mx-auto px-6 py-4">
@@ -28,14 +39,14 @@ export default function Filters() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por RFC, emisor o folio..."
-              // value={searchQuery}
-              // onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
               className="pl-9 font-mono text-sm"
             />
           </div>
 
           {/* Type Filter */}
-          <Select value={cfdiTypeFilter} onValueChange={setCfdiTypeFilter}>
+          <Select value={cfdiTypeFilter} onValueChange={onCfdiTypeChange}>
             <SelectTrigger className="w-[160px]">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Tipo" />
@@ -50,7 +61,7 @@ export default function Filters() {
           {/* Period Grouping */}
           <Select
             value={periodGroup}
-            onValueChange={(v) => setPeriodGroup(v as PeriodGroup)}
+            onValueChange={(v) => onPeriodGroupChange(v as PeriodGroup)}
           >
             <SelectTrigger className="w-[160px]">
               <Calendar className="h-4 w-4 mr-2" />
@@ -69,8 +80,8 @@ export default function Filters() {
               variant="ghost"
               size="sm"
               onClick={() => {
-                setSearchQuery("");
-                setCfdiTypeFilter("all");
+                onSearchChange("");
+                onCfdiTypeChange("all");
               }}
               className="text-xs"
             >
