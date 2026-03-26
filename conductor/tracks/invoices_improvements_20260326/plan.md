@@ -17,7 +17,7 @@ Refactor the `/invoices` page to use a client-side wrapper that manages shared s
     - [x] Remove local state from `Filters`
 - [x] Task: Conductor - User Manual Verification 'Phase 1: State Management & Component Restructuring' (Protocol in workflow.md) bf345c4
 
-## Phase 2: Filtering Implementation
+## Phase 2: Filtering Implementation [checkpoint: 803b21f]
 Implement the client-side filtering logic for search and CFDI type.
 
 - [x] Task: Implement filtering logic 2fc1c2e, d016f9d
@@ -27,7 +27,7 @@ Implement the client-side filtering logic for search and CFDI type.
 - [x] Task: Update Header Count 2fc1c2e, d016f9d
     - [x] Pass the filtered count back to the header or move the header into `InvoicesClient`
     - [x] Verify the header count updates in real-time
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Filtering Implementation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Filtering Implementation' (Protocol in workflow.md) 803b21f
 
 ## Phase 3: Dynamic Grouping & Totals
 Ensure that the list grouping and summary totals are reactive to the filtered data.
