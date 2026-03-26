@@ -12,7 +12,6 @@ type InvoiceWithContacts = InferResultType<
   {
     businessPartner: true;
     allocations: true;
-    linkedPayments: { allocations: true };
   }
 >;
 
@@ -23,7 +22,9 @@ interface InvoicesClientProps {
 export default function InvoicesClient({ invoices }: InvoicesClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [periodGroup, setPeriodGroup] = useState<"month" | "year" | "none">("month");
+  const [periodGroup, setPeriodGroup] = useState<"month" | "year" | "none">(
+    "month",
+  );
 
   const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
@@ -35,9 +36,11 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
         invoice.businessPartner?.legalName
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        invoice.internalFolio?.toLowerCase().includes(searchQuery.toLowerCase());
+        invoice.internalFolio
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
-      const matchesType = filterType === "all" || invoice.cfdiType === filterType;
+      const matchesType = filterType === "all" || invoice.invoiceType === filterType;
 
       return matchesSearch && matchesType;
     });
@@ -75,10 +78,7 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
       />
 
       <section className="container mx-auto px-6 py-8">
-        <List
-          invoices={filteredInvoices}
-          periodGroup={periodGroup}
-        />
+        <List invoices={filteredInvoices} periodGroup={periodGroup} />
       </section>
     </section>
   );

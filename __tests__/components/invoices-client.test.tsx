@@ -26,8 +26,8 @@ jest.mock("@/app/invoices/_components/filters", () => {
           onChange={(e) => onCfdiTypeChange(e.target.value)}
         >
           <option value="all">All</option>
-          <option value="Ingreso">Ingreso</option>
-          <option value="Egreso">Egreso</option>
+          <option value="income">Ingreso</option>
+          <option value="expense">Egreso</option>
         </select>
       </div>
     );
@@ -57,7 +57,7 @@ describe("InvoicesClient Filtering", () => {
       total: "100.00",
       currency: "MXN",
       invoiceDate: "2024-01-01",
-      cfdiType: "Ingreso",
+      cfdiType: "I",
       invoiceType: "income",
       businessPartner: { legalName: "Alpha Partner", rfc: "RFC1" },
       allocations: [],
@@ -68,7 +68,7 @@ describe("InvoicesClient Filtering", () => {
       total: "200.00",
       currency: "MXN",
       invoiceDate: "2024-02-01",
-      cfdiType: "Egreso",
+      cfdiType: "E",
       invoiceType: "expense",
       businessPartner: { legalName: "Beta Partner", rfc: "RFC2" },
       allocations: [],
@@ -105,11 +105,21 @@ describe("InvoicesClient Filtering", () => {
     expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();
   });
 
-  it("should filter by CFDI type", () => {
+  it("should filter by invoice type (income)", () => {
     render(<InvoicesClient invoices={mockInvoices as any} />);
 
     const typeSelect = screen.getByTestId("type-select");
-    fireEvent.change(typeSelect, { target: { value: "Egreso" } });
+    fireEvent.change(typeSelect, { target: { value: "income" } });
+
+    expect(screen.getByText("1 documento")).toBeInTheDocument();
+    expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();
+  });
+
+  it("should filter by invoice type (expense)", () => {
+    render(<InvoicesClient invoices={mockInvoices as any} />);
+
+    const typeSelect = screen.getByTestId("type-select");
+    fireEvent.change(typeSelect, { target: { value: "expense" } });
 
     expect(screen.getByText("1 documento")).toBeInTheDocument();
     expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();

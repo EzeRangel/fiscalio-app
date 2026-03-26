@@ -53,8 +53,8 @@ export default function Filters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="Ingreso">Ingreso</SelectItem>
-              <SelectItem value="Egreso">Egreso</SelectItem>
+              <SelectItem value="income">Ingreso</SelectItem>
+              <SelectItem value="expense">Egreso</SelectItem>
             </SelectContent>
           </Select>
 
