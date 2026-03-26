@@ -1,14 +1,36 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import InvoicesClient from "@/app/invoices/_components/invoices-client";
 
 // Mock child components
 jest.mock("@/app/invoices/_components/filters", () => {
-  return function MockFilters() {
-    return <div data-testid="mock-filters">Filters</div>;
+  return function MockFilters({ 
+    searchQuery, 
+    onSearchChange, 
+    cfdiTypeFilter, 
+    onCfdiTypeChange 
+  }: any) {
+    return (
+      <div data-testid="mock-filters">
+        <input 
+          data-testid="search-input" 
+          value={searchQuery} 
+          onChange={(e) => onSearchChange(e.target.value)} 
+        />
+        <select 
+          data-testid="type-select" 
+          value={cfdiTypeFilter} 
+          onChange={(e) => onCfdiTypeChange(e.target.value)}
+        >
+          <option value="all">All</option>
+          <option value="Ingreso">Ingreso</option>
+          <option value="Egreso">Egreso</option>
+        </select>
+      </div>
+    );
   };
 });
 
@@ -27,7 +49,7 @@ jest.mock("@/components/privacy-blur", () => ({
   PrivacyBlur: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-describe("InvoicesClient", () => {
+describe("InvoicesClient Filtering", () => {
   const mockInvoices = [
     {
       id: 1,
@@ -37,7 +59,7 @@ describe("InvoicesClient", () => {
       invoiceDate: "2024-01-01",
       cfdiType: "Ingreso",
       invoiceType: "income",
-      businessPartner: { legalName: "Partner 1", rfc: "P1" },
+      businessPartner: { legalName: "Alpha Partner", rfc: "RFC1" },
       allocations: [],
     },
     {
@@ -48,18 +70,58 @@ describe("InvoicesClient", () => {
       invoiceDate: "2024-02-01",
       cfdiType: "Egreso",
       invoiceType: "expense",
-      businessPartner: { legalName: "Partner 2", rfc: "P2" },
+      businessPartner: { legalName: "Beta Partner", rfc: "RFC2" },
       allocations: [],
     },
   ];
 
-  it("should render header with initial count and child components", () => {
+  it("should filter by search query (legalName)", () => {
     render(<InvoicesClient invoices={mockInvoices as any} />);
 
-    expect(screen.getByText("Facturas")).toBeInTheDocument();
-    expect(screen.getByText("2 documentos")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-filters")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-list")).toBeInTheDocument();
-    expect(screen.getByText("List: 2 invoices")).toBeInTheDocument();
+    const searchInput = screen.getByTestId("search-input");
+    fireEvent.change(searchInput, { target: { value: "Alpha" } });
+
+    expect(screen.getByText("1 documento")).toBeInTheDocument();
+    expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();
+  });
+
+  it("should filter by search query (RFC)", () => {
+    render(<InvoicesClient invoices={mockInvoices as any} />);
+
+    const searchInput = screen.getByTestId("search-input");
+    fireEvent.change(searchInput, { target: { value: "RFC2" } });
+
+    expect(screen.getByText("1 documento")).toBeInTheDocument();
+    expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();
+  });
+
+  it("should filter by search query (Folio)", () => {
+    render(<InvoicesClient invoices={mockInvoices as any} />);
+
+    const searchInput = screen.getByTestId("search-input");
+    fireEvent.change(searchInput, { target: { value: "F1" } });
+
+    expect(screen.getByText("1 documento")).toBeInTheDocument();
+    expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();
+  });
+
+  it("should filter by CFDI type", () => {
+    render(<InvoicesClient invoices={mockInvoices as any} />);
+
+    const typeSelect = screen.getByTestId("type-select");
+    fireEvent.change(typeSelect, { target: { value: "Egreso" } });
+
+    expect(screen.getByText("1 documento")).toBeInTheDocument();
+    expect(screen.getByText("List: 1 invoices")).toBeInTheDocument();
+  });
+
+  it("should show empty list when no matches", () => {
+    render(<InvoicesClient invoices={mockInvoices as any} />);
+
+    const searchInput = screen.getByTestId("search-input");
+    fireEvent.change(searchInput, { target: { value: "NonExistent" } });
+
+    expect(screen.getByText("0 documentos")).toBeInTheDocument();
+    expect(screen.getByText("List: 0 invoices")).toBeInTheDocument();
   });
 });
