@@ -20,14 +20,14 @@ Refactor the `/invoices` page to use a client-side wrapper that manages shared s
 ## Phase 2: Filtering Implementation
 Implement the client-side filtering logic for search and CFDI type.
 
-- [ ] Task: Implement filtering logic
-    - [ ] Create unit tests for filtering logic in `src/app/invoices/_components/invoices-client.test.tsx`
-    - [ ] Implement `useMemo` based filtering in `InvoicesClient` or a dedicated hook
-    - [ ] Ensure filtering covers legal name, RFC, folio, and CFDI type
-- [ ] Task: Update Header Count
-    - [ ] Pass the filtered count back to the header or move the header into `InvoicesClient`
-    - [ ] Verify the header count updates in real-time
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Filtering Implementation' (Protocol in workflow.md)
+- [x] Task: Implement filtering logic 2fc1c2e, d016f9d
+    - [x] Create unit tests for filtering logic in `__tests__/components/invoices-client.test.tsx`
+    - [x] Implement `useMemo` based filtering in `InvoicesClient` or a dedicated hook
+    - [x] Ensure filtering covers legal name, RFC, folio, and CFDI type
+- [x] Task: Update Header Count 2fc1c2e, d016f9d
+    - [x] Pass the filtered count back to the header or move the header into `InvoicesClient`
+    - [x] Verify the header count updates in real-time
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Filtering Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Dynamic Grouping & Totals
 Ensure that the list grouping and summary totals are reactive to the filtered data.
