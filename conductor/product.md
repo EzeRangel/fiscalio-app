@@ -17,6 +17,7 @@ An offline-first web application designed to help Mexican taxpayers (specificall
 - **CFDI Validation:** Automatically validating invoices against official SAT requirements to ensure compliance.
 - **Business Partner Analytics:** Real-time tracking of invoice volumes and financial balance for clients and providers.
 - **System-Wide Audit Log:** Comprehensive traceability for critical operations, tracking changes in invoices, payments, and configurations for compliance and debugging.
+- **Interactive Financial Views:** Dynamic, client-side filtering and period-based grouping (month/year) for invoices, with real-time recalculation of cash-basis summary totals.
 - **Multi-Currency Support (USD):** Automatic normalization of USD transactions to MXN based on cash-basis principles for accurate financial reporting.
 - **Partner Management & Categorization:** Tools for managing business partners, including tagging and quick access to related invoice history.
 - **Smart Predictions:** Providing auto-completion and suggestions during manual data adjustments to increase efficiency.
