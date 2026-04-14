@@ -134,4 +134,25 @@ describe("InvoicesClient Filtering", () => {
     expect(screen.getByText("0 documentos")).toBeInTheDocument();
     expect(screen.getByText("List: 0 invoices")).toBeInTheDocument();
   });
+
+  it("performance: should handle 1,000 invoices efficiently", () => {
+    const largeDataset = Array.from({ length: 1000 }, (_, i) => ({
+      id: i,
+      internalFolio: `F${i}`,
+      total: "100.00",
+      currency: "MXN",
+      invoiceDate: "2024-01-01",
+      cfdiType: "I",
+      invoiceType: "income",
+      businessPartner: { legalName: `Partner ${i}`, rfc: `RFC${i}` },
+      allocations: [],
+    }));
+
+    const start = performance.now();
+    render(<InvoicesClient invoices={largeDataset as any} />);
+    const end = performance.now();
+
+    expect(end - start).toBeLessThan(1000); // Should render in less than 1s in JSDOM
+    expect(screen.getByText("1000 documentos")).toBeInTheDocument();
+  });
 });
