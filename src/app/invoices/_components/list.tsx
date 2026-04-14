@@ -63,7 +63,7 @@ const calculateInvoicePaid = (invoice: InvoiceDetails) => {
       exchangeRate: finalRate,
       invoice: {
         total: invoice.total,
-        subtotal: invoice.subtotal,
+        subtotal: invoice.subtotal ?? invoice.total,
         taxes: [],
       },
     };

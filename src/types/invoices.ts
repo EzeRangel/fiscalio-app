@@ -10,6 +10,7 @@ export type InvoiceDetails = InferResultType<
     account: true;
     businessPartner: true;
     items: { with: { taxes: true } };
+    linkedPayments: { with: { allocations: true } };
     allocations: { with: { payment: true; invoice: true } };
   }
 >;

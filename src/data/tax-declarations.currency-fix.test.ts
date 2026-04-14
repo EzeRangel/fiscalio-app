@@ -21,13 +21,17 @@ jest.mock("drizzle-orm", () => {
     };
 });
 
-jest.mock("@/lib/cash-basis-utils", () => ({
-    calculateCashBasisSummary: jest.fn().mockReturnValue({
-        subtotalPaid: 2000,
-        taxBreakdown: [],
-        totalPaid: 2320,
-    })
-}));
+jest.mock("@/lib/cash-basis-utils", () => {
+    const actual = jest.requireActual("@/lib/cash-basis-utils");
+    return {
+        ...actual,
+        calculateCashBasisSummary: jest.fn().mockReturnValue({
+            subtotalPaid: 2000,
+            taxBreakdown: [],
+            totalPaid: 2320,
+        })
+    };
+});
 
 jest.mock("@/lib/tax-calculations", () => ({
     calculateISR_RESICO: jest.fn().mockReturnValue(50)

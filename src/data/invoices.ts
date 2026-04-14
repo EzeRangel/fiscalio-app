@@ -29,6 +29,7 @@ import {
   distributeHeaderTaxesToItems,
 } from "@/lib/invoice-utils";
 import { InvoiceTaxInsert } from "@/types/invoice-taxes";
+import { InvoiceDetails } from "@/types/invoices";
 
 export const saveNewInvoice = async (
   parsedCFDI: ParsedCFDI,
@@ -405,7 +406,7 @@ export const saveNewInvoice = async (
 export const getInvoicesByOrganization = async (
   organizationId: number,
   filters?: { partnerId?: number },
-) => {
+): Promise<InvoiceDetails[]> => {
   const { db } = await getDB();
 
   const conditions = [eq(invoices.organizationId, organizationId)];
@@ -418,8 +419,10 @@ export const getInvoicesByOrganization = async (
     where: and(...conditions),
     orderBy: [desc(invoices.invoiceDate)],
     with: {
+      account: true,
+      items: { with: { taxes: true } },
       businessPartner: true,
-      allocations: true,
+      allocations: { with: { payment: true, invoice: true } },
       linkedPayments: {
         with: {
           allocations: true,

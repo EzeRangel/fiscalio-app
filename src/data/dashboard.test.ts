@@ -9,6 +9,7 @@ jest.mock("@/db", () => ({
     invoiceType: { name: 'invoice_type' },
     invoiceDate: { name: 'invoice_date' },
     total: { name: 'total' },
+    status: { name: 'status' },
   },
   payments: {
     id: { name: 'id' },
@@ -19,6 +20,12 @@ jest.mock("@/db", () => ({
     paymentId: { name: 'payment_id' },
     invoiceId: { name: 'invoice_id' },
     amountAllocated: { name: 'amount_allocated' },
+  },
+  taxDeclarations: {
+    id: { name: 'id' },
+    organizationId: { name: 'organization_id' },
+    fiscalPeriod: { name: 'fiscal_period' },
+    status: { name: 'status' },
   }
 }));
 
@@ -29,6 +36,8 @@ jest.mock("drizzle-orm", () => ({
   and: jest.fn((...conds) => ({ type: 'and', conds })),
   gte: jest.fn((col, val) => ({ type: 'gte', col, val })),
   lte: jest.fn((col, val) => ({ type: 'lte', col, val })),
+  desc: jest.fn((col) => ({ type: 'desc', col })),
+  inArray: jest.fn((col, vals) => ({ type: 'inArray', col, vals })),
   sql: jest.fn((strings, ...values) => ({ type: 'sql', strings, values })),
 }));
 
@@ -39,8 +48,11 @@ describe("getDashboardMetrics", () => {
       from: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
       where: jest.fn()
-        .mockResolvedValueOnce([{ total: "1000.50" }]) // Income
-        .mockResolvedValueOnce([{ total: "500.25" }]), // Expenses
+        .mockResolvedValueOnce([{ total: "1000.50" }]) // Income (Chain 1)
+        .mockResolvedValueOnce([{ total: "500.25" }]) // Expenses (Chain 2)
+        .mockReturnThis(), // Last declaration (Chain 3)
+      orderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([{ id: 1, status: "filed", fiscalPeriod: "2024-01" }]),
     };
     (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
 

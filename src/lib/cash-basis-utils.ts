@@ -123,8 +123,8 @@ export function calculateCashBasisSummary(
   const breakdownMap = new Map<string, TaxBreakdownItem>();
 
   for (const allocation of allocations) {
-    const amountAllocated = parseFloat(allocation.amountAllocated.toString());
-    const invoiceTotal = parseFloat(allocation.invoice.total.toString());
+    const amountAllocated = parseFloat((allocation.amountAllocated ?? 0).toString());
+    const invoiceTotal = parseFloat((allocation.invoice?.total ?? 0).toString());
     const exchangeRate = parseFloat((allocation.exchangeRate ?? 1.0).toString()) || 1.0;
 
     if (invoiceTotal === 0) continue;
@@ -134,17 +134,17 @@ export function calculateCashBasisSummary(
       calculatePaidTaxForItem(
         amountAllocated,
         invoiceTotal,
-        parseFloat(allocation.invoice.subtotal.toString())
+        parseFloat((allocation.invoice?.subtotal ?? allocation.invoice?.total ?? 0).toString())
       ) * exchangeRate;
 
     // Process granular taxes if available
-    if (allocation.invoice.taxes && allocation.invoice.taxes.length > 0) {
+    if (allocation.invoice?.taxes && allocation.invoice.taxes.length > 0) {
       for (const tax of allocation.invoice.taxes) {
         const taxAmount =
           calculatePaidTaxForItem(
             amountAllocated,
             invoiceTotal,
-            parseFloat(tax.amount.toString())
+            parseFloat((tax.amount ?? 0).toString())
           ) * exchangeRate;
         
         // Aggregate totals

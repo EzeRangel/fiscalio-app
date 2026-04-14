@@ -81,7 +81,7 @@ export async function getDashboardMetrics(
   const income = Number(incomeResult[0]?.total || 0);
   const expenses = Number(expenseResult[0]?.total || 0);
 
-  let nextDeclarationDate = new Date(period.year, period.month, 17);
+  let nextDeclarationDate = new Date(period.year, period.month + 1, 17);
 
   const [lastDeclaration] = await db
     .select()
@@ -93,7 +93,7 @@ export async function getDashboardMetrics(
   if (lastDeclaration.status !== "filed") {
     const declaration = parse(
       lastDeclaration.fiscalPeriod,
-      "yyyy-mm",
+      "yyyy-MM",
       new Date(),
     );
     nextDeclarationDate = declaration;

@@ -13,6 +13,7 @@ jest.mock("@/db", () => ({
     total: { name: 'total' },
     currency: { name: 'currency' },
     exchangeRate: { name: 'exchange_rate' },
+    status: { name: 'status' },
   },
   payments: {
     id: { name: 'id' },
@@ -24,6 +25,12 @@ jest.mock("@/db", () => ({
     invoiceId: { name: 'invoice_id' },
     amountAllocated: { name: 'amount_allocated' },
     exchangeRate: { name: 'exchange_rate' },
+  },
+  taxDeclarations: {
+    id: { name: 'id' },
+    organizationId: { name: 'organization_id' },
+    fiscalPeriod: { name: 'fiscal_period' },
+    status: { name: 'status' },
   }
 }));
 
@@ -45,8 +52,9 @@ describe("getDashboardMetrics SQL Generation", () => {
       select: jest.fn().mockReturnThis(),
       from: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn()
-        .mockResolvedValue([{ total: "0" }]),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([{ total: "0", status: "filed", fiscalPeriod: "2024-01" }]),
     };
     (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
 

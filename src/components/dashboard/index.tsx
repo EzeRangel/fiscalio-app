@@ -47,8 +47,6 @@ export default function Dashboard() {
     });
   }, [period]);
 
-  const isLoading = isLoadingInvoices || isLoadingMetrics;
-
   return (
     <section className="space-y-12">
       <div className="flex items-center justify-between">

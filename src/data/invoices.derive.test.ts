@@ -84,12 +84,12 @@ describe("saveNewInvoice - Invoice Type Derivation", () => {
     Emisor: {
       Rfc: emitterRfc,
       Nombre: "Emitter Org",
-      RegimenFiscal: "601",
+      RegimenFiscal: "626",
     },
     Receptor: {
       Rfc: receiverRfc,
       Nombre: "Receiver Org",
-      RegimenFiscalReceptor: "601",
+      RegimenFiscalReceptor: "626",
       UsoCFDI: "G03",
     },
     Conceptos: {

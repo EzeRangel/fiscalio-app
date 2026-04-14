@@ -41,7 +41,7 @@ Ensure that the list grouping and summary totals are reactive to the filtered da
     - [x] Ensure `calculatePeriodTotals` in `List` correctly reflects the filtered set
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Dynamic Grouping & Totals' (Protocol in workflow.md) 657fa46
 
-## Phase 4: Polish & Final Verification
+## Phase 4: Polish & Final Verification [checkpoint: f0d9d0a]
 Final touches on UI/UX and comprehensive testing.
 
 - [x] Task: UI/UX Refinement e364801
@@ -50,4 +50,4 @@ Final touches on UI/UX and comprehensive testing.
 - [x] Task: Final System Integration Test 1b83685
     - [x] Run all tests in the project to ensure no regressions
     - [x] Verify performance with simulated large dataset (up to 1,000 invoices)
-- [~] Task: Conductor - User Manual Verification 'Phase 4: Polish & Final Verification' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Polish & Final Verification' (Protocol in workflow.md) f0d9d0a

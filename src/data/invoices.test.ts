@@ -55,8 +55,11 @@ describe("getInvoicesByOrganization", () => {
 
     const lastCall = (mockDb.query.invoices.findMany as jest.Mock).mock.calls[0][0];
     expect(lastCall.with).toEqual({
+      account: true,
       businessPartner: true,
-      allocations: true,
+      items: { with: { taxes: true } },
+      linkedPayments: { with: { allocations: true } },
+      allocations: { with: { payment: true, invoice: true } },
     });
   });
 });

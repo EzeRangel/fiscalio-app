@@ -30,7 +30,9 @@ describe("getDashboardMetrics - Extended Types", () => {
       select: jest.fn().mockReturnThis(),
       from: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockResolvedValue([{ total: "0" }]),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([{ total: "0", status: "filed", fiscalPeriod: "2024-01" }]),
     };
     (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
 
@@ -52,7 +54,9 @@ describe("getDashboardMetrics - Extended Types", () => {
       select: jest.fn().mockReturnThis(),
       from: jest.fn().mockReturnThis(),
       innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockResolvedValue([{ total: "0" }]),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([{ total: "0", status: "filed", fiscalPeriod: "2024-01" }]),
     };
     (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
 

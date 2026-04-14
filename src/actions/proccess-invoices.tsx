@@ -13,6 +13,7 @@ import {
   checkFolioFiscalUniqueness,
   generateFileHash,
 } from "@/lib/data-integrity";
+import { revalidatePath } from "next/cache";
 
 async function parseXML(cfdi: File) {
   const xmlContent = await cfdi.text();
@@ -128,7 +129,10 @@ export async function processInvoices(formData: FormData) {
 
         if (savedInvoice.status === "invalid") {
           successful++;
-          await updateStatus("invalid", "Guardada con inconsistencias fiscales.");
+          await updateStatus(
+            "invalid",
+            "Guardada con inconsistencias fiscales.",
+          );
         } else {
           successful++;
           await updateStatus("success");
@@ -141,6 +145,7 @@ export async function processInvoices(formData: FormData) {
       }
     }
 
+    revalidatePath("/");
     uiStream.done();
   })();
 
