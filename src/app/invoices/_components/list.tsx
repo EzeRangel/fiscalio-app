@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,29 +17,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatPrice } from "@/hooks/usePrice";
-import { getCFDIType, getInvoiceType } from "@/lib/utils";
-import { isInvoiceLinked } from "@/lib/invoice-utils";
-import { Invoice } from "@/types/invoices";
-import { InferResultType } from "@/types/orm";
-import { Download, Eye, FileText, MoreHorizontal } from "lucide-react";
+import { getInvoiceType } from "@/lib/utils";
+import { InvoiceDetails } from "@/types/invoices";
+import { Eye, FileText, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { PrivacyBlur } from "@/components/privacy-blur";
-import { CFDI_TYPE, INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
-
-type InvoiceWithContacts = InferResultType<
-  "invoices",
-  {
-    businessPartner: true;
-    allocations: true;
-    linkedPayments: { allocations: true };
-  }
->;
+import { INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
+import {
+  calculateCashBasisSummary,
+  getEffectiveExchangeRate,
+} from "@/lib/cash-basis-utils";
 
 interface Props {
-  search?: string;
-  filterType?: string;
   periodGroup?: "month" | "year" | "none";
-  invoices: InvoiceWithContacts[];
+  invoices: InvoiceDetails[];
 }
 
 const getPaymentStatus = (total: number, paid: number) => {
@@ -60,39 +50,31 @@ const getPaymentStatus = (total: number, paid: number) => {
   };
 };
 
-const calculateInvoicePaid = (invoice: InvoiceWithContacts) => {
-  return (invoice.allocations || []).reduce(
-    (sum, alloc) => sum + Number(alloc.amountAllocated),
-    0,
-  );
+const calculateInvoicePaid = (invoice: InvoiceDetails) => {
+  const invoiceAllocations = invoice.allocations.map((i) => {
+    const finalRate = getEffectiveExchangeRate(
+      invoice.currency,
+      i.exchangeRate,
+      invoice.exchangeRate,
+    );
+
+    return {
+      amountAllocated: i.amountAllocated,
+      exchangeRate: finalRate,
+      invoice: {
+        total: invoice.total,
+        subtotal: invoice.subtotal,
+        taxes: [],
+      },
+    };
+  });
+
+  const summary = calculateCashBasisSummary(invoiceAllocations);
+
+  return summary.totalPaid;
 };
 
-export default function List({
-  invoices,
-  search,
-  filterType,
-  periodGroup = "none",
-}: Props) {
-  // TODO: Filter invoices
-  // const filteredInvoices = invoices.filter((invoice) => {
-  //   if (!search) {
-  //     return false;
-  //   }
-
-  //   const matchesSearch =
-  //     invoice.businessPartner?.rfc
-  //       .toLowerCase()
-  //       .includes(search?.toLowerCase()) ||
-  //     invoice.businessPartner?.legalName
-  //       ?.toLowerCase()
-  //       .includes(search?.toLowerCase()) ||
-  //     invoice?.internalFolio?.toLowerCase().includes(search?.toLowerCase());
-
-  //   const matchesType = filterType === "all" || invoice.cfdiType === filterType;
-
-  //   return matchesSearch && matchesType;
-  // });
-
+export default function List({ invoices, periodGroup = "none" }: Props) {
   const filteredInvoices = invoices;
 
   const groupedInvoices =
@@ -116,10 +98,10 @@ export default function List({
             acc[key].push(invoice);
             return acc;
           },
-          {} as Record<string, InvoiceWithContacts[]>,
+          {} as Record<string, InvoiceDetails[]>,
         );
 
-  const calculatePeriodTotals = (periodInvoices: InvoiceWithContacts[]) => {
+  const calculatePeriodTotals = (periodInvoices: InvoiceDetails[]) => {
     // Cash-basis totals for the period
     let income = 0;
     let expense = 0;
@@ -179,7 +161,10 @@ export default function List({
           const totals = calculatePeriodTotals(invoices);
 
           return (
-            <div key={period} className="space-y-6">
+            <div
+              key={period}
+              className="space-y-6 animate-fade-in animate-duration-500"
+            >
               {/* Period Header */}
               {periodGroup !== "none" && (
                 <div className="flex items-baseline justify-between pb-4 border-b-2 border-primary/20">

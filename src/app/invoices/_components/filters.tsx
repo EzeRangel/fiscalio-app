@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Filter, Search } from "lucide-react";
+import { Calendar, Filter, Search, X } from "lucide-react";
 
 type PeriodGroup = "month" | "year" | "none";
 
@@ -30,8 +30,10 @@ export default function Filters({
   periodGroup,
   onPeriodGroupChange,
 }: FiltersProps) {
+  const hasActiveFilters = searchQuery || cfdiTypeFilter !== "all";
+
   return (
-    <div className="border-b border-border bg-background sticky top-0 z-10">
+    <div className="border-b border-border bg-background sticky top-0 z-10 shadow-sm">
       <div className="container mx-auto px-6 py-4">
         <div className="flex flex-wrap items-center gap-3">
           {/* Search */}
@@ -41,15 +43,26 @@ export default function Filters({
               placeholder="Buscar por RFC, emisor o folio..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9 font-mono text-sm"
+              className="pl-9 pr-9 font-mono text-sm"
             />
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
 
           {/* Type Filter */}
           <Select value={cfdiTypeFilter} onValueChange={onCfdiTypeChange}>
             <SelectTrigger className="w-[160px]">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Tipo" />
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="Tipo" />
+              </div>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
@@ -64,8 +77,10 @@ export default function Filters({
             onValueChange={(v) => onPeriodGroupChange(v as PeriodGroup)}
           >
             <SelectTrigger className="w-[160px]">
-              <Calendar className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Agrupar" />
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="Agrupar" />
+              </div>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">Sin agrupar</SelectItem>
@@ -75,16 +90,17 @@ export default function Filters({
           </Select>
 
           {/* Active Filters Count */}
-          {(searchQuery || cfdiTypeFilter !== "all") && (
+          {hasActiveFilters && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => {
                 onSearchChange("");
                 onCfdiTypeChange("all");
               }}
-              className="text-xs"
+              className="text-xs h-9 gap-2 border-dashed"
             >
+              <X className="h-3 w-3" />
               Limpiar filtros
             </Button>
           )}

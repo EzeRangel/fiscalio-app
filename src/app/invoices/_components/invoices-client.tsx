@@ -1,24 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import Filters from "./filters";
 import List from "./list";
-import { InferResultType } from "@/types/orm";
 import { isInvoiceLinked } from "@/lib/invoice-utils";
-
-type InvoiceWithContacts = InferResultType<
-  "invoices",
-  {
-    businessPartner: true;
-    allocations: true;
-    linkedPayments: { allocations: true };
-  }
->;
+import { InvoiceDetails } from "@/types/invoices";
+import { cn } from "@/lib/utils";
 
 interface InvoicesClientProps {
-  invoices: InvoiceWithContacts[];
+  invoices: InvoiceDetails[];
 }
 
 export default function InvoicesClient({ invoices }: InvoicesClientProps) {
@@ -27,6 +19,8 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
   const [periodGroup, setPeriodGroup] = useState<"month" | "year" | "none">(
     "month",
   );
+  const [isPending, startTransition] = useTransition();
+  const [displayInvoices, setDisplayInvoices] = useState(invoices);
 
   const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
@@ -41,7 +35,9 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
         invoice.businessPartner?.legalName
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        invoice.internalFolio?.toLowerCase().includes(searchQuery.toLowerCase());
+        invoice.internalFolio
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
       const matchesType =
         filterType === "all" || invoice.invoiceType === filterType;
@@ -50,18 +46,30 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
     });
   }, [invoices, searchQuery, filterType]);
 
+  // Use useEffect to update displayInvoices with a transition
+  useEffect(() => {
+    startTransition(() => {
+      setDisplayInvoices(filteredInvoices);
+    });
+  }, [filteredInvoices]);
+
   return (
     <section className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-border bg-muted/20">
+      <header className="border-b border-border bg-muted/20 animate-fade-in">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-end justify-between gap-6">
             <div className="space-y-2">
               <h1 className="text-4xl font-light tracking-tight">Facturas</h1>
-              <p className="text-muted-foreground font-mono text-sm">
-                {filteredInvoices.length}{" "}
-                {filteredInvoices.length === 1 ? "documento" : "documentos"}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-muted-foreground font-mono text-sm">
+                  {displayInvoices.length}{" "}
+                  {displayInvoices.length === 1 ? "documento" : "documentos"}
+                </p>
+                {isPending && (
+                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                )}
+              </div>
             </div>
 
             <Button className="gap-2">
@@ -81,8 +89,13 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
         onPeriodGroupChange={setPeriodGroup}
       />
 
-      <section className="container mx-auto px-6 py-8">
-        <List invoices={filteredInvoices} periodGroup={periodGroup} />
+      <section
+        className={cn(
+          "container mx-auto px-6 py-8 transition-opacity duration-300",
+          isPending ? "opacity-50" : "opacity-100",
+        )}
+      >
+        <List invoices={displayInvoices} periodGroup={periodGroup} />
       </section>
     </section>
   );
