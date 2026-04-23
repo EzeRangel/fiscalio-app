@@ -144,8 +144,6 @@ export async function processInvoices(formData: FormData) {
         await updateStatus("error", errorMessage);
       }
     }
-
-    revalidatePath("/");
     uiStream.done();
   })();
 
