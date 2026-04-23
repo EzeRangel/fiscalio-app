@@ -8,6 +8,7 @@ import {
   Settings,
   Home,
   ChevronRight,
+  BookOpen,
 } from "lucide-react";
 
 import {
@@ -54,34 +55,19 @@ const navigation = [
         icon: FileText,
       },
       {
+        title: "Declaraciones",
+        href: "/tax-declarations",
+        icon: FileBarChart,
+      },
+      {
         title: "Socios Comerciales",
         href: "/partners",
         icon: Users,
       },
       {
-        title: "Declaraciones",
-        href: "/tax-declarations",
-        icon: FileBarChart,
-      },
-    ],
-  },
-  {
-    title: "Configuración",
-    items: [
-      {
-        title: "Ajustes",
-        href: "/settings",
-        icon: Settings,
-        subItems: [
-          {
-            title: "Catálogo de Cuentas",
-            href: "/settings/chart-of-accounts",
-          },
-          {
-            title: "Editar Perfil",
-            href: "/settings/profile",
-          },
-        ],
+        icon: BookOpen,
+        title: "Catálogo de Cuentas",
+        href: "/settings/chart-of-accounts",
       },
     ],
   },
@@ -138,9 +124,9 @@ export function AppSidebar({ organizations }: Props) {
                               <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
-                          <CollapsibleContent>
+                          {/* <CollapsibleContent>
                             <SidebarMenuSub>
-                              {item.subItems!.map((subItem) => {
+                              {item?.subItems!.map((subItem) => {
                                 const isSubActive = pathname === subItem.href;
                                 return (
                                   <SidebarMenuSubItem key={subItem.title}>
@@ -161,7 +147,7 @@ export function AppSidebar({ organizations }: Props) {
                                 );
                               })}
                             </SidebarMenuSub>
-                          </CollapsibleContent>
+                          </CollapsibleContent> */}
                         </SidebarMenuItem>
                       </Collapsible>
                     );

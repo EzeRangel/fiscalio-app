@@ -1,5 +1,4 @@
 import { getChartOfAccountsByOrg } from "@/data/chart-of-accounts";
-import { Settings } from "lucide-react";
 import { Filters } from "./_components/filters";
 import { Table } from "./_components/table";
 import { Account, HierarchicalAccountFull } from "@/types/chart-of-accounts";
@@ -57,10 +56,10 @@ export default async function ChartOfAccountsPage() {
 
   // Calculate the required values
   const totalActiveAccounts = accounts.filter(
-    (account) => account.isActive
+    (account) => account.isActive,
   ).length;
   const mainAccounts = accounts.filter(
-    (account) => account.parentAccountId === null
+    (account) => account.parentAccountId === null,
   ).length;
 
   return (
@@ -103,25 +102,6 @@ export default async function ChartOfAccountsPage() {
 
       <Filters accounts={accounts} />
       <Table accounts={groupedAccounts} />
-
-      <div className="container mx-auto px-6">
-        <div className="mt-8 p-6 bg-[hsl(var(--chart-5))]/5 border border-[hsl(var(--chart-5))]/20 rounded-lg">
-          <div className="flex gap-4">
-            <Settings className="h-5 w-5 text-[hsl(var(--chart-5))] shrink-0 mt-0.5" />
-            <div className="space-y-2">
-              <h3 className="font-medium">
-                Sistema de Clasificación Inteligente
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                El catálogo de cuentas es la base del sistema de clasificación
-                automática. Define reglas para cada cuenta y nuestra IA
-                aprenderá a clasificar tus facturas automáticamente según los
-                patrones que identifique.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { getOrganizations } from "@/data/organizations";
 import App from "@/components/App";
-import "./globals.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
@@ -11,6 +10,8 @@ import { SiteHeader } from "@/components/site-header";
 import { cookies } from "next/headers";
 import { PRIVACY_MODE_COOKIE } from "@/lib/privacy-mode";
 import { PrivacyModeProvider } from "@/components/providers/privacy-mode-provider";
+
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
