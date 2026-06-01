@@ -16,8 +16,14 @@ import {
   invoices,
 } from "@/db/schema";
 import { getClassificationRules } from "@/data/classification-rules";
-import { ClassificationEngine, deriveEngineInvoice, generateFeatureSetHash } from "@/lib/classification-engine";
-import { ClassificationCandidate, EngineInvoice } from "@/types/classification-engine";
+import {
+  deriveEngineInvoice,
+  generateFeatureSetHash,
+} from "@/lib/classification-engine";
+import {
+  ClassificationCandidate,
+  EngineInvoice,
+} from "@/types/classification-engine";
 import { logAction } from "@/lib/audit-service";
 import { upsertPatternCandidate } from "@/data/pattern-detection";
 
@@ -104,7 +110,7 @@ export const getInvoiceClassificationSuggestion = actionClient
     const invoice = await db.query.invoices.findFirst({
       where: and(
         eq(invoices.id, parsedInput.invoiceId),
-        eq(invoices.organizationId, organizationId)
+        eq(invoices.organizationId, organizationId),
       ),
       with: {
         items: {
@@ -152,7 +158,7 @@ export const applyClassification = actionClient
     const invoice = await db.query.invoices.findFirst({
       where: and(
         eq(invoices.id, invoiceId),
-        eq(invoices.organizationId, organizationId)
+        eq(invoices.organizationId, organizationId),
       ),
       with: {
         items: {
@@ -176,7 +182,7 @@ export const applyClassification = actionClient
       (snapshot?.candidates as ClassificationCandidate[]) || [];
 
     const acceptedCandidate = candidates.find(
-      (c) => c.accountCode === accountCode
+      (c) => c.accountCode === accountCode,
     );
 
     const rules = await getClassificationRules();
@@ -205,18 +211,19 @@ export const applyClassification = actionClient
               rate: Number(t.rate),
               taxCode: t.taxCode,
               taxType: t.taxType,
-            }))
+            })),
           ),
         };
 
         const derived = deriveEngineInvoice(engineInvoice);
+
         const hash = generateFeatureSetHash(derived);
 
         await upsertPatternCandidate(
           organizationId,
           hash,
           derived,
-          accountCode
+          accountCode,
         );
       } catch (err) {
         console.error("Pattern detection background task failed:", err);

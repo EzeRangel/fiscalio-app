@@ -60,6 +60,7 @@ export async function promoteCandidateToRule(candidateId: number) {
         evidenceCount: candidate.evidenceCount,
         consistencyRate: candidate.consistencyRate,
       },
+      tx,
     });
   });
 }
