@@ -4,6 +4,7 @@ import { EngineInvoice } from "@/types/classification-engine";
 import { ClassificationEngine } from "@/lib/classification-engine";
 import { getInvoiceById } from "./invoices";
 import { getClassificationRules } from "./classification-rules";
+import { eq } from "drizzle-orm";
 
 export async function suggestInvoiceClassification(invoiceId: number) {
   const invoice = await getInvoiceById(invoiceId);
@@ -45,10 +46,24 @@ export async function suggestInvoiceClassification(invoiceId: number) {
   const candidates = classificationEngine.run(engineInvoice, rules);
 
   if (Array.isArray(candidates) && candidates.length >= 1) {
-    await db.insert(classificationSnapshots).values({
-      invoiceId: invoiceId,
-      candidates: candidates,
+    const existing = await db.query.classificationSnapshots.findFirst({
+      where: eq(classificationSnapshots.invoiceId, invoiceId),
     });
+
+    if (existing) {
+      await db
+        .update(classificationSnapshots)
+        .set({
+          candidates: candidates,
+          updatedAt: new Date(),
+        })
+        .where(eq(classificationSnapshots.id, existing.id));
+    } else {
+      await db.insert(classificationSnapshots).values({
+        invoiceId: invoiceId,
+        candidates: candidates,
+      });
+    }
 
     return candidates;
   }

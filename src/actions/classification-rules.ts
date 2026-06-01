@@ -16,6 +16,7 @@ import {
   invoices,
 } from "@/db/schema";
 import { getClassificationRules } from "@/data/classification-rules";
+import { suggestInvoiceClassification } from "@/data/classification-snapshots";
 import {
   deriveEngineInvoice,
   generateFeatureSetHash,
@@ -124,6 +125,14 @@ export const getInvoiceClassificationSuggestion = actionClient
 
     if (!invoice) {
       throw new ActionError("La factura no fue encontrada.");
+    }
+
+    // If the invoice is not classified yet, we refresh the snapshot to ensure
+    // it includes any newly promoted rules or patterns.
+    if (!invoice.accountId) {
+      const liveCandidates = await suggestInvoiceClassification(invoice.id);
+
+      return liveCandidates as ClassificationCandidate[];
     }
 
     const snapshot = await db
