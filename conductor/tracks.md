@@ -11,3 +11,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Improve /invoices page. Client-side filters, group invoices by month and year, ensuring grouping reflects filtered data.**
 *Link: [./tracks/invoices_improvements_20260326/](./tracks/invoices_improvements_20260326/)*
+
+---
+
+- [ ] **Track: CFDI Invoices Cancellation & Tax Adjustments**
+*Link: [./tracks/cfdi_cancellations_20260708/](./tracks/cfdi_cancellations_20260708/)*
+
