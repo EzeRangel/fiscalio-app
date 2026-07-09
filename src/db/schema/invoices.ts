@@ -167,5 +167,10 @@ export const invoiceRelations = relations(invoices, ({ one, many }) => ({
     fields: [invoices.accountId],
     references: [chartOfAccounts.id],
   }),
-  linkedPayments: many(payments),
+  linkedPayments: many(payments, {
+    relationName: "invoice_payments",
+  }),
+  refundPayments: many(payments, {
+    relationName: "refund_payments",
+  }),
 }));

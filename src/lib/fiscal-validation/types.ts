@@ -30,6 +30,7 @@ export interface FiscalPayment {
   id: number;
   amount: number | string;
   paymentDate: Date;
+  isRefund?: boolean;
   allocations?: FiscalAllocation[];
 }
 

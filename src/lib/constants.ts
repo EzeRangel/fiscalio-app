@@ -5,6 +5,10 @@ export const CFDI_TYPE = {
   P: "Pago",
 };
 
+export const PAYMENT_TYPE = {
+  refund: "Reembolso",
+} as const;
+
 export const INVOICE_TYPE = {
   income: "Ingreso",
   expense: "Egreso",
@@ -223,6 +227,7 @@ export const AUDIT_ENTITIES = {
   payment: "Pago",
   classification_rule: "Regla de Clasificación",
   pattern_candidate: "Patrón de Clasificación",
+  tax_adjustment: "Ajuste Fiscal",
 };
 
 export const AUDIT_ACTIONS = {
@@ -231,6 +236,8 @@ export const AUDIT_ACTIONS = {
   deleted: "Eliminado",
   classified: "Clasificado",
   reconciled: "Conciliado",
+  cancelled: "Cancelado",
+  refunded: "Reembolsado",
 };
 
 export const GENERIC_RFCS = {

@@ -17,4 +17,6 @@ export * from "./declarationInvoices";
 export * from "./fiscalPeriods";
 export * from "./auditLogs";
 export * from "./patternCandidates";
+export * from "./taxAdjustments";
+
 

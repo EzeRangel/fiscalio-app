@@ -1,4 +1,5 @@
 import {
+  boolean,
   decimal,
   index,
   integer,
@@ -43,6 +44,10 @@ export const payments = pgTable(
     referenceNumber: varchar('reference_number', { length: 100 }),
     authorizationNumber: varchar('authorization_number', { length: 100 }),
     cfdiPaymentId: uuid('cfdi_payment_id'),
+    isRefund: boolean('is_refund').default(false),
+    refundedInvoiceId: integer('refunded_invoice_id').references(
+      () => invoices.id
+    ),
     notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
@@ -73,5 +78,11 @@ export const paymentRelations = relations(payments, ({ one, many }) => ({
   invoice: one(invoices, {
     fields: [payments.cfdiPaymentId],
     references: [invoices.folioFiscal],
+    relationName: "invoice_payments",
+  }),
+  refundedInvoice: one(invoices, {
+    fields: [payments.refundedInvoiceId],
+    references: [invoices.id],
+    relationName: "refund_payments",
   }),
 }));

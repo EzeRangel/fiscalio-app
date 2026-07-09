@@ -23,7 +23,7 @@ import { InvoiceTypes } from "@/types/utils";
 
 type InvoiceWithBusinessPartner = InferResultType<
   "invoices",
-  { businessPartner: true; allocations: true; linkedPayments: { allocations: true } }
+  { businessPartner: true; allocations: true; linkedPayments: { with: { allocations: true } } }
 >;
 
 interface Props {

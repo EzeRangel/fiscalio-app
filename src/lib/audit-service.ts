@@ -41,7 +41,7 @@ type LogActionParams = {
   organizationId: number;
   entityType: string;
   entityId: number;
-  action: "created" | "updated" | "deleted" | "classified" | "reconciled";
+  action: "created" | "updated" | "deleted" | "classified" | "reconciled" | "cancelled" | "refunded";
   changes?: AuditChanges;
   metadata?: AuditMetadata;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
