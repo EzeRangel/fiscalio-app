@@ -4,6 +4,7 @@ import { SAT_TAX_CODES, DEFAULT_TAX_RATES } from "./constants";
 export interface InvoiceWithLinkage {
   invoiceType: string;
   substituteInvoiceId?: number | null;
+  status?: string | null;
   linkedPayments?: {
     allocations?: { id: number | string }[];
   }[];
@@ -14,6 +15,11 @@ export interface InvoiceWithLinkage {
  * to a primary "Ingreso" invoice that already reflects the transaction.
  */
 export function isInvoiceLinked(invoice: InvoiceWithLinkage): boolean {
+  // If the invoice is cancelled, keep it visible
+  if (invoice.status === "cancelled") {
+    return false;
+  }
+
   // 1. Hide Payment Complements (P) if they have allocations to an Ingreso
   if (
     invoice.invoiceType === "payment_issued" ||

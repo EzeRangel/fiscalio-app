@@ -62,4 +62,29 @@ describe("getInvoicesByOrganization", () => {
       allocations: { with: { payment: true, invoice: true } },
     });
   });
+
+  it("should filter out substituted invoices by default, and include them if showSubstituted is true", async () => {
+    const mockDb = {
+      query: {
+        invoices: {
+          findMany: jest.fn().mockResolvedValue([]),
+        },
+      },
+    };
+    (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
+
+    // Default call (without filter)
+    await getInvoicesByOrganization(1);
+    let lastCall = (mockDb.query.invoices.findMany as jest.Mock).mock.calls[0][0];
+    let whereStr = JSON.stringify(lastCall.where);
+    expect(whereStr).toContain('"substituted"');
+    expect(whereStr).toContain('" <> "');
+
+    // With showSubstituted = true
+    jest.clearAllMocks();
+    await getInvoicesByOrganization(1, { showSubstituted: true });
+    lastCall = (mockDb.query.invoices.findMany as jest.Mock).mock.calls[0][0];
+    whereStr = JSON.stringify(lastCall.where);
+    expect(whereStr).not.toContain('"substituted"');
+  });
 });

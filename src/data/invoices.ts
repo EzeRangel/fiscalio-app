@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte, lte, ne } from "drizzle-orm";
 import {
   businessPartners,
   getDB,
@@ -405,7 +405,7 @@ export const saveNewInvoice = async (
 // TODO: Mejorar la función para obtener todas las facturas, enviar filtros como parámetros.
 export const getInvoicesByOrganization = async (
   organizationId: number,
-  filters?: { partnerId?: number },
+  filters?: { partnerId?: number; showSubstituted?: boolean },
 ): Promise<InvoiceDetails[]> => {
   const { db } = await getDB();
 
@@ -413,6 +413,10 @@ export const getInvoicesByOrganization = async (
 
   if (filters?.partnerId) {
     conditions.push(eq(invoices.partnerId, filters.partnerId));
+  }
+
+  if (!filters?.showSubstituted) {
+    conditions.push(ne(invoices.status, "substituted"));
   }
 
   return db.query.invoices.findMany({
@@ -521,6 +525,7 @@ export const getInvoiceById = async (id: number) => {
     with: {
       account: true,
       businessPartner: true,
+      refundPayments: true,
       items: {
         with: {
           taxes: true,

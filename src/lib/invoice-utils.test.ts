@@ -5,6 +5,16 @@ describe("isInvoiceLinked", () => {
     expect(isInvoiceLinked({ invoiceType: "income" })).toBe(false);
   });
 
+  it("should return false for cancelled invoices even if they have linkage data", () => {
+    expect(
+      isInvoiceLinked({
+        invoiceType: "payment_received",
+        status: "cancelled",
+        linkedPayments: [{ allocations: [{ id: 1 }] }],
+      })
+    ).toBe(false);
+  });
+
   it("should return true for payment_received with allocations", () => {
     expect(
       isInvoiceLinked({
