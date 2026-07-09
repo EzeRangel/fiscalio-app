@@ -7,21 +7,21 @@ This plan outlines the implementation steps to add invoice cancellation, substit
 ## Phase 1: Database Migration & Schema Updates [checkpoint]
 Focus on setting up the database schema for tax adjustments and payment refunds.
 
-- [ ] Task: Create `taxAdjustments` Drizzle Schema
-    - [ ] Create `src/db/schema/taxAdjustments.ts` with columns: `id`, `organizationId`, `invoiceId`, `fiscalPeriod`, `adjustmentType`, `amount`, `currency`, `requiresCompensation`, `appliedInDeclaration`, `notes`, `createdAt`, `updatedAt`.
-    - [ ] Export `taxAdjustments` in `src/db/schema/index.ts`.
-- [ ] Task: Update `payments` Drizzle Schema
-    - [ ] Add `isRefund` boolean (default false) and `refundedInvoiceId` integer FK (to `invoices.id`) in `src/db/schema/payments.ts`.
-- [ ] Task: Generate and Run Migration
-    - [ ] Run `pnpm db:generate` to generate migration `0019` and apply it to the database.
-- [ ] Task: Update Zod schemas and TypeScript types
-    - [ ] Create `src/types/cancellation.ts` with types for cancellation request and reasons.
-    - [ ] Create `PAYMENT_TYPE` constant in `src/lib/constants.ts` with `{ refund: "Reembolso" }`.
-    - [ ] Add `PaymentTypes = InvoiceTypes | keyof typeof PAYMENT_TYPE` to `src/types/utils.ts`.
-    - [ ] Add `"cancelled"`, `"refunded"` to `logAction` action union in `src/lib/audit-service.ts`.
-    - [ ] Add `"tax_adjustment"` to `AUDIT_ENTITIES` in `src/lib/constants.ts`.
-    - [ ] Add `isRefund?: boolean` to `FiscalPayment` in `src/lib/fiscal-validation/types.ts`.
-    - [ ] Update `src/types/invoices.ts` and `src/types/payments.ts` or equivalent zod schemas to support the new fields.
+- [x] Task: Create `taxAdjustments` Drizzle Schema [e022a82]
+    - [x] Create `src/db/schema/taxAdjustments.ts` with columns: `id`, `organizationId`, `invoiceId`, `fiscalPeriod`, `adjustmentType`, `amount`, `currency`, `requiresCompensation`, `appliedInDeclaration`, `notes`, `createdAt`, `updatedAt`.
+    - [x] Export `taxAdjustments` in `src/db/schema/index.ts`.
+- [x] Task: Update `payments` Drizzle Schema [e022a82]
+    - [x] Add `isRefund` boolean (default false) and `refundedInvoiceId` integer FK (to `invoices.id`) in `src/db/schema/payments.ts`.
+- [x] Task: Generate and Run Migration [e022a82]
+    - [x] Run `pnpm db:generate` to generate migration `0019` and apply it to the database.
+- [x] Task: Update Zod schemas and TypeScript types [e022a82]
+    - [x] Create `src/types/cancellation.ts` with types for cancellation request and reasons.
+    - [x] Create `PAYMENT_TYPE` constant in `src/lib/constants.ts` with `{ refund: "Reembolso" }`.
+    - [x] Add `PaymentTypes = InvoiceTypes | keyof typeof PAYMENT_TYPE` to `src/types/utils.ts`.
+    - [x] Add `"cancelled"`, `"refunded"` to `logAction` action union in `src/lib/audit-service.ts`.
+    - [x] Add `"tax_adjustment"` to `AUDIT_ENTITIES` in `src/lib/constants.ts`.
+    - [x] Add `isRefund?: boolean` to `FiscalPayment` in `src/lib/fiscal-validation/types.ts`.
+    - [x] Update `src/types/invoices.ts` and `src/types/payments.ts` or equivalent zod schemas to support the new fields.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Migration & Schema Updates' (Protocol in workflow.md)
 
 ## Phase 2: Fiscal Validation & Core Logic [checkpoint]
