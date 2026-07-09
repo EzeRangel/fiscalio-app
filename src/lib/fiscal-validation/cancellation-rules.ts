@@ -16,7 +16,7 @@ export function validateCancellation(
     if (!request.substituteInvoiceUuid || request.substituteInvoiceUuid.trim() === "") {
       errors.push({
         code: FISCAL_VALIDATION_RULES.CANCELLATION.MISSING_SUBSTITUTE,
-        message: "Las cancelaciones por motivo 01 o 02 requieren especificar el UUID de la factura sustituta.",
+        message: "Las cancelaciones por motivo 01 requieren especificar el UUID de la factura sustituta.",
         severity: "error",
         field: "substituteInvoiceUuid",
       });
