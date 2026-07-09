@@ -4,7 +4,7 @@ This plan outlines the implementation steps to add invoice cancellation, substit
 
 > **Refinements from design interview (2026-07-08):** See `CONTEXT.md` for glossary. Key decisions: (1) Refunds use `isRefund=true` without allocations (no negative allocations); (2) `paymentType="refund"` via new `PAYMENT_TYPE` constant; (3) `paymentStatus` machine: `pending→partial→paid→refunded`; (4) substitute lookup by UUID (`folioFiscal`) + visual selector; (5) `taxAdjustment` auto-created on every Motivo 03 refund with `fiscalPeriod` from refund date (fiscal domain pending expert validation); (6) audit actions: `"cancelled"`, `"refunded"` added; (7) validation rules renamed to `INT-CAN-01/02/03` living in `cancellation-rules.ts`; (8) single dialog with condicional branching (no wizard); (9) `cancelled` visible in list, `substituted` hidden; (10) tax adjustments as separate UI section (opción 3 híbrido).
 
-## Phase 1: Database Migration & Schema Updates [checkpoint]
+## Phase 1: Database Migration & Schema Updates [checkpoint: 62f66de]
 Focus on setting up the database schema for tax adjustments and payment refunds.
 
 - [x] Task: Create `taxAdjustments` Drizzle Schema [e022a82]
@@ -22,7 +22,7 @@ Focus on setting up the database schema for tax adjustments and payment refunds.
     - [x] Add `"tax_adjustment"` to `AUDIT_ENTITIES` in `src/lib/constants.ts`.
     - [x] Add `isRefund?: boolean` to `FiscalPayment` in `src/lib/fiscal-validation/types.ts`.
     - [x] Update `src/types/invoices.ts` and `src/types/payments.ts` or equivalent zod schemas to support the new fields.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Migration & Schema Updates' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Database Migration & Schema Updates' (Protocol in workflow.md) [62f66de]
 
 ## Phase 2: Fiscal Validation & Core Logic [checkpoint]
 Implement validation rules and update payment validations to handle refunds.
