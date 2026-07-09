@@ -24,17 +24,17 @@ Focus on setting up the database schema for tax adjustments and payment refunds.
     - [x] Update `src/types/invoices.ts` and `src/types/payments.ts` or equivalent zod schemas to support the new fields.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Database Migration & Schema Updates' (Protocol in workflow.md) [62f66de]
 
-## Phase 2: Fiscal Validation & Core Logic [checkpoint]
+## Phase 2: Fiscal Validation & Core Logic [checkpoint: 535c141]
 Implement validation rules and update payment validations to handle refunds.
 
-- [ ] Task: Extend validation constants
-    - [ ] Add `CANCELLATION` section to `FISCAL_VALIDATION_RULES` with codes: `INT-CAN-01` (cancelación con pagos sin refund), `INT-CAN-02` (motivo 01/02 sin `substituteInvoiceId`), `INT-CAN-03` (refund monto > `amountPaid`) in `src/lib/fiscal-validation/constants.ts`.
-- [ ] Task: Create Cancellation Rules
-    - [ ] Create `src/lib/fiscal-validation/cancellation-rules.ts` with `validateCancellation()` function. Runs pre-transaction in server action.
-    - [ ] Export cancellation rules in `src/lib/fiscal-validation/index.ts`.
-- [ ] Task: Update Payment validation rules
-    - [ ] Add `isRefund?: boolean` field to `FiscalPayment` type. No rule changes needed (refunds have `amount>0`, pass existing checks).
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Fiscal Validation & Core Logic' (Protocol in workflow.md)
+- [x] Task: Extend validation constants [a71d708]
+    - [x] Add `CANCELLATION` section to `FISCAL_VALIDATION_RULES` with codes: `INT-CAN-01` (cancelación con pagos sin refund), `INT-CAN-02` (motivo 01/02 sin `substituteInvoiceId`), `INT-CAN-03` (refund monto > `amountPaid`) in `src/lib/fiscal-validation/constants.ts`.
+- [x] Task: Create Cancellation Rules [a71d708]
+    - [x] Create `src/lib/fiscal-validation/cancellation-rules.ts` with `validateCancellation()` function. Runs pre-transaction in server action.
+    - [x] Export cancellation rules in `src/lib/fiscal-validation/index.ts`.
+- [x] Task: Update Payment validation rules [a71d708]
+    - [x] Add `isRefund?: boolean` field to `FiscalPayment` type. No rule changes needed (refunds have `amount>0`, pass existing checks).
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Fiscal Validation & Core Logic' (Protocol in workflow.md) [535c141]
 
 ## Phase 3: Server Actions & Data Layer [checkpoint]
 Implement the core logic for cancel, substitution, and refund in server actions.
