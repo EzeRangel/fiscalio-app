@@ -60,16 +60,16 @@ Implement the core logic for cancel, substitution, and refund in server actions.
 ## Phase 4: UI Dialogs & Invoice Detail Integration [checkpoint]
 Build user-facing components to trigger cancellation and register refunds.
 
-- [ ] Task: Build Dialog components
-    - [ ] Create `src/app/invoices/_components/cancel-invoice-dialog.tsx` using shadcn components. Single dialog with branching conditional (no wizard): motivo selector (4 radios), conditional UUID input for motivo 01 with lookup button, optional description, confirmation checkbox.
-    - [ ] Create `src/app/invoices/_components/register-refund-dialog.tsx`. Form: amount, date, payment method. No allocations.
-    - [ ] Write tests for both dialog components.
-- [ ] Task: Integrate into Invoice Details
-    - [ ] Update `src/app/invoices/_components/details.tsx`: (a) new status badge row showing `Cancelada`/`Sustituida` when `status !== "active"`; (b) cancel button visible only if `cfdiType=I|E` and `status=active`; (c) `getPaymentStatus` reads `invoice.paymentStatus` field directly; (d) refund payments in list shown as "Devolución" with distinct icon; (e) pre-cancellation yellow banner if `amountPaid > 0` with CTA "Registrar Devolución".
-    - [ ] Ensure Cancel options only render for Type I and E.
-- [ ] Task: Update invoice list to filter substituted
-    - [ ] Add `status !== "substituted"` filter to `getInvoicesByOrganization` default query. Add optional `showSubstituted` param.
-    - [ ] Update `isInvoiceLinked()` to handle new statuses. `cancelled` stays visible.
+- [x] Task: Build Dialog components [7df171f]
+    - [x] Create `src/app/invoices/_components/cancel-invoice-dialog.tsx` using shadcn components. Single dialog with branching conditional (no wizard): motivo selector (4 radios), conditional UUID input for motivo 01 with lookup button, optional description, confirmation checkbox.
+    - [x] Create `src/app/invoices/_components/register-refund-dialog.tsx`. Form: amount, date, payment method. No allocations.
+    - [x] Write tests for both dialog components.
+- [x] Task: Integrate into Invoice Details [7df171f]
+    - [x] Update `src/app/invoices/_components/details.tsx`: (a) new status badge row showing `Cancelada`/`Sustituida` when `status !== "active"`; (b) cancel button visible only if `cfdiType=I|E` and `status=active`; (c) `getPaymentStatus` reads `invoice.paymentStatus` field directly; (d) refund payments in list shown as "Devolución" with distinct icon; (e) pre-cancellation yellow banner if `amountPaid > 0` with CTA "Registrar Devolución".
+    - [x] Ensure Cancel options only render for Type I and E.
+- [x] Task: Update invoice list to filter substituted [7df171f]
+    - [x] Add `status !== "substituted"` filter to `getInvoicesByOrganization` default query. Add optional `showSubstituted` param.
+    - [x] Update `isInvoiceLinked()` to handle new statuses. `cancelled` stays visible.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: UI Dialogs & Invoice Detail Integration' (Protocol in workflow.md)
 
 ## Phase 5: Tax Declarations Integration [checkpoint]
