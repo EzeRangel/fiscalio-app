@@ -48,6 +48,7 @@ export interface FiscalInvoice {
   amountPaid: number | string;
   paymentStatus: string;
   status: string; // active, cancelled
+  cfdiType?: string;
   allocations?: FiscalAllocation[];
   items?: FiscalInvoiceItem[];
   invoiceDate?: Date; // Optional for backward compatibility/simplicity if not always available
