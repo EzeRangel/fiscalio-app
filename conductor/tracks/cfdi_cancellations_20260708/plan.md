@@ -42,19 +42,19 @@ Implement the core logic for cancel, substitution, and refund in server actions.
 - [x] Task: Implement `cancellation` data access layer [fc0235d]
     - [x] Create `src/data/cancellation.ts` with methods like `loadInvoiceForCancellation` and `updateInvoiceStatus`.
     - [x] Write unit tests for these data access methods in `src/data/cancellation.test.ts`.
-- [~] Task: Implement `cancelInvoiceAction`
-    - [ ] Create `src/actions/cancellation.ts` containing `cancelInvoiceAction`.
-    - [ ] Implement support for substitution (Motivo 01/02) reassigning allocations within a transaction.
-    - [ ] Implement write to `auditLogs` upon cancellation.
-    - [ ] Write unit/integration tests in `src/actions/cancellation.test.ts` (handling Red and Green phases).
-- [ ] Task: Implement `registerRefundAction`
-    - [ ] Add `registerRefundAction` in `src/actions/cancellation.ts`.
-    - [ ] Implement creation of refund payment (`paymentType="refund"`, `isRefund=true`, `refundedInvoiceId`, `amount>0`, no allocations).
-    - [ ] Validar INT-CAN-03 (refund amount ≤ invoice `amountPaid` original) pre-transaction.
-    - [ ] Adjust invoice `amountPaid` to 0 and `paymentStatus` to `refunded` (full refund only).
-    - [ ] Auto-create `taxAdjustment` always on Motivo 03 refund (fiscalPeriod from refund paymentDate, `requiresCompensation=true`). Fiscal domain pending expert validation on cross-period handling.
-    - [ ] Write audit log with action `"refunded"`.
-    - [ ] Write tests in `src/actions/cancellation.test.ts` for refund registering.
+- [x] Task: Implement `cancelInvoiceAction` [d6df70a]
+    - [x] Create `src/actions/cancellation.ts` containing `cancelInvoiceAction`.
+    - [x] Implement support for substitution (Motivo 01/02) reassigning allocations within a transaction.
+    - [x] Implement write to `auditLogs` upon cancellation.
+    - [x] Write unit/integration tests in `src/actions/cancellation.test.ts` (handling Red and Green phases).
+- [x] Task: Implement `registerRefundAction` [d6df70a]
+    - [x] Add `registerRefundAction` in `src/actions/cancellation.ts`.
+    - [x] Implement creation of refund payment (`paymentType="refund"`, `isRefund=true`, `refundedInvoiceId`, `amount>0`, no allocations).
+    - [x] Validar INT-CAN-03 (refund amount ≤ invoice `amountPaid` original) pre-transaction.
+    - [x] Adjust invoice `amountPaid` to 0 and `paymentStatus` to `refunded` (full refund only).
+    - [x] Auto-create `taxAdjustment` always on Motivo 03 refund (fiscalPeriod from refund paymentDate, `requiresCompensation=true`). Fiscal domain pending expert validation on cross-period handling.
+    - [x] Write audit log with action `"refunded"`.
+    - [x] Write tests in `src/actions/cancellation.test.ts` for refund registering.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Server Actions & Data Layer' (Protocol in workflow.md)
 
 ## Phase 4: UI Dialogs & Invoice Detail Integration [checkpoint]

@@ -4,7 +4,7 @@ This document provides essential context for AI models interacting with this pro
 
 ## 1. Project Overview & Purpose
 
-- **Primary Goal:** This is a web application, built using Next.js and it uses the App Router. The keyname is "fdi-assistant".
+- **Primary Goal:** This is a web application, built using Next.js and it uses the App Router. The keyname is "Fiscalio".
 - **Business Domain:** An Offline Web Application to help users keep track of legal SAT invoices and accountability in Mexico.
 
 ## 2. Core Technologies & Stack
@@ -71,7 +71,6 @@ The following principles have been established during development sessions and s
 - **Practice Continuous Code Cleanup:** With each refactoring step, we removed the code that became obsolete (e.g., unused `refs`, `forwardRef`, and custom hooks). This discipline is critical for preventing technical debt and keeping the codebase clean and maintainable for future developers.
 
 - **Adhering to Existing Project Conventions:**
-
   - Use the designated actionClient for server actions.
   - Fetch data on the client with useQuery instead of useEffect.
   - Standardize error handling and database access.
@@ -83,7 +82,6 @@ The following principles have been established during development sessions and s
 - **Align Zod Schemas with Database Schemas:** Zod schemas used in server actions for data validation must precisely mirror the database schema's types and nullability. For example, a nullable `DECIMAL` column in the database, which Drizzle represents as a string, should correspond to `z.string().optional()` in the Zod schema. Similarly, nullable columns should have corresponding `.optional()` or `.nullable()` validators to prevent type errors when passing data to the ORM.
 
 - **Use Transformations for Data Mismatches:** When form data structure or format doesn't align with the database schema, use the server action as a translation layer.
-
   - **Formatting:** For simple format differences (e.g., a comma-separated string for a database array), use Zod's `.transform()` method within the action's input schema. This centralizes data-shaping logic.
   - **Field Names:** For mismatched names (e.g., form field `taxRegime` vs. database column `taxRegimeId`), perform the renaming inside the action handler _after_ validation. Destructure the `parsedInput` and construct a new object for the ORM.
 
@@ -99,22 +97,22 @@ The project features an adaptive system for automatically suggesting account cla
 
 **Core Components:**
 
-*   **`ClassificationEngine` (`src/lib/classification-engine.ts`):** The central class that takes an invoice and a set of rules and produces a ranked list of `ClassificationCandidate`s.
-*   **`ClassificationRule`:** A rule defines a set of `matchCriteria` (e.g., specific RFC, product codes) that, if met, suggest a specific `accountCode`.
-*   **`Evidence`:** When a rule matches an invoice, it generates a piece of `Evidence`. The strength of this evidence (`matchStrength`) varies depending on the rule type.
-*   **`ClassificationCandidate`:** A potential classification outcome (`accountCode`) supported by one or more pieces of `Evidence`. Its final `score` is a weighted calculation based on the `priority`, `matchStrength`, and learned `confidenceBoost` of its evidence.
+- **`ClassificationEngine` (`src/lib/classification-engine.ts`):** The central class that takes an invoice and a set of rules and produces a ranked list of `ClassificationCandidate`s.
+- **`ClassificationRule`:** A rule defines a set of `matchCriteria` (e.g., specific RFC, product codes) that, if met, suggest a specific `accountCode`.
+- **`Evidence`:** When a rule matches an invoice, it generates a piece of `Evidence`. The strength of this evidence (`matchStrength`) varies depending on the rule type.
+- **`ClassificationCandidate`:** A potential classification outcome (`accountCode`) supported by one or more pieces of `Evidence`. Its final `score` is a weighted calculation based on the `priority`, `matchStrength`, and learned `confidenceBoost` of its evidence.
 
 **Adaptive Learning via Feedback Loop:**
 
 The engine's key feature is its ability to learn from user feedback, handled by the `applyClassification` server action (`src/actions/classification-rules.ts`).
 
-*   **Positive Reinforcement:** When a user accepts a candidate, the system calls `reinforceRuleConfidence`. This increases the `confidenceBoost` of the rules that contributed to the correct suggestion, making them more influential in the future.
-*   **Negative Reinforcement (Penalization):** When a user ignores all candidates and manually chooses a different account, the system calls `penalizeRuleConfidence`. This decreases the `confidenceBoost` of the dominant rules that led to the incorrect suggestions, making them less influential.
-*   **Feedback Records:** All user feedback is recorded in the `classificationFeedback` table for auditing and analysis.
+- **Positive Reinforcement:** When a user accepts a candidate, the system calls `reinforceRuleConfidence`. This increases the `confidenceBoost` of the rules that contributed to the correct suggestion, making them more influential in the future.
+- **Negative Reinforcement (Penalization):** When a user ignores all candidates and manually chooses a different account, the system calls `penalizeRuleConfidence`. This decreases the `confidenceBoost` of the dominant rules that led to the incorrect suggestions, making them less influential.
+- **Feedback Records:** All user feedback is recorded in the `classificationFeedback` table for auditing and analysis.
 
 **Key Tuning Parameters:**
 
 When working on this system, be aware of two critical constants in `src/actions/classification-rules.ts`:
 
-*   `LEARNING_RATE`: Controls how much the `confidenceBoost` changes with each piece of feedback.
-*   `DOMINANT_EVIDENCE_THRESHOLD`: The minimum `matchStrength` a rule must have to be considered for penalization during negative feedback. This prevents the system from punishing rules for weak, incidental matches.
+- `LEARNING_RATE`: Controls how much the `confidenceBoost` changes with each piece of feedback.
+- `DOMINANT_EVIDENCE_THRESHOLD`: The minimum `matchStrength` a rule must have to be considered for penalization during negative feedback. This prevents the system from punishing rules for weak, incidental matches.
