@@ -39,10 +39,10 @@ Implement validation rules and update payment validations to handle refunds.
 ## Phase 3: Server Actions & Data Layer [checkpoint]
 Implement the core logic for cancel, substitution, and refund in server actions.
 
-- [ ] Task: Implement `cancellation` data access layer
-    - [ ] Create `src/data/cancellation.ts` with methods like `loadInvoiceForCancellation` and `updateInvoiceStatus`.
-    - [ ] Write unit tests for these data access methods in `src/data/cancellation.test.ts`.
-- [ ] Task: Implement `cancelInvoiceAction`
+- [x] Task: Implement `cancellation` data access layer [fc0235d]
+    - [x] Create `src/data/cancellation.ts` with methods like `loadInvoiceForCancellation` and `updateInvoiceStatus`.
+    - [x] Write unit tests for these data access methods in `src/data/cancellation.test.ts`.
+- [~] Task: Implement `cancelInvoiceAction`
     - [ ] Create `src/actions/cancellation.ts` containing `cancelInvoiceAction`.
     - [ ] Implement support for substitution (Motivo 01/02) reassigning allocations within a transaction.
     - [ ] Implement write to `auditLogs` upon cancellation.
