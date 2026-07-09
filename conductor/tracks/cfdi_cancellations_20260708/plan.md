@@ -36,7 +36,7 @@ Implement validation rules and update payment validations to handle refunds.
     - [x] Add `isRefund?: boolean` field to `FiscalPayment` type. No rule changes needed (refunds have `amount>0`, pass existing checks).
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Fiscal Validation & Core Logic' (Protocol in workflow.md) [535c141]
 
-## Phase 3: Server Actions & Data Layer [checkpoint]
+## Phase 3: Server Actions & Data Layer [checkpoint: 83a73c6]
 Implement the core logic for cancel, substitution, and refund in server actions.
 
 - [x] Task: Implement `cancellation` data access layer [fc0235d]
@@ -55,7 +55,7 @@ Implement the core logic for cancel, substitution, and refund in server actions.
     - [x] Auto-create `taxAdjustment` always on Motivo 03 refund (fiscalPeriod from refund paymentDate, `requiresCompensation=true`). Fiscal domain pending expert validation on cross-period handling.
     - [x] Write audit log with action `"refunded"`.
     - [x] Write tests in `src/actions/cancellation.test.ts` for refund registering.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Server Actions & Data Layer' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Server Actions & Data Layer' (Protocol in workflow.md) [83a73c6]
 
 ## Phase 4: UI Dialogs & Invoice Detail Integration [checkpoint]
 Build user-facing components to trigger cancellation and register refunds.
