@@ -1,6 +1,6 @@
 # Implementation Plan
 
-## Phase 1: Data Access & Logic Update
+## Phase 1: Data Access & Logic Update [checkpoint: 0b300c8]
 
 - [x] Task: Write tests (`src/data/tax-declarations.history.test.ts`) for `getTaxDeclarationsDashboardData` verifying that `history`: [ee97a39]
   - Includes all statuses (`draft`, `validated`, `filed`, `exported`)
@@ -11,7 +11,7 @@
   - Import `not` from `drizzle-orm`
   - Replace `eq(taxDeclarations.status, "filed")` with `not(eq(taxDeclarations.fiscalPeriod, fiscalPeriodToDeclare))`
   - Add `eq(taxDeclarations.declarationType, "monthly")`
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Data Access & Logic Update' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Data Access & Logic Update' (Protocol in workflow.md) [0b300c8]
 
 ## Phase 2: UI Implementation
 
