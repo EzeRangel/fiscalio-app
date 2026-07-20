@@ -6,8 +6,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [~] **Track: CFDI Invoices Cancellation & Tax Adjustments**
       _Link: [./tracks/cfdi_cancellations_20260708/](./tracks/cfdi_cancellations_20260708/)_
-
----
-
-- [x] **Track: Implement a history or list of declarations organized by status**
-      *Link: [./tracks/declaration_history_20260720/](./tracks/declaration_history_20260720/)*
