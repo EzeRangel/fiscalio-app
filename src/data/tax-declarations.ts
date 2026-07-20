@@ -1,6 +1,6 @@
 import "server-only";
 import { getDB } from "@/db";
-import { and, eq, gte, lt, desc, sql, inArray } from "drizzle-orm";
+import { and, eq, gte, lt, desc, sql, inArray, not } from "drizzle-orm";
 import {
   invoices,
   taxDeclarations,
@@ -211,7 +211,8 @@ export async function getTaxDeclarationsDashboardData(organizationId: number) {
   const history = await db.query.taxDeclarations.findMany({
     where: and(
       eq(taxDeclarations.organizationId, organizationId),
-      eq(taxDeclarations.status, "filed"), // Only show filed declarations in history
+      not(eq(taxDeclarations.fiscalPeriod, fiscalPeriodToDeclare)),
+      eq(taxDeclarations.declarationType, "monthly"),
     ),
     orderBy: [desc(taxDeclarations.fiscalPeriod)],
     limit: 12, // Last 12 months
