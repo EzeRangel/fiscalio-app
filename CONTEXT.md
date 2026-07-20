@@ -58,3 +58,11 @@ Máquina de estados: `draft → validated → filed`
 | Finalizada | `filed` | Presentada ante el SAT (acuse registrado) |
 
 El historial muestra todos los estados en lista plana ordenada por período descendente, excluyendo el período actual.
+
+## Payment Complement (Complemento de Pago)
+
+Factura de tipo `payment_issued` / `payment_received` (`cfdiType = "P"`). Corresponde al XML de Complemento de Pago del SAT. Contiene uno o más nodos `Pago` y cada pago referencia una o más facturas Ingreso mediante `DoctoRelacionado`. Se importa antes o después de la Ingreso; si se importa antes, el linking queda pendiente.
+
+## DoctoRelacionado
+
+Elemento SAT dentro del Complemento de Pago que declara una factura Ingreso vinculada al pago. Contiene `IdDocumento` (folioFiscal UUID de la Ingreso), `ImpPagado` (monto pagado), `NumParcialidad` (número de parcialidad). Es la fuente de verdad para las `paymentAllocations`.
