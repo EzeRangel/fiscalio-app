@@ -81,6 +81,7 @@ describe("TaxDeclarationsPage UI Tests", () => {
         id: 4,
         fiscalPeriod: "2026-02",
         status: "draft",
+        createdAt: "2026-03-08T12:00:00Z",
         updatedAt: "2026-03-08T12:00:00Z",
       },
     ];
@@ -108,6 +109,6 @@ describe("TaxDeclarationsPage UI Tests", () => {
     expect(screen.getByText(/Presentada el 15 de junio 2026/i)).toBeInTheDocument();
     expect(screen.getByText(/Verificada el 10 de mayo 2026/i)).toBeInTheDocument();
     expect(screen.getByText(/Exportada el 12 de abril 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/Última edición el 8 de marzo 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/Creado el 8 de marzo 2026/i)).toBeInTheDocument();
   });
 });

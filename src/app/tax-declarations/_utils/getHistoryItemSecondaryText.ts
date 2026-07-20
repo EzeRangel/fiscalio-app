@@ -34,8 +34,8 @@ export function getHistoryItemSecondaryText(declaration: DeclarationLike): strin
   }
 
   if (status === "draft") {
-    const formatted = formatDate(declaration.updatedAt);
-    return formatted ? `Última edición el ${formatted}` : "Borrador";
+    const formatted = formatDate(declaration.createdAt);
+    return formatted ? `Creado el ${formatted}` : "Borrador";
   }
 
   // Fallback for default/other statuses

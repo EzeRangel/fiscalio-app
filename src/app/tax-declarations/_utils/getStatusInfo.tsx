@@ -2,8 +2,8 @@ import {
   CircleCheck,
   CircleDashed,
   CircleDotDashed,
+  CircleHelp,
   ClockFading,
-  ExternalLink,
 } from "lucide-react";
 
 export type DeclarationStatus = "draft" | "validated" | "exported" | "filed";
@@ -13,7 +13,7 @@ export function getStatusInfo(status: string): {
   icon: React.ReactNode;
   className: string;
 } {
-  switch (status as DeclarationStatus) {
+  switch (status) {
     case "filed":
       return {
         text: "Finalizada",
@@ -35,28 +35,23 @@ export function getStatusInfo(status: string): {
     case "exported":
       return {
         text: "Exportada",
-        icon: <ExternalLink className="h-4 w-4" />,
+        icon: <CircleCheck className="h-4 w-4" />,
         className: "text-chart-5 bg-chart-5/10 border-chart-5/20",
       };
-    default: {
-      // TypeScript exhaustiveness check for DeclarationStatus
-      const _exhaustiveCheck: never = status as never;
-      
-      // Fallback for runtime values
-      if (status === "pending" || status === "Pendiente de declarar" || !status || status === "Pendiente") {
+    default:
+      // Runtime fallback for values not in DeclarationStatus
+      if (status === "Pendiente de declarar" || !status || status === "Pendiente") {
         return {
           text: "Pendiente",
           icon: <ClockFading className="h-4 w-4" />,
           className: "text-chart-2 bg-chart-2/10 border-chart-2/20",
         };
       }
-      
       return {
         text: "Desconocida",
-        icon: <ClockFading className="h-4 w-4" />,
+        icon: <CircleHelp className="h-4 w-4" />,
         className: "text-muted-foreground bg-muted/50 border-muted",
       };
-    }
   }
 }
 
