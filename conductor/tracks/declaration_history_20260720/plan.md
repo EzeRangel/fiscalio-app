@@ -13,7 +13,7 @@
   - Add `eq(taxDeclarations.declarationType, "monthly")`
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Data Access & Logic Update' (Protocol in workflow.md) [0b300c8]
 
-## Phase 2: UI Implementation
+## Phase 2: UI Implementation [checkpoint: 8f37ae1]
 
 - [x] Task: Update `src/app/tax-declarations/_utils/getStatusInfo.tsx`: [e34f11d]
   - Add `exported` case → "Exportada", icon, color style
@@ -30,4 +30,4 @@
   - Rendering of history items for all 4 statuses
   - Correct badge text, icon, and secondary text per status
   - Empty state when no history exists
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md) [8f37ae1]
