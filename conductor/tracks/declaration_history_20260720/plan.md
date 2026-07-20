@@ -1,11 +1,33 @@
 # Implementation Plan
 
 ## Phase 1: Data Access & Logic Update
-- [ ] Task: Write Tests for tax declarations history fetching to ensure it includes all statuses (draft, error, etc.)
-- [ ] Task: Implement changes in `src/data/tax-declarations.ts` to fetch all declarations regardless of status for the history list.
+
+- [ ] Task: Write tests (`src/data/__tests__/tax-declarations.history.test.ts`) for `getTaxDeclarationsDashboardData` verifying that `history`:
+  - Includes all statuses (`draft`, `validated`, `filed`, `exported`)
+  - Excludes the current period's declaration
+  - Only includes `monthly` declarations
+  - Respects `limit: 12`
+- [ ] Task: Modify `src/data/tax-declarations.ts`:
+  - Import `not` from `drizzle-orm`
+  - Replace `eq(taxDeclarations.status, "filed")` with `not(eq(taxDeclarations.fiscalPeriod, fiscalPeriodToDeclare))`
+  - Add `eq(taxDeclarations.declarationType, "monthly")`
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Data Access & Logic Update' (Protocol in workflow.md)
 
 ## Phase 2: UI Implementation
-- [ ] Task: Write Tests for `tax-declarations/page.tsx` verifying the rendering of the updated history list with all statuses and periods.
-- [ ] Task: Implement UI changes in `src/app/tax-declarations/page.tsx` to display the enhanced list, handle all statuses (draft, validated, filed, error), and show the correct visual indicators.
+
+- [ ] Task: Update `src/app/tax-declarations/_utils/getStatusInfo.tsx`:
+  - Add `exported` case → "Exportada", icon, color style
+  - Keep `default` with TypeScript exhaustiveness check + "Desconocida" fallback
+- [ ] Task: Create `src/app/tax-declarations/_utils/getHistoryItemSecondaryText.ts`:
+  - Maps status to secondary text using the appropriate timestamp column
+  - Handles `null` timestamps with fallback text
+- [ ] Task: Refactor `src/app/tax-declarations/page.tsx`:
+  - Remove inline `getStatusInfo` (lines 31-62), import from `_utils/getStatusInfo.tsx`
+  - Replace hardcoded history item icon/color/text with `getStatusInfo()` call
+  - Replace hardcoded "Presentada el..." text with `getHistoryItemSecondaryText()` call
+  - Add status badge text per row
+- [ ] Task: Write tests (`src/app/tax-declarations/page.test.tsx` or co-located) verifying:
+  - Rendering of history items for all 4 statuses
+  - Correct badge text, icon, and secondary text per status
+  - Empty state when no history exists
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Implementation' (Protocol in workflow.md)

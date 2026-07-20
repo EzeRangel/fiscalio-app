@@ -41,3 +41,20 @@ Reglas que se ejecutan pre-transacción en el server action:
 - **INT-CAN-01**: Cancelación con pagos sin refund previo (bloquea)
 - **INT-CAN-02**: Motivo 01/02 sin `substituteInvoiceId` (bloquea)
 - **INT-CAN-03**: Monto del refund excede `amountPaid` original (bloquea)
+
+## Tax Declaration
+
+Estado fiscal calculado para un período. Representa una estimación informativa de impuestos (ISR/IVA) bajo régimen RESICO.
+
+## Declaration Status
+
+Máquina de estados: `draft → validated → filed`
+
+| Estado | DB value | Significado |
+|---|---|---|
+| Borrador | `draft` | Creado pero no revisado |
+| Verificada | `validated` | Usuario confirmó cálculos |
+| Exportada | `exported` | Archivo generado (no implementado aún) |
+| Finalizada | `filed` | Presentada ante el SAT (acuse registrado) |
+
+El historial muestra todos los estados en lista plana ordenada por período descendente, excluyendo el período actual.

@@ -9,12 +9,16 @@ Implement a comprehensive history list of all tax declarations on the `/tax-decl
   - `draft` (Borrador)
   - `validated` (Verificada)
   - `filed` (Finalizada)
-  - `error` (Fallida)
-  - `default` (Pendiente)
+  - `exported` (Exportada)
+- **Secondary text per status:**
+  - `draft`: "Creado el {createdAt}"
+  - `validated`: "Verificada el {updatedAt}"
+  - `filed`: "Presentada el {filedAt}"
+  - `exported`: "Exportada el {exportedAt}"
 - **Data Display:** For each declaration, the list must display:
   - Period (Month/Year)
   - Current Status
-- **Organization:** The list should be organized/grouped by status or clearly indicate the status so users can easily find incomplete declarations.
+- **Organization:** Flat list in reverse chronological order (`fiscalPeriod DESC`), each item with a status badge.
 
 ## Acceptance Criteria
 - Users can view a list of all their historical declarations on the Declaraciones page.
@@ -25,3 +29,4 @@ Implement a comprehensive history list of all tax declarations on the `/tax-decl
 ## Out of Scope
 - Creating new declaration workflows.
 - Modifying the underlying calculation logic for declarations.
+- Annual or bimonthly declaration types. Only `monthly` is currently supported.
