@@ -15,18 +15,18 @@
 
 ## Phase 2: UI Implementation
 
-- [ ] Task: Update `src/app/tax-declarations/_utils/getStatusInfo.tsx`:
+- [x] Task: Update `src/app/tax-declarations/_utils/getStatusInfo.tsx`: [e34f11d]
   - Add `exported` case → "Exportada", icon, color style
   - Keep `default` with TypeScript exhaustiveness check + "Desconocida" fallback
-- [ ] Task: Create `src/app/tax-declarations/_utils/getHistoryItemSecondaryText.ts`:
+- [x] Task: Create `src/app/tax-declarations/_utils/getHistoryItemSecondaryText.ts`: [e34f11d]
   - Maps status to secondary text using the appropriate timestamp column
   - Handles `null` timestamps with fallback text
-- [ ] Task: Refactor `src/app/tax-declarations/page.tsx`:
+- [x] Task: Refactor `src/app/tax-declarations/page.tsx`: [e34f11d]
   - Remove inline `getStatusInfo` (lines 31-62), import from `_utils/getStatusInfo.tsx`
   - Replace hardcoded history item icon/color/text with `getStatusInfo()` call
   - Replace hardcoded "Presentada el..." text with `getHistoryItemSecondaryText()` call
   - Add status badge text per row
-- [ ] Task: Write tests (`src/app/tax-declarations/page.test.tsx` or co-located) verifying:
+- [x] Task: Write tests (`src/app/tax-declarations/__tests__/page.test.tsx`) verifying: [e34f11d]
   - Rendering of history items for all 4 statuses
   - Correct badge text, icon, and secondary text per status
   - Empty state when no history exists
