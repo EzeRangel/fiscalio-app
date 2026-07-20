@@ -2,12 +2,12 @@
 
 ## Phase 1: Data Access & Logic Update
 
-- [ ] Task: Write tests (`src/data/__tests__/tax-declarations.history.test.ts`) for `getTaxDeclarationsDashboardData` verifying that `history`:
+- [x] Task: Write tests (`src/data/tax-declarations.history.test.ts`) for `getTaxDeclarationsDashboardData` verifying that `history`: [ee97a39]
   - Includes all statuses (`draft`, `validated`, `filed`, `exported`)
   - Excludes the current period's declaration
   - Only includes `monthly` declarations
   - Respects `limit: 12`
-- [ ] Task: Modify `src/data/tax-declarations.ts`:
+- [x] Task: Modify `src/data/tax-declarations.ts`: [ee97a39]
   - Import `not` from `drizzle-orm`
   - Replace `eq(taxDeclarations.status, "filed")` with `not(eq(taxDeclarations.fiscalPeriod, fiscalPeriodToDeclare))`
   - Add `eq(taxDeclarations.declarationType, "monthly")`

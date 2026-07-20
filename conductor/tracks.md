@@ -9,5 +9,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Implement a history or list of declarations organized by status**
+- [~] **Track: Implement a history or list of declarations organized by status**
       *Link: [./tracks/declaration_history_20260720/](./tracks/declaration_history_20260720/)*
