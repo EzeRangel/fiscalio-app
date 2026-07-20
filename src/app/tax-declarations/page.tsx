@@ -11,55 +11,19 @@ import {
   CheckCircle2,
   Eye,
   FileText,
-  CircleDashed,
-  CircleDotDashed,
-  CircleCheck,
-  ClockFading,
   FileCheckCornerIcon,
 } from "lucide-react";
 import { getTaxDeclarationsDashboardData } from "@/data/tax-declarations";
 import { getActiveOrganizationId } from "@/lib/session";
 import { GenerateDraftButton } from "./_components/generate-draft-button";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { cn, formatCurrency } from "@/lib/utils";
 import { PrivacyBlur } from "@/components/privacy-blur";
 import { SummaryCards } from "./_components/summary-cards";
 import { formatPeriod } from "./_utils/formatPeriod";
 import { DisclaimerBanner } from "@/components/disclaimer-banner";
+import { getStatusInfo } from "./_utils/getStatusInfo";
+import { getHistoryItemSecondaryText } from "./_utils/getHistoryItemSecondaryText";
 
-function getStatusInfo(status: string): {
-  text: string;
-  icon: React.ReactNode;
-  className: string;
-} {
-  switch (status) {
-    case "filed":
-      return {
-        text: "Finalizada",
-        icon: <CircleCheck className="h-4 w-4" />,
-        className: "text-chart-4 bg-chart-4/10 border-chart-4/20",
-      };
-    case "validated":
-      return {
-        text: "Verificada",
-        icon: <CircleDotDashed className="h-4 w-4" />,
-        className: "text-chart-1 bg-chart-1/10 border-chart-1/20",
-      };
-    case "draft":
-      return {
-        text: "Borrador",
-        icon: <CircleDashed className="h-4 w-4" />,
-        className: "text-muted-foreground bg-muted/50 border-muted",
-      };
-    default:
-      return {
-        text: "Pendiente",
-        icon: <ClockFading className="h-4 w-4" />,
-        className: "text-chart-2 bg-chart-2/10 border-chart-2/20",
-      };
-  }
-}
 
 export default async function TaxDeclarationsPage() {
   const organizationId = await getActiveOrganizationId();
@@ -314,44 +278,43 @@ export default async function TaxDeclarationsPage() {
             <CardContent>
               {history.length > 0 ? (
                 <div className="space-y-2">
-                  {history.map((declaration) => (
-                    <div
-                      key={declaration.id}
-                      className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-lg bg-chart-4/10 border border-chart-4/20 flex items-center justify-center">
-                          <CheckCircle2 className="h-5 w-5 text-chart-4" />
-                        </div>
-                        <div>
-                          <div className="font-medium font-mono text-sm">
-                            {formatPeriod(declaration.fiscalPeriod)}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                            Presentada el{" "}
-                            {declaration.filedAt
-                              ? format(
-                                  declaration.filedAt,
-                                  "d 'de' MMMM yyyy",
-                                  { locale: es },
-                                )
-                              : "-"}
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="gap-2 font-mono"
-                        asChild
+                  {history.map((declaration) => {
+                    const statusInfo = getStatusInfo(declaration.status || "");
+                    return (
+                      <div
+                        key={declaration.id}
+                        className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
                       >
-                        <Link href={`/tax-declarations/${declaration.id}`}>
-                          <Eye className="h-4 w-4" />
-                          Ver
-                        </Link>
-                      </Button>
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-4">
+                          <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center border", statusInfo.className)}>
+                            {statusInfo.icon}
+                          </div>
+                          <div>
+                            <div className="font-medium font-mono text-sm flex items-center gap-2">
+                              {formatPeriod(declaration.fiscalPeriod)}
+                              <span className={cn("px-2 py-0.5 rounded text-[10px] font-mono border", statusInfo.className)}>
+                                {statusInfo.text}
+                              </span>
+                            </div>
+                            <div className="text-xs text-muted-foreground font-mono mt-0.5">
+                              {getHistoryItemSecondaryText(declaration)}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-2 font-mono"
+                          asChild
+                        >
+                          <Link href={`/tax-declarations/${declaration.id}`}>
+                            <Eye className="h-4 w-4" />
+                            Ver
+                          </Link>
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-12 border border-dashed border-border rounded-lg">
