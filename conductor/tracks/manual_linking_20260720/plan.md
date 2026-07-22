@@ -29,7 +29,7 @@
 
 ## Phase 2: UI Components & Integration
 
-- [ ] **Task: Build LinkPaymentComplementModal component**
+- [x] **Task: Build LinkPaymentComplementModal component**
   - TanStack Query to fetch unlinked complements on open.
   - Display table with partner, date, amount, UUID, status columns.
   - Client-side search/filter by partner name.
@@ -39,7 +39,7 @@
   - Close modal + toast + trigger refetch on success.
   - Write component tests → implement → refactor.
 
-- [ ] **Task: Update InvoiceDetails page**
+- [x] **Task: Update InvoiceDetails page**
   - Add "Link Payment Complement" button in Actions sidebar (after "Descargar XML").
   - Visible for `cfdiType === "I"` with `status === "active"`.
   - Button opens `LinkPaymentComplementModal`.
