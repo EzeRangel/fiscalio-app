@@ -61,13 +61,18 @@ jest.mock("drizzle-orm", () => ({
 }));
 
 describe("updatePaymentAction", () => {
-  const mockDb = {
+  const mockDb: any = {
     query: {
       payments: {
         findFirst: jest.fn(),
       },
     },
     transaction: jest.fn((callback) => callback(mockDb)),
+    insert: jest.fn(() => ({
+      values: jest.fn(() => ({
+        returning: jest.fn(),
+      })),
+    })),
     update: jest.fn(() => ({
       set: jest.fn(() => ({
         where: jest.fn(() => ({
@@ -216,6 +221,7 @@ describe("updatePaymentAction", () => {
 
       const result = await linkPaymentAction({
         paymentId: 1,
+        paymentInvoiceId: 100,
         invoiceId: 10,
       });
 
@@ -223,17 +229,66 @@ describe("updatePaymentAction", () => {
       expect(result?.serverError).toContain("Factura no encontrada");
     });
 
-    it("should fail if payment is not found", async () => {
-      mockDb.query.invoices.findFirst.mockResolvedValue({ id: 10, folioFiscal: "INV-UUID" });
-      mockDb.query.payments.findFirst.mockResolvedValue(null);
+    it("should create payment from XML and link when paymentId is null", async () => {
+      mockDb.query.invoices.findFirst
+        .mockResolvedValueOnce({ id: 10, folioFiscal: "INV-UUID", organizationId: 123, partnerId: 5, invoiceType: "expense" }) // target invoice
+        .mockResolvedValueOnce({ id: 100, folioFiscal: "COMPLEMENT-UUID", xmlContent: "<xml/>" }); // payment invoice
+
+      const parsedCFDI = {
+        Complemento: [
+          {
+            Pagos: {
+              Pago: {
+                FechaPago: "2023-01-01T12:00:00",
+                FormaDePagoP: "01",
+                MonedaP: "MXN",
+                TipoCambioP: "1.0",
+                Monto: "500.00",
+                DoctoRelacionado: {
+                  IdDocumento: "INV-UUID",
+                  ImpPagado: "500.00",
+                },
+              },
+            },
+          },
+        ],
+      };
+      (CFDIParser.parse as jest.Mock).mockResolvedValue(parsedCFDI);
+
+      // Mock insert returning new payment
+      mockDb.insert.mockReturnValue({
+        values: jest.fn().mockReturnValue({
+          returning: jest.fn().mockResolvedValue([{ id: 999 }]),
+        }),
+      });
+
+      (processPendingAllocations as jest.Mock).mockResolvedValue(undefined);
 
       const result = await linkPaymentAction({
-        paymentId: 1,
+        paymentId: null,
+        paymentInvoiceId: 100,
+        invoiceId: 10,
+      });
+
+      expect(result?.data).toBeDefined();
+      expect(result?.data?.success).toBe(true);
+      expect(mockDb.insert).toHaveBeenCalled();
+      expect(processPendingAllocations).toHaveBeenCalledWith(mockDb, 999, 123);
+    });
+
+    it("should fail if payment invoice XML is not found when paymentId is null", async () => {
+      mockDb.query.invoices.findFirst
+        .mockResolvedValueOnce({ id: 10, folioFiscal: "INV-UUID", organizationId: 123 })
+        .mockResolvedValueOnce(null); // payment invoice not found
+
+      const result = await linkPaymentAction({
+        paymentId: null,
+        paymentInvoiceId: 999,
         invoiceId: 10,
       });
 
       expect(result?.serverError).toBeDefined();
-      expect(result?.serverError).toContain("Pago no encontrado");
+      expect(result?.serverError).toContain("XML del complemento de pago no encontrado");
     });
 
     it("should successfully call processPendingAllocations and log action if target invoice is referenced", async () => {
@@ -279,6 +334,7 @@ describe("updatePaymentAction", () => {
 
       const result = await linkPaymentAction({
         paymentId: 1,
+        paymentInvoiceId: 100,
         invoiceId: 10,
       });
 

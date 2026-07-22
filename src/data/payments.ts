@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, notInArray } from "drizzle-orm";
 import { getDB, invoices, paymentAllocations, payments } from "@/db";
 import { CFDIComprobante as ParsedCFDI } from "@/types/cfdi-schemas";
 import { logAction } from "@/lib/audit-service";
@@ -302,6 +302,7 @@ export async function savePUEPayment(
 }
 
 export async function processPendingAllocations(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tx: any,
   paymentId: number,
   organizationId: number,
@@ -309,7 +310,7 @@ export async function processPendingAllocations(
   const paymentRecord = await tx.query.payments.findFirst({
     where: and(
       eq(payments.id, paymentId),
-      eq(payments.organizationId, organizationId)
+      eq(payments.organizationId, organizationId),
     ),
   });
 
@@ -320,7 +321,7 @@ export async function processPendingAllocations(
   const paymentInvoice = await tx.query.invoices.findFirst({
     where: and(
       eq(invoices.folioFiscal, paymentRecord.cfdiPaymentId),
-      eq(invoices.organizationId, organizationId)
+      eq(invoices.organizationId, organizationId),
     ),
   });
 
@@ -328,7 +329,10 @@ export async function processPendingAllocations(
     throw new Error("XML del complemento de pago no encontrado.");
   }
 
-  const parsedCFDI = await CFDIParser.parse(paymentInvoice.xmlContent);
+  const rawXml = Buffer.from(paymentInvoice.xmlContent, "base64").toString(
+    "utf-8",
+  );
+  const parsedCFDI = await CFDIParser.parse(rawXml);
 
   const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
   const pagosNode = pagosComplement?.Pagos;
@@ -349,7 +353,9 @@ export async function processPendingAllocations(
   });
 
   if (!matchingPago) {
-    throw new Error("No se encontró el nodo de pago correspondiente en el XML.");
+    throw new Error(
+      "No se encontró el nodo de pago correspondiente en el XML.",
+    );
   }
 
   const docs = Array.isArray(matchingPago.DoctoRelacionado)
@@ -358,14 +364,12 @@ export async function processPendingAllocations(
       ? [matchingPago.DoctoRelacionado]
       : [];
 
-  let currentPaymentAllocatedSum = 0;
-
   for (const doc of docs) {
     // Find the original invoice being paid
     const linkedInvoice = await tx.query.invoices.findFirst({
       where: and(
         eq(invoices.folioFiscal, doc.IdDocumento),
-        eq(invoices.organizationId, organizationId)
+        eq(invoices.organizationId, organizationId),
       ),
     });
 
@@ -374,7 +378,7 @@ export async function processPendingAllocations(
       const existingAlloc = await tx.query.paymentAllocations.findFirst({
         where: and(
           eq(paymentAllocations.paymentId, paymentRecord.id),
-          eq(paymentAllocations.invoiceId, linkedInvoice.id)
+          eq(paymentAllocations.invoiceId, linkedInvoice.id),
         ),
       });
 
@@ -387,8 +391,9 @@ export async function processPendingAllocations(
         where: eq(paymentAllocations.paymentId, paymentRecord.id),
       });
       const paymentAllocatedSum = existingPaymentAllocs.reduce(
-        (sum: number, a: any) => sum + parseFloat(a.amountAllocated),
-        0
+        (sum: number, a: { amountAllocated: string }) =>
+          sum + parseFloat(a.amountAllocated),
+        0,
       );
 
       // Validation context
@@ -424,7 +429,7 @@ export async function processPendingAllocations(
       const allocValidation = validateAllocation(allocationContext);
       if (!allocValidation.isValid) {
         throw new Error(
-          `Error validando asignación: ${allocValidation.errors[0].message}`
+          `Error validando asignación: ${allocValidation.errors[0].message}`,
         );
       }
 
@@ -435,8 +440,6 @@ export async function processPendingAllocations(
         exchangeRate: doc.EquivalenciaDR || "1.0",
         installmentNumber: parseInt(doc.NumParcialidad),
       });
-
-      currentPaymentAllocatedSum += parseFloat(doc.ImpPagado);
 
       // Update target invoice status
       const currentPaid = parseFloat(linkedInvoice.amountPaid || "0");
@@ -462,7 +465,7 @@ export async function processPendingAllocations(
       const invValidation = validateInvoice(updatedInvoiceState);
       if (!invValidation.isValid) {
         throw new Error(
-          `Error validando factura actualizada: ${invValidation.errors[0].message}`
+          `Error validando factura actualizada: ${invValidation.errors[0].message}`,
         );
       }
 
@@ -485,7 +488,11 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
     where: eq(invoices.id, invoiceId),
   });
 
-  if (!currentInvoice || !currentInvoice.folioFiscal) {
+  if (
+    !currentInvoice ||
+    !currentInvoice.folioFiscal ||
+    !currentInvoice.partnerId
+  ) {
     return [];
   }
 
@@ -493,9 +500,9 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
   const paymentInvoices = await db.query.invoices.findMany({
     where: and(
       eq(invoices.organizationId, currentInvoice.organizationId),
-      eq(invoices.partnerId, currentInvoice.partnerId!),
+      eq(invoices.partnerId, currentInvoice.partnerId),
       eq(invoices.cfdiType, "P"),
-      eq(invoices.status, "active")
+      notInArray(invoices.status, ["cancelled", "substituted"]),
     ),
     with: {
       businessPartner: true,
@@ -503,7 +510,7 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
   });
 
   const results: {
-    paymentId: number;
+    paymentId: number | null;
     paymentInvoiceId: number;
     partnerName: string;
     paymentDate: Date;
@@ -511,6 +518,8 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
     uuid: string;
     targetUuid: string;
     amountAllocated: string;
+    resolvedDocsCount: number;
+    totalDocsCount: number;
   }[] = [];
 
   for (const paymentInvoice of paymentInvoices) {
@@ -520,8 +529,11 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
 
     let parsedCFDI;
     try {
-      parsedCFDI = await CFDIParser.parse(paymentInvoice.xmlContent);
-    } catch (e) {
+      const rawXml = Buffer.from(paymentInvoice.xmlContent, "base64").toString(
+        "utf-8",
+      );
+      parsedCFDI = await CFDIParser.parse(rawXml);
+    } catch {
       // If parsing fails for one, skip it
       continue;
     }
@@ -538,50 +550,115 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
       where: eq(payments.cfdiPaymentId, paymentInvoice.folioFiscal),
     });
 
-    for (const payment of relatedPayments) {
-      // Find the corresponding Pago block in the XML
-      const matchingPago = pagos.find((p) => {
-        const xmlPayDate = new Date(p.FechaPago).getTime();
-        const dbPayDate = new Date(payment.paymentDate).getTime();
-        return (
-          xmlPayDate === dbPayDate &&
-          parseFloat(p.Monto) === parseFloat(payment.amount)
+    if (relatedPayments.length === 0) {
+      // No payments exist yet — derive data from XML directly
+      for (const pago of pagos) {
+        const docs = Array.isArray(pago.DoctoRelacionado)
+          ? pago.DoctoRelacionado
+          : pago.DoctoRelacionado
+            ? [pago.DoctoRelacionado]
+            : [];
+
+        const targetDoc = docs.find(
+          (doc) => doc.IdDocumento === currentInvoice.folioFiscal,
         );
-      });
+        if (!targetDoc) continue;
 
-      if (!matchingPago) continue;
+        // No payments exist, so no allocations can be resolved yet
+        const totalDocsCount = docs.length;
+        const resolvedDocsCount = 0;
 
-      const docs = Array.isArray(matchingPago.DoctoRelacionado)
-        ? matchingPago.DoctoRelacionado
-        : matchingPago.DoctoRelacionado
-          ? [matchingPago.DoctoRelacionado]
-          : [];
-
-      // Check if any DoctoRelacionado references currentInvoice.folioFiscal
-      const targetDoc = docs.find(
-        (doc) => doc.IdDocumento === currentInvoice.folioFiscal
-      );
-
-      if (targetDoc) {
-        // Check if allocation already exists in DB
-        const existingAlloc = await db.query.paymentAllocations.findFirst({
-          where: and(
-            eq(paymentAllocations.paymentId, payment.id),
-            eq(paymentAllocations.invoiceId, currentInvoice.id)
-          ),
+        results.push({
+          paymentId: null,
+          paymentInvoiceId: paymentInvoice.id,
+          partnerName:
+            paymentInvoice.businessPartner?.legalName ||
+            paymentInvoice.businessPartner?.rfc ||
+            "",
+          paymentDate: new Date(pago.FechaPago),
+          amount: pago.Monto,
+          uuid: paymentInvoice.folioFiscal,
+          targetUuid: targetDoc.IdDocumento,
+          amountAllocated: targetDoc.ImpPagado,
+          resolvedDocsCount,
+          totalDocsCount,
+        });
+      }
+    } else {
+      for (const payment of relatedPayments) {
+        // Find the corresponding Pago block in the XML
+        const matchingPago = pagos.find((p) => {
+          const xmlPayDate = new Date(p.FechaPago).getTime();
+          const dbPayDate = new Date(payment.paymentDate).getTime();
+          return (
+            xmlPayDate === dbPayDate &&
+            parseFloat(p.Monto) === parseFloat(payment.amount)
+          );
         });
 
-        if (!existingAlloc) {
-          results.push({
-            paymentId: payment.id,
-            paymentInvoiceId: paymentInvoice.id,
-            partnerName: paymentInvoice.businessPartner?.businessName || "",
-            paymentDate: payment.paymentDate,
-            amount: payment.amount,
-            uuid: paymentInvoice.folioFiscal,
-            targetUuid: targetDoc.IdDocumento,
-            amountAllocated: targetDoc.ImpPagado,
+        if (!matchingPago) continue;
+
+        const docs = Array.isArray(matchingPago.DoctoRelacionado)
+          ? matchingPago.DoctoRelacionado
+          : matchingPago.DoctoRelacionado
+            ? [matchingPago.DoctoRelacionado]
+            : [];
+
+        // Check if any DoctoRelacionado references currentInvoice.folioFiscal
+        const targetDoc = docs.find(
+          (doc) => doc.IdDocumento === currentInvoice.folioFiscal,
+        );
+
+        if (targetDoc) {
+          // Check if allocation already exists in DB
+          const existingAlloc = await db.query.paymentAllocations.findFirst({
+            where: and(
+              eq(paymentAllocations.paymentId, payment.id),
+              eq(paymentAllocations.invoiceId, currentInvoice.id),
+            ),
           });
+
+          if (!existingAlloc) {
+            // Count resolved and total docs
+            let resolvedDocsCount = 0;
+            const totalDocsCount = docs.length;
+
+            for (const doc of docs) {
+              const linkedInv = await db.query.invoices.findFirst({
+                where: and(
+                  eq(invoices.folioFiscal, doc.IdDocumento),
+                  eq(invoices.organizationId, currentInvoice.organizationId),
+                ),
+              });
+              if (linkedInv) {
+                const alloc = await db.query.paymentAllocations.findFirst({
+                  where: and(
+                    eq(paymentAllocations.paymentId, payment.id),
+                    eq(paymentAllocations.invoiceId, linkedInv.id),
+                  ),
+                });
+                if (alloc) {
+                  resolvedDocsCount++;
+                }
+              }
+            }
+
+            results.push({
+              paymentId: payment.id,
+              paymentInvoiceId: paymentInvoice.id,
+              partnerName:
+                paymentInvoice.businessPartner?.legalName ||
+                paymentInvoice.businessPartner?.rfc ||
+                "",
+              paymentDate: payment.paymentDate,
+              amount: payment.amount,
+              uuid: paymentInvoice.folioFiscal,
+              targetUuid: targetDoc.IdDocumento,
+              amountAllocated: targetDoc.ImpPagado,
+              resolvedDocsCount,
+              totalDocsCount,
+            });
+          }
         }
       }
     }
@@ -589,5 +666,3 @@ export async function getUnlinkedPaymentComplements(invoiceId: number) {
 
   return results;
 }
-
-

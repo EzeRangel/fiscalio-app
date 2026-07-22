@@ -229,7 +229,7 @@ describe("Payments Data Functions", () => {
         folioFiscal: "PAYMENT-CFDI-UUID",
         xmlContent: "<xml/>",
         businessPartner: {
-          businessName: "Test Partner",
+          legalName: "Test Partner",
         },
       };
       mockDb.query.invoices.findMany.mockResolvedValue([mockPaymentInvoice]);
@@ -274,6 +274,60 @@ describe("Payments Data Functions", () => {
           amount: "500.00",
           uuid: "PAYMENT-CFDI-UUID",
           partnerName: "Test Partner",
+        })
+      );
+    });
+
+    it("should return payment complements with no payments records by extracting data from XML", async () => {
+      const mockCurrentInvoice = {
+        id: 100,
+        organizationId: 1,
+        partnerId: 5,
+        folioFiscal: "TARGET-UUID",
+      };
+      mockDb.query.invoices.findFirst.mockResolvedValue(mockCurrentInvoice);
+
+      const mockPaymentInvoice = {
+        id: 200,
+        folioFiscal: "PAYMENT-CFDI-UUID",
+        xmlContent: "<xml/>",
+        businessPartner: {
+          legalName: "Partner Sin Pago",
+        },
+      };
+      mockDb.query.invoices.findMany.mockResolvedValue([mockPaymentInvoice]);
+
+      const parsedCFDI = {
+        Complemento: [
+          {
+            Pagos: {
+              Pago: {
+                FechaPago: "2023-01-01T12:00:00",
+                Monto: "500.00",
+                DoctoRelacionado: {
+                  IdDocumento: "TARGET-UUID",
+                  ImpPagado: "500.00",
+                },
+              },
+            },
+          },
+        ],
+      };
+      (CFDIParser.parse as jest.Mock).mockResolvedValue(parsedCFDI);
+
+      // No payments in DB
+      mockDb.query.payments.findMany.mockResolvedValue([]);
+
+      const result = await getUnlinkedPaymentComplements(100);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          paymentId: null,
+          paymentInvoiceId: 200,
+          amount: "500.00",
+          uuid: "PAYMENT-CFDI-UUID",
+          partnerName: "Partner Sin Pago",
         })
       );
     });

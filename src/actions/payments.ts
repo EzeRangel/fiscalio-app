@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { actionClient } from "@/lib/safe-action";
 import { getDB, payments, invoices } from "@/db";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { calculateDiff, logAction } from "@/lib/audit-service";
 import { revalidatePath } from "next/cache";
 import { ActionError } from "@/lib/errors";
@@ -13,7 +13,7 @@ import {
   FiscalAllocationContext,
   FISCAL_VALIDATION_RULES,
 } from "@/lib/fiscal-validation";
-import { processPendingAllocations } from "@/data/payments";
+import { processPendingAllocations, getUnlinkedPaymentComplements } from "@/data/payments";
 import { CFDIParser } from "@/lib/cfdi-parser";
 import { zfd } from "zod-form-data";
 
@@ -189,13 +189,14 @@ export const updatePaymentAction = actionClient
   );
 
 const linkPaymentSchema = z.object({
-  paymentId: z.number(),
+  paymentId: z.number().nullable(),
+  paymentInvoiceId: z.number(),
   invoiceId: z.number(),
 });
 
 export const linkPaymentAction = actionClient
   .inputSchema(linkPaymentSchema)
-  .action(async ({ parsedInput: { paymentId, invoiceId } }) => {
+  .action(async ({ parsedInput: { paymentId, paymentInvoiceId, invoiceId } }) => {
     const { db } = await getDB();
 
     return await db.transaction(async (tx) => {
@@ -208,67 +209,80 @@ export const linkPaymentAction = actionClient
         throw new ActionError("Factura no encontrada o no contiene folio fiscal válido.");
       }
 
-      // 2. Fetch payment
-      const paymentRecord = await tx.query.payments.findFirst({
-        where: eq(payments.id, paymentId),
-      });
+      // 2. Fetch or create payment
+      let actualPaymentId = paymentId;
 
-      if (!paymentRecord) {
-        throw new ActionError("Pago no encontrado");
+      if (!actualPaymentId) {
+        // No payment exists — create one from the XML
+        const paymentInvoice = await tx.query.invoices.findFirst({
+          where: eq(invoices.id, paymentInvoiceId),
+        });
+
+        if (!paymentInvoice || !paymentInvoice.xmlContent) {
+          throw new ActionError("XML del complemento de pago no encontrado.");
+        }
+
+        const rawXml = Buffer.from(paymentInvoice.xmlContent, "base64").toString("utf-8");
+        const parsedCFDI = await CFDIParser.parse(rawXml);
+        const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
+        const pagosNode = pagosComplement?.Pagos;
+        if (!pagosNode) {
+          throw new ActionError("El complemento de pago no contiene información de pagos.");
+        }
+
+        const pagos = Array.isArray(pagosNode.Pago)
+          ? pagosNode.Pago
+          : [pagosNode.Pago];
+
+        // Find the Pago node whose DoctoRelacionado references the target invoice
+        const matchingPago = pagos.find((p) => {
+          const docs = Array.isArray(p.DoctoRelacionado)
+            ? p.DoctoRelacionado
+            : p.DoctoRelacionado
+              ? [p.DoctoRelacionado]
+              : [];
+          return docs.some((d) => d.IdDocumento === targetInvoice.folioFiscal);
+        });
+
+        if (!matchingPago) {
+          throw new ActionError("El complemento de pago no hace referencia a esta factura.");
+        }
+
+        const [newPayment] = await tx
+          .insert(payments)
+          .values({
+            organizationId: targetInvoice.organizationId,
+            partnerId: targetInvoice.partnerId!,
+            paymentType: targetInvoice.invoiceType === "income" ? "payment_received" : "payment_issued",
+            paymentDate: new Date(matchingPago.FechaPago),
+            paymentMethod: matchingPago.FormaDePagoP,
+            currency: matchingPago.MonedaP,
+            exchangeRate: matchingPago.TipoCambioP || "1.0",
+            amount: matchingPago.Monto,
+            cfdiPaymentId: paymentInvoice.folioFiscal,
+          })
+          .returning();
+
+        actualPaymentId = newPayment.id;
+
+        await logAction({
+          organizationId: targetInvoice.organizationId,
+          entityType: "payment",
+          entityId: newPayment.id,
+          action: "created",
+          metadata: {
+            source: "manual_link",
+            reason: "Pago creado al vincular complemento manualmente",
+            cfdiUuid: paymentInvoice.folioFiscal,
+          },
+          tx,
+        });
       }
 
-      // 3. Fetch payment complement invoice to get XML content
-      const paymentInvoice = await tx.query.invoices.findFirst({
-        where: eq(invoices.folioFiscal, paymentRecord.cfdiPaymentId),
-      });
+      // 3. Process allocation
+      await processPendingAllocations(tx, actualPaymentId, targetInvoice.organizationId);
 
-      if (!paymentInvoice || !paymentInvoice.xmlContent) {
-        throw new ActionError("XML del complemento de pago no encontrado.");
-      }
-
-      // 4. Validate that XML contains a DoctoRelacionado referencing target invoice UUID
-      const parsedCFDI = await CFDIParser.parse(paymentInvoice.xmlContent);
-      const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
-      const pagosNode = pagosComplement?.Pagos;
-      if (!pagosNode) {
-        throw new ActionError("El complemento de pago no contiene información de pagos.");
-      }
-
-      const pagos = Array.isArray(pagosNode.Pago)
-        ? pagosNode.Pago
-        : [pagosNode.Pago];
-
-      const matchingPago = pagos.find((p) => {
-        const xmlPayDate = new Date(p.FechaPago).getTime();
-        const dbPayDate = new Date(paymentRecord.paymentDate).getTime();
-        return (
-          xmlPayDate === dbPayDate &&
-          parseFloat(p.Monto) === parseFloat(paymentRecord.amount)
-        );
-      });
-
-      if (!matchingPago) {
-        throw new ActionError("No se encontró el nodo de pago correspondiente en el XML.");
-      }
-
-      const docs = Array.isArray(matchingPago.DoctoRelacionado)
-        ? matchingPago.DoctoRelacionado
-        : matchingPago.DoctoRelacionado
-          ? [matchingPago.DoctoRelacionado]
-          : [];
-
-      const targetDoc = docs.find(
-        (doc) => doc.IdDocumento === targetInvoice.folioFiscal
-      );
-
-      if (!targetDoc) {
-        throw new ActionError("El complemento de pago no hace referencia a esta factura.");
-      }
-
-      // 5. Process allocation
-      await processPendingAllocations(tx, paymentId, targetInvoice.organizationId);
-
-      // 6. Log the action
+      // 4. Log the link action
       await logAction({
         action: "updated",
         entityType: "invoice",
@@ -277,7 +291,8 @@ export const linkPaymentAction = actionClient
         metadata: {
           reason: "Vinculación manual de complemento de pago",
           source: "manual",
-          paymentId,
+          paymentId: actualPaymentId,
+          paymentInvoiceId,
         },
         tx,
       });
@@ -287,4 +302,23 @@ export const linkPaymentAction = actionClient
       return { success: true };
     });
   });
+
+const getUnlinkedPaymentComplementsSchema = z.object({
+  invoiceId: z.number(),
+});
+
+export const getUnlinkedPaymentComplementsAction = actionClient
+  .inputSchema(getUnlinkedPaymentComplementsSchema)
+  .action(async ({ parsedInput: { invoiceId } }) => {
+    try {
+      const data = await getUnlinkedPaymentComplements(invoiceId);
+      return { success: true, data };
+    } catch (e) {
+      const error = e as Error;
+      throw new ActionError(
+        error.message || "Error al obtener los complementos de pago no vinculados."
+      );
+    }
+  });
+
 
