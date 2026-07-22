@@ -1,8 +1,8 @@
 # Implementation Plan: Manual Linking of Invoice to Payment Complement
 
-## Phase 1: Data Layer & Server Actions
+## Phase 1: Data Layer & Server Actions [checkpoint: fff9061]
 
-- [ ] **Task: Create `processPendingAllocations` data function**
+- [x] **Task: Create `processPendingAllocations` data function**
   - Read payment + invoice complement from DB.
   - Parse `xmlContent` to extract `DoctoRelacionado` entries.
   - For each entry: find target invoice by `folioFiscal`, skip if allocation already exists, else create it (idempotent).
@@ -10,13 +10,13 @@
   - Update `amountPaid`/`paymentStatus` on target invoices.
   - Write failing unit test → implement → refactor.
 
-- [ ] **Task: Create `getUnlinkedPaymentComplements` data function**
+- [x] **Task: Create `getUnlinkedPaymentComplements` data function**
   - Query invoices of `cfdiType === "P"`, non-cancelled, shared `partnerId` with current invoice.
   - Filter to those whose payments have at least one unresolved `DoctoRelacionado` (compare XML vs allocations).
   - Return display data: partner name, payment date, amount, UUID, assignment status.
   - Write failing unit test → implement → refactor.
 
-- [ ] **Task: Create `linkPaymentAction` server action**
+- [x] **Task: Create `linkPaymentAction` server action**
   - Input schema (Zod): `{ paymentId: number, invoiceId: number }`.
   - Validate complement references this invoice via `DoctoRelacionado`.
   - Call `processPendingAllocations` in a transaction.
@@ -24,7 +24,8 @@
   - Generic error handling with `ActionError`.
   - Write failing unit test → implement → refactor.
 
-- [ ] **Task: Conductor - User Manual Verification 'Phase 1'** (per workflow.md)
+
+- [x] **Task: Conductor - User Manual Verification 'Phase 1'** (per workflow.md)
 
 ## Phase 2: UI Components & Integration
 
