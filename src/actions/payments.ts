@@ -2,8 +2,8 @@
 
 import { z } from "zod";
 import { actionClient } from "@/lib/safe-action";
-import { getDB, payments } from "@/db";
-import { eq } from "drizzle-orm";
+import { getDB, payments, invoices } from "@/db";
+import { and, eq } from "drizzle-orm";
 import { calculateDiff, logAction } from "@/lib/audit-service";
 import { revalidatePath } from "next/cache";
 import { ActionError } from "@/lib/errors";
@@ -13,6 +13,8 @@ import {
   FiscalAllocationContext,
   FISCAL_VALIDATION_RULES,
 } from "@/lib/fiscal-validation";
+import { processPendingAllocations } from "@/data/payments";
+import { CFDIParser } from "@/lib/cfdi-parser";
 import { zfd } from "zod-form-data";
 
 const updatePaymentSchema = zfd.formData({
@@ -185,3 +187,104 @@ export const updatePaymentAction = actionClient
       });
     },
   );
+
+const linkPaymentSchema = z.object({
+  paymentId: z.number(),
+  invoiceId: z.number(),
+});
+
+export const linkPaymentAction = actionClient
+  .inputSchema(linkPaymentSchema)
+  .action(async ({ parsedInput: { paymentId, invoiceId } }) => {
+    const { db } = await getDB();
+
+    return await db.transaction(async (tx) => {
+      // 1. Fetch target invoice
+      const targetInvoice = await tx.query.invoices.findFirst({
+        where: eq(invoices.id, invoiceId),
+      });
+
+      if (!targetInvoice || !targetInvoice.folioFiscal) {
+        throw new ActionError("Factura no encontrada o no contiene folio fiscal válido.");
+      }
+
+      // 2. Fetch payment
+      const paymentRecord = await tx.query.payments.findFirst({
+        where: eq(payments.id, paymentId),
+      });
+
+      if (!paymentRecord) {
+        throw new ActionError("Pago no encontrado");
+      }
+
+      // 3. Fetch payment complement invoice to get XML content
+      const paymentInvoice = await tx.query.invoices.findFirst({
+        where: eq(invoices.folioFiscal, paymentRecord.cfdiPaymentId),
+      });
+
+      if (!paymentInvoice || !paymentInvoice.xmlContent) {
+        throw new ActionError("XML del complemento de pago no encontrado.");
+      }
+
+      // 4. Validate that XML contains a DoctoRelacionado referencing target invoice UUID
+      const parsedCFDI = await CFDIParser.parse(paymentInvoice.xmlContent);
+      const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
+      const pagosNode = pagosComplement?.Pagos;
+      if (!pagosNode) {
+        throw new ActionError("El complemento de pago no contiene información de pagos.");
+      }
+
+      const pagos = Array.isArray(pagosNode.Pago)
+        ? pagosNode.Pago
+        : [pagosNode.Pago];
+
+      const matchingPago = pagos.find((p) => {
+        const xmlPayDate = new Date(p.FechaPago).getTime();
+        const dbPayDate = new Date(paymentRecord.paymentDate).getTime();
+        return (
+          xmlPayDate === dbPayDate &&
+          parseFloat(p.Monto) === parseFloat(paymentRecord.amount)
+        );
+      });
+
+      if (!matchingPago) {
+        throw new ActionError("No se encontró el nodo de pago correspondiente en el XML.");
+      }
+
+      const docs = Array.isArray(matchingPago.DoctoRelacionado)
+        ? matchingPago.DoctoRelacionado
+        : matchingPago.DoctoRelacionado
+          ? [matchingPago.DoctoRelacionado]
+          : [];
+
+      const targetDoc = docs.find(
+        (doc) => doc.IdDocumento === targetInvoice.folioFiscal
+      );
+
+      if (!targetDoc) {
+        throw new ActionError("El complemento de pago no hace referencia a esta factura.");
+      }
+
+      // 5. Process allocation
+      await processPendingAllocations(tx, paymentId, targetInvoice.organizationId);
+
+      // 6. Log the action
+      await logAction({
+        action: "updated",
+        entityType: "invoice",
+        entityId: invoiceId,
+        organizationId: targetInvoice.organizationId,
+        metadata: {
+          reason: "Vinculación manual de complemento de pago",
+          source: "manual",
+          paymentId,
+        },
+        tx,
+      });
+
+      revalidatePath(`/invoices/${invoiceId}`);
+
+      return { success: true };
+    });
+  });
+

@@ -14,6 +14,7 @@ import {
 } from "@/lib/fiscal-validation";
 
 import { InvoiceTypes } from "@/types/utils";
+import { CFDIParser } from "@/lib/cfdi-parser";
 
 export async function savePaymentComplement(
   tx: any,
@@ -299,3 +300,294 @@ export async function savePUEPayment(
 
   return payment;
 }
+
+export async function processPendingAllocations(
+  tx: any,
+  paymentId: number,
+  organizationId: number,
+) {
+  const paymentRecord = await tx.query.payments.findFirst({
+    where: and(
+      eq(payments.id, paymentId),
+      eq(payments.organizationId, organizationId)
+    ),
+  });
+
+  if (!paymentRecord) {
+    throw new Error("Pago no encontrado.");
+  }
+
+  const paymentInvoice = await tx.query.invoices.findFirst({
+    where: and(
+      eq(invoices.folioFiscal, paymentRecord.cfdiPaymentId),
+      eq(invoices.organizationId, organizationId)
+    ),
+  });
+
+  if (!paymentInvoice || !paymentInvoice.xmlContent) {
+    throw new Error("XML del complemento de pago no encontrado.");
+  }
+
+  const parsedCFDI = await CFDIParser.parse(paymentInvoice.xmlContent);
+
+  const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
+  const pagosNode = pagosComplement?.Pagos;
+  if (!pagosNode) return;
+
+  const pagos = Array.isArray(pagosNode.Pago)
+    ? pagosNode.Pago
+    : [pagosNode.Pago];
+
+  // Find the XML Pago block that matches this paymentRecord by date and amount
+  const matchingPago = pagos.find((p) => {
+    const xmlPayDate = new Date(p.FechaPago).getTime();
+    const dbPayDate = new Date(paymentRecord.paymentDate).getTime();
+    return (
+      xmlPayDate === dbPayDate &&
+      parseFloat(p.Monto) === parseFloat(paymentRecord.amount)
+    );
+  });
+
+  if (!matchingPago) {
+    throw new Error("No se encontró el nodo de pago correspondiente en el XML.");
+  }
+
+  const docs = Array.isArray(matchingPago.DoctoRelacionado)
+    ? matchingPago.DoctoRelacionado
+    : matchingPago.DoctoRelacionado
+      ? [matchingPago.DoctoRelacionado]
+      : [];
+
+  let currentPaymentAllocatedSum = 0;
+
+  for (const doc of docs) {
+    // Find the original invoice being paid
+    const linkedInvoice = await tx.query.invoices.findFirst({
+      where: and(
+        eq(invoices.folioFiscal, doc.IdDocumento),
+        eq(invoices.organizationId, organizationId)
+      ),
+    });
+
+    if (linkedInvoice) {
+      // Check if allocation already exists
+      const existingAlloc = await tx.query.paymentAllocations.findFirst({
+        where: and(
+          eq(paymentAllocations.paymentId, paymentRecord.id),
+          eq(paymentAllocations.invoiceId, linkedInvoice.id)
+        ),
+      });
+
+      if (existingAlloc) {
+        continue;
+      }
+
+      // Query existing allocations for validation sums
+      const existingPaymentAllocs = await tx.query.paymentAllocations.findMany({
+        where: eq(paymentAllocations.paymentId, paymentRecord.id),
+      });
+      const paymentAllocatedSum = existingPaymentAllocs.reduce(
+        (sum: number, a: any) => sum + parseFloat(a.amountAllocated),
+        0
+      );
+
+      // Validation context
+      const fiscalPaymentToCheck: FiscalPayment = {
+        id: paymentRecord.id,
+        amount: paymentRecord.amount,
+        paymentDate: paymentRecord.paymentDate,
+        allocations: [],
+      };
+
+      const allocationContext: FiscalAllocationContext = {
+        allocation: {
+          amount: doc.ImpPagado,
+          invoiceId: linkedInvoice.id,
+          paymentId: paymentRecord.id,
+        },
+        invoice: {
+          id: linkedInvoice.id,
+          total: linkedInvoice.total,
+          subtotal: linkedInvoice.subtotal,
+          amountPaid: linkedInvoice.amountPaid || "0",
+          paymentStatus: linkedInvoice.paymentStatus || "pending",
+          status: linkedInvoice.status || "active",
+          invoiceDate: linkedInvoice.invoiceDate,
+        },
+        payment: fiscalPaymentToCheck,
+        existingAllocationsForInvoice: [
+          { amount: linkedInvoice.amountPaid || "0" },
+        ],
+        existingAllocationsForPayment: [{ amount: paymentAllocatedSum }],
+      };
+
+      const allocValidation = validateAllocation(allocationContext);
+      if (!allocValidation.isValid) {
+        throw new Error(
+          `Error validando asignación: ${allocValidation.errors[0].message}`
+        );
+      }
+
+      await tx.insert(paymentAllocations).values({
+        paymentId: paymentRecord.id,
+        invoiceId: linkedInvoice.id,
+        amountAllocated: doc.ImpPagado,
+        exchangeRate: doc.EquivalenciaDR || "1.0",
+        installmentNumber: parseInt(doc.NumParcialidad),
+      });
+
+      currentPaymentAllocatedSum += parseFloat(doc.ImpPagado);
+
+      // Update target invoice status
+      const currentPaid = parseFloat(linkedInvoice.amountPaid || "0");
+      const newlyPaid = parseFloat(doc.ImpPagado);
+      const totalAmount = parseFloat(linkedInvoice.total);
+      const totalPaid = currentPaid + newlyPaid;
+
+      let status = "partial";
+      if (totalPaid >= totalAmount - 0.01) {
+        status = "paid";
+      }
+
+      const updatedInvoiceState: FiscalInvoice = {
+        id: linkedInvoice.id,
+        total: linkedInvoice.total,
+        subtotal: linkedInvoice.subtotal,
+        amountPaid: totalPaid,
+        paymentStatus: status,
+        status: linkedInvoice.status || "active",
+        allocations: [],
+      };
+
+      const invValidation = validateInvoice(updatedInvoiceState);
+      if (!invValidation.isValid) {
+        throw new Error(
+          `Error validando factura actualizada: ${invValidation.errors[0].message}`
+        );
+      }
+
+      await tx
+        .update(invoices)
+        .set({
+          amountPaid: totalPaid.toString(),
+          paymentStatus: status,
+          updatedAt: new Date(),
+        })
+        .where(eq(invoices.id, linkedInvoice.id));
+    }
+  }
+}
+
+export async function getUnlinkedPaymentComplements(invoiceId: number) {
+  const { db } = await getDB();
+
+  const currentInvoice = await db.query.invoices.findFirst({
+    where: eq(invoices.id, invoiceId),
+  });
+
+  if (!currentInvoice || !currentInvoice.folioFiscal) {
+    return [];
+  }
+
+  // Find active payment complements for the same partner and organization
+  const paymentInvoices = await db.query.invoices.findMany({
+    where: and(
+      eq(invoices.organizationId, currentInvoice.organizationId),
+      eq(invoices.partnerId, currentInvoice.partnerId!),
+      eq(invoices.cfdiType, "P"),
+      eq(invoices.status, "active")
+    ),
+    with: {
+      businessPartner: true,
+    },
+  });
+
+  const results: {
+    paymentId: number;
+    paymentInvoiceId: number;
+    partnerName: string;
+    paymentDate: Date;
+    amount: string;
+    uuid: string;
+    targetUuid: string;
+    amountAllocated: string;
+  }[] = [];
+
+  for (const paymentInvoice of paymentInvoices) {
+    if (!paymentInvoice.xmlContent || !paymentInvoice.folioFiscal) {
+      continue;
+    }
+
+    let parsedCFDI;
+    try {
+      parsedCFDI = await CFDIParser.parse(paymentInvoice.xmlContent);
+    } catch (e) {
+      // If parsing fails for one, skip it
+      continue;
+    }
+
+    const pagosComplement = parsedCFDI.Complemento.find((c) => c.Pagos);
+    const pagosNode = pagosComplement?.Pagos;
+    if (!pagosNode) continue;
+
+    const pagos = Array.isArray(pagosNode.Pago)
+      ? pagosNode.Pago
+      : [pagosNode.Pago];
+
+    const relatedPayments = await db.query.payments.findMany({
+      where: eq(payments.cfdiPaymentId, paymentInvoice.folioFiscal),
+    });
+
+    for (const payment of relatedPayments) {
+      // Find the corresponding Pago block in the XML
+      const matchingPago = pagos.find((p) => {
+        const xmlPayDate = new Date(p.FechaPago).getTime();
+        const dbPayDate = new Date(payment.paymentDate).getTime();
+        return (
+          xmlPayDate === dbPayDate &&
+          parseFloat(p.Monto) === parseFloat(payment.amount)
+        );
+      });
+
+      if (!matchingPago) continue;
+
+      const docs = Array.isArray(matchingPago.DoctoRelacionado)
+        ? matchingPago.DoctoRelacionado
+        : matchingPago.DoctoRelacionado
+          ? [matchingPago.DoctoRelacionado]
+          : [];
+
+      // Check if any DoctoRelacionado references currentInvoice.folioFiscal
+      const targetDoc = docs.find(
+        (doc) => doc.IdDocumento === currentInvoice.folioFiscal
+      );
+
+      if (targetDoc) {
+        // Check if allocation already exists in DB
+        const existingAlloc = await db.query.paymentAllocations.findFirst({
+          where: and(
+            eq(paymentAllocations.paymentId, payment.id),
+            eq(paymentAllocations.invoiceId, currentInvoice.id)
+          ),
+        });
+
+        if (!existingAlloc) {
+          results.push({
+            paymentId: payment.id,
+            paymentInvoiceId: paymentInvoice.id,
+            partnerName: paymentInvoice.businessPartner?.businessName || "",
+            paymentDate: payment.paymentDate,
+            amount: payment.amount,
+            uuid: paymentInvoice.folioFiscal,
+            targetUuid: targetDoc.IdDocumento,
+            amountAllocated: targetDoc.ImpPagado,
+          });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+
