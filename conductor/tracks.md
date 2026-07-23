@@ -11,3 +11,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Manual linking of Invoice to Payment Complement**
       _Archive: [./archive/manual_linking_20260720/](./archive/manual_linking_20260720/)_
+
+---
+
+- [ ] **Track: Fix fiscal validation false positives for special CFDI types (P, T, N) and currency XXX**
+*Link: [./tracks/fiscal_validation_fixes_20260723/](./tracks/fiscal_validation_fixes_20260723/)*
+

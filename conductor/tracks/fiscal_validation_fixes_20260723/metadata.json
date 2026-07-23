@@ -1,0 +1,8 @@
+{
+  "track_id": "fiscal_validation_fixes_20260723",
+  "type": "bug",
+  "status": "new",
+  "created_at": "2026-07-23T17:39:00Z",
+  "updated_at": "2026-07-23T17:39:00Z",
+  "description": "Fix fiscal validation false positives for special CFDI types (P, T, N) and currency XXX"
+}
