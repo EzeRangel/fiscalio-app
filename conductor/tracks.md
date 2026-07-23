@@ -4,8 +4,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: CFDI Invoices Cancellation & Tax Adjustments**
-      _Link: [./tracks/cfdi_cancellations_20260708/](./tracks/cfdi_cancellations_20260708/)_
+- [] **Track: CFDI Invoices Cancellation & Tax Adjustments**
+  _Link: [./tracks/cfdi_cancellations_20260708/](./tracks/cfdi_cancellations_20260708/)_
 
 ---
 
@@ -14,6 +14,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Fix fiscal validation false positives for special CFDI types (P, T, N) and currency XXX**
-*Link: [./tracks/fiscal_validation_fixes_20260723/](./tracks/fiscal_validation_fixes_20260723/)*
-
+- [x] **Track: Fix fiscal validation false positives for special CFDI types (P, T, N) and currency XXX**
+  _Link: [./tracks/fiscal_validation_fixes_20260723/](./tracks/fiscal_validation_fixes_20260723/)_
