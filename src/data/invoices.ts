@@ -218,6 +218,7 @@ export const saveNewInvoice = async (
       amountPaid: 0,
       paymentStatus: "pending",
       status: "active",
+      cfdiType: parsedCFDI.TipoDeComprobante,
       allocations: [],
     };
 

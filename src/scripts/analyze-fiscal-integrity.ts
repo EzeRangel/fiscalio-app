@@ -31,6 +31,7 @@ async function analyze() {
       amountPaid: inv.amountPaid || "0",
       paymentStatus: inv.paymentStatus || "pending",
       status: inv.status || "active",
+      cfdiType: inv.cfdiType,
       allocations: inv.allocations.map((a) => ({ amount: a.amountAllocated })),
     });
 

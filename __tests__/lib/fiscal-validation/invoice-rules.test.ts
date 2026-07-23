@@ -179,6 +179,115 @@ describe("Invoice Validation Rules", () => {
         expect(result.isValid).toBe(false);
         expect(result.errors[0].code).toBe(FISCAL_VALIDATION_RULES.USER_FACING.INVOICE_INVALID_EXCHANGE_RATE);
       });
+
+      it("should return valid for XXX currency without exchange rate", () => {
+        const result = validateExchangeRate({
+          currency: "XXX",
+          exchangeRate: undefined
+        });
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+      });
+
+      it("should return valid for MXN without exchange rate (no regression)", () => {
+        const result = validateExchangeRate({
+          currency: "MXN",
+          exchangeRate: undefined
+        });
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("Non-Commercial CFDI Types (P, T, N)", () => {
+    it.each(["P", "T", "N"])("should bypass INV-03 when cfdiType is %s (amountPaid > total)", (cfdiType) => {
+      const invoice: FiscalInvoice = {
+        ...validInvoice,
+        cfdiType,
+        total: "1000.00",
+        amountPaid: "2000.00",
+      };
+      const result = validateInvoice(invoice);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it.each(["P", "T", "N"])("should bypass INV-04 when cfdiType is %s (payment status inconsistency)", (cfdiType) => {
+      const invoice: FiscalInvoice = {
+        ...validInvoice,
+        cfdiType,
+        total: "1000.00",
+        amountPaid: "500.00",
+        paymentStatus: "paid",
+      };
+      const result = validateInvoice(invoice);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it.each(["P", "T", "N"])("should bypass INT-INV-06 when cfdiType is %s (tax base mismatch)", (cfdiType) => {
+      const invoice: FiscalInvoice = {
+        ...validInvoice,
+        cfdiType,
+        subtotal: "100.00",
+        items: [
+          { subtotal: "60.00", discount: "0" },
+          { subtotal: "60.00", discount: "0" },
+        ],
+      };
+      const result = validateInvoice(invoice);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it.each(["P", "T", "N"])("should still enforce INV-02 when cfdiType is %s (cancelled + allocations)", (cfdiType) => {
+      const invoice: FiscalInvoice = {
+        ...validInvoice,
+        cfdiType,
+        status: "cancelled",
+        amountPaid: "500.00",
+        allocations: [{ amount: "500", paymentId: 1 }],
+      };
+      const result = validateInvoice(invoice);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_CANCELLED_NO_ALLOCATIONS,
+        })
+      );
+    });
+
+    it("should enforce all rules when cfdiType is undefined (commercial default)", () => {
+      const invoice: FiscalInvoice = {
+        ...validInvoice,
+        cfdiType: undefined,
+        total: "1000.00",
+        amountPaid: "2000.00",
+      };
+      const result = validateInvoice(invoice);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
+        })
+      );
+    });
+
+    it("should enforce all rules for commercial cfdiType I (no regression)", () => {
+      const invoice: FiscalInvoice = {
+        ...validInvoice,
+        cfdiType: "I",
+        total: "1000.00",
+        amountPaid: "2000.00",
+      };
+      const result = validateInvoice(invoice);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
+        })
+      );
     });
   });
 });

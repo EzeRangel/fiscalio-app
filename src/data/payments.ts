@@ -159,6 +159,7 @@ export async function savePaymentComplement(
           amountPaid: totalPaid,
           paymentStatus: status,
           status: linkedInvoice.status || "active",
+          cfdiType: linkedInvoice.cfdiType,
           allocations: [],
         };
 
@@ -459,6 +460,7 @@ export async function processPendingAllocations(
         amountPaid: totalPaid,
         paymentStatus: status,
         status: linkedInvoice.status || "active",
+        cfdiType: linkedInvoice.cfdiType,
         allocations: [],
       };
 

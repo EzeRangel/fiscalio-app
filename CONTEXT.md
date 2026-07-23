@@ -63,6 +63,16 @@ El historial muestra todos los estados en lista plana ordenada por período desc
 
 Factura de tipo `payment_issued` / `payment_received` (`cfdiType = "P"`). Corresponde al XML de Complemento de Pago del SAT. Contiene uno o más nodos `Pago` y cada pago referencia una o más facturas Ingreso mediante `DoctoRelacionado`. Se importa antes o después de la Ingreso; si se importa antes, el linking queda pendiente.
 
+## CFDI Types
+
+Tipos de comprobante fiscal según el catálogo SAT `c_TipoDeComprobante`:
+
+- **I (Ingreso)**: Ingresos por venta de bienes o servicios. Aplica reglas de integridad comercial (INV-03, INV-04, INT-INV-06) y retenciones ISR.
+- **E (Egreso)**: Egresos o notas de crédito. Mismas reglas que Ingreso.
+- **P (Pago)**: Complemento de Pago. No representa ingresos/egresos en sí mismo. Se exenta de reglas de integridad comercial (INV-03, INV-04, INT-INV-06) y no requiere tipo de cambio para moneda "XXX".
+- **N (Nómina)**: Recibo de nómina. No es un comprobante de ingresos comercial. Mismas exenciones que P.
+- **T (Traslado)**: Traslado de mercancía (no genera ingresos). Mismas exenciones que P.
+
 ## DoctoRelacionado
 
 Elemento SAT dentro del Complemento de Pago que declara una factura Ingreso vinculada al pago. Contiene `IdDocumento` (folioFiscal UUID de la Ingreso), `ImpPagado` (monto pagado), `NumParcialidad` (número de parcialidad). Es la fuente de verdad para las `paymentAllocations`.

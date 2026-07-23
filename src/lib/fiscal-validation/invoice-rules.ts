@@ -5,6 +5,8 @@ import {
   FiscalValidationError,
 } from "./types";
 
+const NON_COMMERCIAL_CFDI_TYPES = new Set(["P", "T", "N"]);
+
 export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult {
   const errors: FiscalValidationError[] = [];
 
@@ -23,58 +25,9 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
     return sum + val;
   }, 0);
 
-  // INV-03: Total allocated amount <= invoice.total
-  if (amountPaid > total + 0.001) {
-    errors.push({
-      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
-      message: "El monto pagado excede el total de la factura. Favor de revisar la consistencia de los datos registrados.",
-      severity: "error",
-      field: "amountPaid",
-    });
-  }
+  const isNonCommercial = invoice.cfdiType ? NON_COMMERCIAL_CFDI_TYPES.has(invoice.cfdiType) : false;
 
-  if (allocatedSum > total + 0.001) {
-     const alreadyReported = errors.some(e => e.code === FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT);
-     if (!alreadyReported) {
-        errors.push({
-            code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
-            message: "La suma de las aplicaciones excede el total de la factura. Se sugiere verificar los montos.",
-            severity: "error",
-            field: "allocations",
-        });
-     }
-  }
-
-  // INV-04: Payment status is always derived
-  if (invoice.paymentStatus === "paid" && amountPaid < total - 0.001) {
-    errors.push({
-      code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
-      message: "La factura figura como pagada pero el monto registrado es menor al total. Favor de verificar la información.",
-      severity: "error",
-      field: "paymentStatus",
-    });
-  }
-
-  if (invoice.paymentStatus === "pending" && amountPaid > 0.001) {
-      errors.push({
-        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
-        message: "La factura figura como pendiente pero tiene pagos registrados. Se sugiere revisar el estado de pago.",
-        severity: "error",
-        field: "paymentStatus",
-      });
-  }
-
-  if (invoice.paymentStatus === "partial" && Math.abs(amountPaid - total) < 0.001) {
-      errors.push({
-        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
-        message: "La factura figura como parcial pero parece estar pagada en su totalidad.",
-        severity: "error",
-        field: "paymentStatus",
-      });
-  }
-
-
-  // INV-02: A cancelled invoice cannot accept new payment allocations.
+  // INV-02: A cancelled invoice cannot accept new payment allocations. Applies to ALL cfdiTypes.
   if (invoice.status === "cancelled" && allocations.length > 0) {
     errors.push({
       code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_CANCELLED_NO_ALLOCATIONS,
@@ -85,10 +38,63 @@ export function validateInvoice(invoice: FiscalInvoice): FiscalValidationResult 
     });
   }
 
-  // INT-INV-06: Tax Base Consistency (Items sum matches subtotal)
-  const taxBaseResult = validateTaxBaseConsistency(invoice);
-  if (!taxBaseResult.isValid) {
-    errors.push(...taxBaseResult.errors);
+  // Skip commercial integrity checks for non-commercial CFDI types (P, T, N)
+  if (!isNonCommercial) {
+    // INV-03: Total allocated amount <= invoice.total
+    if (amountPaid > total + 0.001) {
+      errors.push({
+        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
+        message: "El monto pagado excede el total de la factura. Favor de revisar la consistencia de los datos registrados.",
+        severity: "error",
+        field: "amountPaid",
+      });
+    }
+
+    if (allocatedSum > total + 0.001) {
+       const alreadyReported = errors.some(e => e.code === FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT);
+       if (!alreadyReported) {
+          errors.push({
+              code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_ALLOCATION_LIMIT,
+              message: "La suma de las aplicaciones excede el total de la factura. Se sugiere verificar los montos.",
+              severity: "error",
+              field: "allocations",
+          });
+       }
+    }
+
+    // INV-04: Payment status is always derived
+    if (invoice.paymentStatus === "paid" && amountPaid < total - 0.001) {
+      errors.push({
+        code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
+        message: "La factura figura como pagada pero el monto registrado es menor al total. Favor de verificar la información.",
+        severity: "error",
+        field: "paymentStatus",
+      });
+    }
+
+    if (invoice.paymentStatus === "pending" && amountPaid > 0.001) {
+        errors.push({
+          code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
+          message: "La factura figura como pendiente pero tiene pagos registrados. Se sugiere revisar el estado de pago.",
+          severity: "error",
+          field: "paymentStatus",
+        });
+    }
+
+    if (invoice.paymentStatus === "partial" && Math.abs(amountPaid - total) < 0.001) {
+        errors.push({
+          code: FISCAL_VALIDATION_RULES.INTEGRITY.INVOICE_PAYMENT_STATUS_DERIVED,
+          message: "La factura figura como parcial pero parece estar pagada en su totalidad.",
+          severity: "error",
+          field: "paymentStatus",
+        });
+    }
+
+    // INT-INV-06: Tax Base Consistency (Items sum matches subtotal)
+    const taxBaseResult = validateTaxBaseConsistency(invoice);
+    if (!taxBaseResult.isValid) {
+      errors.push(...taxBaseResult.errors);
+    }
   }
 
   return {
@@ -177,6 +183,11 @@ export interface ExchangeRateParams {
  */
 export function validateExchangeRate(params: ExchangeRateParams): FiscalValidationResult {
   const errors: FiscalValidationError[] = [];
+
+  // Currency "XXX" indicates no monetary value (used by P, T, N CFDIs). No exchange rate needed.
+  if (params.currency === "XXX") {
+    return { isValid: true, errors: [] };
+  }
 
   if (params.currency !== "MXN") {
     const rate = typeof params.exchangeRate === "string" ? parseFloat(params.exchangeRate) : params.exchangeRate;
