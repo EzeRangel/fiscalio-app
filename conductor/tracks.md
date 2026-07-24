@@ -19,5 +19,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Implement expandable rows for payment complements in the invoices list**
+- [x] **Track: Implement expandable rows for payment complements in the invoices list**
 *Link: [./tracks/payment_complements_ui_20260724/](./tracks/payment_complements_ui_20260724/)*
