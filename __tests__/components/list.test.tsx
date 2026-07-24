@@ -265,10 +265,10 @@ describe("List Component - Payment Complements Expansion", () => {
     // Sub-row containing complement details should be visible
     expect(screen.getByText("P-1")).toBeInTheDocument();
     expect(screen.getByText("complement-uuid")).toBeInTheDocument();
-    expect(screen.getByText("Parcialidad #1")).toBeInTheDocument();
+    expect(screen.getByText("#1")).toBeInTheDocument();
     
     // Check amounts are rendered. (Using a matcher or exact text since they are in PrivacyBlur mockup which just renders children)
-    expect(screen.getAllByText("$5,000.00").length).toBe(3);
+    expect(screen.getAllByText("$5,000.00").length).toBe(2);
   });
 
   it("does not render the expand toggle if there are no complements", () => {

@@ -230,7 +230,7 @@ function InvoiceRow({ invoice, allInvoices }: InvoiceRowProps) {
               <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-primary animate-pulse" /> Complementos de Pago Relacionados
               </h4>
-              <div className="rounded-md border bg-background overflow-hidden max-w-4xl">
+              <div className="rounded-md border bg-background overflow-hidden w-full">
                 <Table>
                   <TableHeader className="bg-muted/30">
                     <TableRow className="hover:bg-muted/30">
@@ -248,9 +248,6 @@ function InvoiceRow({ invoice, allInvoices }: InvoiceRowProps) {
                       </TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
                         Monto Aplicado
-                      </TableHead>
-                      <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
-                        Monto Total
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -288,16 +285,11 @@ function InvoiceRow({ invoice, allInvoices }: InvoiceRowProps) {
                             </PrivacyBlur>
                           </TableCell>
                           <TableCell className="text-center font-mono text-sm">
-                            Parcialidad #{installmentNum}
+                            #{installmentNum}
                           </TableCell>
                           <TableCell className="text-right font-mono text-sm font-medium text-emerald-600 dark:text-emerald-400">
                             <PrivacyBlur>
                               {formatPrice(allocatedAmount, 2)}
-                            </PrivacyBlur>
-                          </TableCell>
-                          <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                            <PrivacyBlur>
-                              {formatPrice(Number(comp.total), 2)}
                             </PrivacyBlur>
                           </TableCell>
                         </TableRow>
