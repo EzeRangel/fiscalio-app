@@ -15,6 +15,9 @@ jest.mock("lucide-react", () => ({
   MoreHorizontal: () => <div data-testid="more-icon" />,
   Eye: () => <div data-testid="eye-icon" />,
   FileText: () => <div data-testid="file-icon" />,
+  ChevronDown: () => <div data-testid="chevron-down" />,
+  ChevronRight: () => <div data-testid="chevron-right" />,
+  Receipt: () => <div data-testid="receipt-icon" />,
 }));
 
 describe("List Component Grouping and Totals", () => {
@@ -102,5 +105,148 @@ describe("List Component Grouping and Totals", () => {
     expect(screen.getAllByText("$2,000.00").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("$800.00").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("$1,200.00").length).toBeGreaterThanOrEqual(1); // Net
+  });
+});
+
+describe("List Component - Payment Complements Expansion", () => {
+  const mockParentInvoice = {
+    id: 1,
+    organizationId: 1,
+    partnerId: 1,
+    invoiceType: "income",
+    cfdiType: "I",
+    cfdiVersion: "4.0",
+    folioFiscal: "parent-uuid",
+    internalFolio: "A-100",
+    series: "A",
+    invoiceDate: new Date("2026-07-01T12:00:00Z"),
+    certificationDate: new Date("2026-07-01T12:05:00Z"),
+    paymentDueDate: "2026-07-31",
+    currency: "MXN",
+    exchangeRate: "1.000000",
+    subtotal: "10000.00",
+    discount: "0.00",
+    totalTaxes: "1600.00",
+    totalWithholdings: "0.00",
+    total: "11600.00",
+    paymentMethod: "PPD",
+    paymentForm: "99",
+    paymentStatus: "partial",
+    amountPaid: "5000.00",
+    status: "active",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    account: null,
+    businessPartner: {
+      id: 1,
+      organizationId: 1,
+      businessName: "Client Business Name",
+      legalName: "Client Legal Name",
+      rfc: "CLI990101XXX",
+    },
+    items: [],
+    allocations: [
+      {
+        id: 10,
+        paymentId: 100,
+        invoiceId: 1,
+        amountAllocated: "5000.00",
+        exchangeRate: "1.000000",
+        installmentNumber: 1,
+        createdAt: new Date(),
+        payment: {
+          id: 100,
+          organizationId: 1,
+          partnerId: 1,
+          paymentType: "payment_received",
+          paymentDate: new Date("2026-07-05T12:00:00Z"),
+          paymentMethod: "03",
+          currency: "MXN",
+          exchangeRate: "1.000000",
+          amount: "5000.00",
+          cfdiPaymentId: "complement-uuid",
+          isRefund: false,
+        },
+      },
+    ],
+    linkedPayments: [],
+  };
+
+  const mockPaymentComplement = {
+    id: 2,
+    organizationId: 1,
+    partnerId: 1,
+    invoiceType: "payment_received",
+    cfdiType: "P",
+    cfdiVersion: "4.0",
+    folioFiscal: "complement-uuid",
+    internalFolio: "P-1",
+    series: "P",
+    invoiceDate: new Date("2026-07-05T12:00:00Z"),
+    certificationDate: new Date("2026-07-05T12:05:00Z"),
+    currency: "XXX",
+    exchangeRate: "1.000000",
+    subtotal: "0.00",
+    discount: "0.00",
+    totalTaxes: "0.00",
+    totalWithholdings: "0.00",
+    total: "5000.00",
+    paymentStatus: "paid",
+    amountPaid: "5000.00",
+    status: "active",
+    businessPartner: {
+      id: 1,
+      organizationId: 1,
+      businessName: "Client Business Name",
+      legalName: "Client Legal Name",
+      rfc: "CLI990101XXX",
+    },
+    items: [],
+    allocations: [],
+    linkedPayments: [
+      {
+        id: 100,
+        organizationId: 1,
+        partnerId: 1,
+        paymentType: "payment_received",
+        paymentDate: new Date("2026-07-05T12:00:00Z"),
+        paymentMethod: "03",
+        currency: "MXN",
+        exchangeRate: "1.000000",
+        amount: "5000.00",
+        cfdiPaymentId: "complement-uuid",
+        isRefund: false,
+        allocations: [
+          {
+            id: 10,
+            paymentId: 100,
+            invoiceId: 1,
+            amountAllocated: "5000.00",
+            exchangeRate: "1.000000",
+            installmentNumber: 1,
+          },
+        ],
+      },
+    ],
+  };
+
+  it("renders the list and displays the expand toggle for invoices with complements", () => {
+    render(
+      <List
+        invoices={[mockParentInvoice] as any}
+        allInvoices={[mockParentInvoice, mockPaymentComplement] as any}
+        periodGroup="none"
+      />
+    );
+
+    // Parent details should render
+    expect(screen.getByText("A-100")).toBeInTheDocument();
+
+    // Toggle button should be visible
+    expect(screen.getByTestId("chevron-right")).toBeInTheDocument();
+
+    // Complement details should not render yet
+    expect(screen.queryByText("P-1")).not.toBeInTheDocument();
+    expect(screen.queryByText("complement-uuid")).not.toBeInTheDocument();
   });
 });
