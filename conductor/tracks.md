@@ -16,3 +16,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Fix fiscal validation false positives for special CFDI types (P, T, N) and currency XXX**
   _Link: [./tracks/fiscal_validation_fixes_20260723/](./tracks/fiscal_validation_fixes_20260723/)_
+
+---
+
+- [ ] **Track: Implement expandable rows for payment complements in the invoices list**
+*Link: [./tracks/payment_complements_ui_20260724/](./tracks/payment_complements_ui_20260724/)*

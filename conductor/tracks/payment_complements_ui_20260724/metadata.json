@@ -1,0 +1,8 @@
+{
+  "track_id": "payment_complements_ui_20260724",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-07-24T10:36:00Z",
+  "updated_at": "2026-07-24T10:36:00Z",
+  "description": "Implement expandable rows for payment complements in the invoices list"
+}
