@@ -95,7 +95,7 @@ export default function InvoicesClient({ invoices }: InvoicesClientProps) {
           isPending ? "opacity-50" : "opacity-100",
         )}
       >
-        <List invoices={displayInvoices} periodGroup={periodGroup} />
+        <List invoices={displayInvoices} allInvoices={invoices} periodGroup={periodGroup} />
       </section>
     </section>
   );
