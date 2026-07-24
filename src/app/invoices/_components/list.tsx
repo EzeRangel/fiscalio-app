@@ -19,7 +19,8 @@ import {
 import { formatPrice } from "@/hooks/usePrice";
 import { getInvoiceType } from "@/lib/utils";
 import { InvoiceDetails } from "@/types/invoices";
-import { Eye, FileText, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Eye, FileText, MoreHorizontal, ChevronDown, ChevronRight, Receipt } from "lucide-react";
 import Link from "next/link";
 import { PrivacyBlur } from "@/components/privacy-blur";
 import { INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
@@ -31,6 +32,7 @@ import {
 interface Props {
   periodGroup?: "month" | "year" | "none";
   invoices: InvoiceDetails[];
+  allInvoices?: InvoiceDetails[];
 }
 
 const getPaymentStatus = (total: number, paid: number) => {
@@ -74,7 +76,124 @@ const calculateInvoicePaid = (invoice: InvoiceDetails) => {
   return summary.totalPaid;
 };
 
-export default function List({ invoices, periodGroup = "none" }: Props) {
+interface InvoiceRowProps {
+  invoice: InvoiceDetails;
+  allInvoices: InvoiceDetails[];
+}
+
+function InvoiceRow({ invoice, allInvoices }: InvoiceRowProps) {
+  const totalPaid = calculateInvoicePaid(invoice);
+  const status = getPaymentStatus(
+    Number(invoice.total),
+    totalPaid,
+  );
+
+  return (
+    <TableRow className="group cursor-pointer">
+      <TableCell className="w-[40px] p-2 text-center"></TableCell>
+      <TableCell className="font-mono text-sm font-medium">
+        {invoice.internalFolio}
+      </TableCell>
+      <TableCell>
+        <div className="space-y-1">
+          <div className="text-sm font-medium leading-none">
+            {invoice.businessPartner?.legalName}
+          </div>
+          <div className="text-xs text-muted-foreground font-mono">
+            <PrivacyBlur>
+              {invoice.businessPartner?.rfc}
+            </PrivacyBlur>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="text-sm font-mono">
+        <time
+          dateTime={new Date(
+            invoice.invoiceDate,
+          ).toISOString()}
+        >
+          {new Date(invoice.invoiceDate).toLocaleDateString(
+            "es-MX",
+            {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            },
+          )}
+        </time>
+      </TableCell>
+      <TableCell>
+        <Badge
+          variant="outline"
+          className={
+            // @ts-expect-error keyof typing
+            INVOICE_TYPE_COLOR[invoice.invoiceType] ||
+            "bg-gray-500/10"
+          }
+        >
+          {getInvoiceType(
+            invoice.invoiceType as keyof typeof INVOICE_TYPE,
+          )}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <Badge
+          variant="outline"
+          className={`font-mono text-xs ${status.color}`}
+        >
+          {status.label}
+        </Badge>
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="font-mono text-muted-foreground">
+          <PrivacyBlur>
+            {formatPrice(Number(invoice.total), 2)}
+          </PrivacyBlur>
+        </div>
+        <div className="text-xs text-muted-foreground font-mono">
+          {invoice.currency}
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="font-mono text-sm font-medium">
+          <PrivacyBlur>
+            {formatPrice(totalPaid, 2)}
+          </PrivacyBlur>
+        </div>
+        <div className="text-xs text-muted-foreground font-mono">
+          {invoice.currency}
+        </div>
+      </TableCell>
+      <TableCell>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <Eye className="h-4 w-4" />
+              <Link href={`/invoices/${invoice.id}`}>
+                Ver detalles
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <FileText className="h-4 w-4" />
+              Descargar XML
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export default function List({ invoices, allInvoices = [], periodGroup = "none" }: Props) {
   const filteredInvoices = invoices;
 
   const groupedInvoices =
@@ -216,6 +335,7 @@ export default function List({ invoices, periodGroup = "none" }: Props) {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
+                      <TableHead className="w-[40px]"></TableHead>
                       <TableHead className="text-xs uppercase tracking-widest font-medium w-[100px]">
                         Folio
                       </TableHead>
@@ -241,119 +361,13 @@ export default function List({ invoices, periodGroup = "none" }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {invoices.map((invoice) => {
-                      const totalPaid = calculateInvoicePaid(invoice);
-                      const status = getPaymentStatus(
-                        Number(invoice.total),
-                        totalPaid,
-                      );
-
-                      return (
-                        <TableRow
-                          key={invoice.id}
-                          className="group cursor-pointer"
-                        >
-                          <TableCell className="font-mono text-sm font-medium">
-                            {invoice.internalFolio}
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <div className="text-sm font-medium leading-none">
-                                {invoice.businessPartner?.legalName}
-                              </div>
-                              <div className="text-xs text-muted-foreground font-mono">
-                                <PrivacyBlur>
-                                  {invoice.businessPartner?.rfc}
-                                </PrivacyBlur>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm font-mono">
-                            <time
-                              dateTime={new Date(
-                                invoice.invoiceDate,
-                              ).toISOString()}
-                            >
-                              {new Date(invoice.invoiceDate).toLocaleDateString(
-                                "es-MX",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                },
-                              )}
-                            </time>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={
-                                // @ts-expect-error keyof typing
-                                INVOICE_TYPE_COLOR[invoice.invoiceType] ||
-                                "bg-gray-500/10"
-                              }
-                            >
-                              {getInvoiceType(
-                                invoice.invoiceType as keyof typeof INVOICE_TYPE,
-                              )}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={`font-mono text-xs ${status.color}`}
-                            >
-                              {status.label}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="font-mono text-muted-foreground">
-                              <PrivacyBlur>
-                                {formatPrice(Number(invoice.total), 2)}
-                              </PrivacyBlur>
-                            </div>
-                            <div className="text-xs text-muted-foreground font-mono">
-                              {invoice.currency}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="font-mono text-sm font-medium">
-                              <PrivacyBlur>
-                                {formatPrice(totalPaid, 2)}
-                              </PrivacyBlur>
-                            </div>
-                            <div className="text-xs text-muted-foreground font-mono">
-                              {invoice.currency}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                  <Eye className="h-4 w-4" />
-                                  <Link href={`/invoices/${invoice.id}`}>
-                                    Ver detalles
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileText className="h-4 w-4" />
-                                  Descargar XML
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                    {invoices.map((invoice) => (
+                      <InvoiceRow
+                        key={invoice.id}
+                        invoice={invoice}
+                        allInvoices={allInvoices}
+                      />
+                    ))}
                   </TableBody>
                 </Table>
               </div>
