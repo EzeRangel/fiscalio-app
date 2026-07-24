@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import List from "@/app/invoices/_components/list";
 
@@ -15,8 +15,8 @@ jest.mock("lucide-react", () => ({
   MoreHorizontal: () => <div data-testid="more-icon" />,
   Eye: () => <div data-testid="eye-icon" />,
   FileText: () => <div data-testid="file-icon" />,
-  ChevronDown: () => <div data-testid="chevron-down" />,
-  ChevronRight: () => <div data-testid="chevron-right" />,
+  ChevronDown: () => <div data-testid="chevron-down-icon" />,
+  ChevronRight: () => <div data-testid="chevron-right-icon" />,
   Receipt: () => <div data-testid="receipt-icon" />,
 }));
 
@@ -248,5 +248,39 @@ describe("List Component - Payment Complements Expansion", () => {
     // Complement details should not render yet
     expect(screen.queryByText("P-1")).not.toBeInTheDocument();
     expect(screen.queryByText("complement-uuid")).not.toBeInTheDocument();
+  });
+
+  it("expands the row and shows complement details when clicking the toggle", () => {
+    render(
+      <List
+        invoices={[mockParentInvoice] as any}
+        allInvoices={[mockParentInvoice, mockPaymentComplement] as any}
+        periodGroup="none"
+      />
+    );
+
+    const toggle = screen.getByTestId("chevron-right");
+    fireEvent.click(toggle);
+
+    // Sub-row containing complement details should be visible
+    expect(screen.getByText("P-1")).toBeInTheDocument();
+    expect(screen.getByText("complement-uuid")).toBeInTheDocument();
+    expect(screen.getByText("Parcialidad #1")).toBeInTheDocument();
+    
+    // Check amounts are rendered. (Using a matcher or exact text since they are in PrivacyBlur mockup which just renders children)
+    expect(screen.getAllByText("$5,000.00").length).toBe(3);
+  });
+
+  it("does not render the expand toggle if there are no complements", () => {
+    render(
+      <List
+        invoices={[mockParentInvoice] as any}
+        allInvoices={[mockParentInvoice] as any}
+        periodGroup="none"
+      />
+    );
+
+    expect(screen.getByText("A-100")).toBeInTheDocument();
+    expect(screen.queryByTestId("chevron-right")).not.toBeInTheDocument();
   });
 });

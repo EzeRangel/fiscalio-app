@@ -82,114 +82,235 @@ interface InvoiceRowProps {
 }
 
 function InvoiceRow({ invoice, allInvoices }: InvoiceRowProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const totalPaid = calculateInvoicePaid(invoice);
   const status = getPaymentStatus(
     Number(invoice.total),
     totalPaid,
   );
 
+  // Compute related complements in memory
+  const relatedComplements = allInvoices.filter(
+    (inv) =>
+      (inv.invoiceType === "payment_issued" || inv.invoiceType === "payment_received") &&
+      inv.linkedPayments?.some((p) =>
+        p.allocations?.some((a) => a.invoiceId === invoice.id)
+      )
+  );
+
+  const hasComplements = relatedComplements.length > 0;
+
   return (
-    <TableRow className="group cursor-pointer">
-      <TableCell className="w-[40px] p-2 text-center"></TableCell>
-      <TableCell className="font-mono text-sm font-medium">
-        {invoice.internalFolio}
-      </TableCell>
-      <TableCell>
-        <div className="space-y-1">
-          <div className="text-sm font-medium leading-none">
-            {invoice.businessPartner?.legalName}
-          </div>
-          <div className="text-xs text-muted-foreground font-mono">
-            <PrivacyBlur>
-              {invoice.businessPartner?.rfc}
-            </PrivacyBlur>
-          </div>
-        </div>
-      </TableCell>
-      <TableCell className="text-sm font-mono">
-        <time
-          dateTime={new Date(
-            invoice.invoiceDate,
-          ).toISOString()}
-        >
-          {new Date(invoice.invoiceDate).toLocaleDateString(
-            "es-MX",
-            {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            },
-          )}
-        </time>
-      </TableCell>
-      <TableCell>
-        <Badge
-          variant="outline"
-          className={
-            // @ts-expect-error keyof typing
-            INVOICE_TYPE_COLOR[invoice.invoiceType] ||
-            "bg-gray-500/10"
-          }
-        >
-          {getInvoiceType(
-            invoice.invoiceType as keyof typeof INVOICE_TYPE,
-          )}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <Badge
-          variant="outline"
-          className={`font-mono text-xs ${status.color}`}
-        >
-          {status.label}
-        </Badge>
-      </TableCell>
-      <TableCell className="text-right">
-        <div className="font-mono text-muted-foreground">
-          <PrivacyBlur>
-            {formatPrice(Number(invoice.total), 2)}
-          </PrivacyBlur>
-        </div>
-        <div className="text-xs text-muted-foreground font-mono">
-          {invoice.currency}
-        </div>
-      </TableCell>
-      <TableCell className="text-right">
-        <div className="font-mono text-sm font-medium">
-          <PrivacyBlur>
-            {formatPrice(totalPaid, 2)}
-          </PrivacyBlur>
-        </div>
-        <div className="text-xs text-muted-foreground font-mono">
-          {invoice.currency}
-        </div>
-      </TableCell>
-      <TableCell>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+    <>
+      <TableRow className="group cursor-pointer">
+        <TableCell className="w-[40px] p-2 text-center">
+          {hasComplements && (
             <Button
               variant="ghost"
               size="icon-sm"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className="h-8 w-8 p-0"
+              data-testid={isExpanded ? "chevron-down" : "chevron-right"}
             >
-              <MoreHorizontal className="h-4 w-4" />
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="h-4 w-4" />
-              <Link href={`/invoices/${invoice.id}`}>
-                Ver detalles
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <FileText className="h-4 w-4" />
-              Descargar XML
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TableCell>
-    </TableRow>
+          )}
+        </TableCell>
+        <TableCell className="font-mono text-sm font-medium">
+          {invoice.internalFolio}
+        </TableCell>
+        <TableCell>
+          <div className="space-y-1">
+            <div className="text-sm font-medium leading-none">
+              {invoice.businessPartner?.legalName}
+            </div>
+            <div className="text-xs text-muted-foreground font-mono">
+              <PrivacyBlur>
+                {invoice.businessPartner?.rfc}
+              </PrivacyBlur>
+            </div>
+          </div>
+        </TableCell>
+        <TableCell className="text-sm font-mono">
+          <time
+            dateTime={new Date(
+              invoice.invoiceDate,
+            ).toISOString()}
+          >
+            {new Date(invoice.invoiceDate).toLocaleDateString(
+              "es-MX",
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              },
+            )}
+          </time>
+        </TableCell>
+        <TableCell>
+          <Badge
+            variant="outline"
+            className={
+              // @ts-expect-error keyof typing
+              INVOICE_TYPE_COLOR[invoice.invoiceType] ||
+              "bg-gray-500/10"
+            }
+          >
+            {getInvoiceType(
+              invoice.invoiceType as keyof typeof INVOICE_TYPE,
+            )}
+          </Badge>
+        </TableCell>
+        <TableCell>
+          <Badge
+            variant="outline"
+            className={`font-mono text-xs ${status.color}`}
+          >
+            {status.label}
+          </Badge>
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="font-mono text-muted-foreground">
+            <PrivacyBlur>
+              {formatPrice(Number(invoice.total), 2)}
+            </PrivacyBlur>
+          </div>
+          <div className="text-xs text-muted-foreground font-mono">
+            {invoice.currency}
+          </div>
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="font-mono text-sm font-medium">
+            <PrivacyBlur>
+              {formatPrice(totalPaid, 2)}
+            </PrivacyBlur>
+          </div>
+          <div className="text-xs text-muted-foreground font-mono">
+            {invoice.currency}
+          </div>
+        </TableCell>
+        <TableCell>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <Eye className="h-4 w-4" />
+                <Link href={`/invoices/${invoice.id}`}>
+                  Ver detalles
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <FileText className="h-4 w-4" />
+                Descargar XML
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+
+      {isExpanded && hasComplements && (
+        <TableRow className="bg-muted/10 hover:bg-muted/10">
+          <TableCell colSpan={9} className="p-0 border-b">
+            <div className="p-6 pl-12 border-l-2 border-l-primary/50 space-y-4">
+              <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-primary animate-pulse" /> Complementos de Pago Relacionados
+              </h4>
+              <div className="rounded-md border bg-background overflow-hidden max-w-4xl">
+                <Table>
+                  <TableHeader className="bg-muted/30">
+                    <TableRow className="hover:bg-muted/30">
+                      <TableHead className="text-xs uppercase tracking-widest font-medium w-[120px]">
+                        Folio
+                      </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium w-[140px]">
+                        Fecha
+                      </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium">
+                        UUID (Folio Fiscal)
+                      </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium w-[120px] text-center">
+                        Parcialidad
+                      </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
+                        Monto Aplicado
+                      </TableHead>
+                      <TableHead className="text-xs uppercase tracking-widest font-medium text-right w-[140px]">
+                        Monto Total
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {relatedComplements.map((comp) => {
+                      // Sum allocations pointing to this parent invoice
+                      const allocatedAmount = comp.linkedPayments?.reduce((sum, p) => {
+                        const matchSum = p.allocations
+                          ?.filter((a) => a.invoiceId === invoice.id)
+                          ?.reduce((s, a) => s + Number(a.amountAllocated), 0) || 0;
+                        return sum + matchSum;
+                      }, 0) || 0;
+
+                      // Find installment number
+                      const installmentNum = comp.linkedPayments?.reduce((num, p) => {
+                        const match = p.allocations?.find((a) => a.invoiceId === invoice.id);
+                        return match ? match.installmentNumber : num;
+                      }, 1);
+
+                      return (
+                        <TableRow key={comp.id} className="hover:bg-muted/20">
+                          <TableCell className="font-mono text-sm font-medium">
+                            {comp.internalFolio || "-"}
+                          </TableCell>
+                          <TableCell className="text-sm font-mono">
+                            {new Date(comp.invoiceDate).toLocaleDateString("es-MX", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">
+                            <PrivacyBlur>
+                              {comp.folioFiscal}
+                            </PrivacyBlur>
+                          </TableCell>
+                          <TableCell className="text-center font-mono text-sm">
+                            Parcialidad #{installmentNum}
+                          </TableCell>
+                          <TableCell className="text-right font-mono text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                            <PrivacyBlur>
+                              {formatPrice(allocatedAmount, 2)}
+                            </PrivacyBlur>
+                          </TableCell>
+                          <TableCell className="text-right font-mono text-sm text-muted-foreground">
+                            <PrivacyBlur>
+                              {formatPrice(Number(comp.total), 2)}
+                            </PrivacyBlur>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 }
 
