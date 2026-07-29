@@ -7,9 +7,9 @@
 - [x] Task: Implement cookie persistence (Green Phase) (ab26877)
     - [x] Update `src/actions/session.ts` to add `maxAge: 60 * 60 * 24 * 365` (1 year) to `activeOrganizationId` cookie
     - [x] Verify that tests now pass (Green Phase) — run `CI=true npx jest src/actions/session.test.ts --no-coverage`
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Onboarding Page Hybrid Implementation
+## Phase 2: Onboarding Page Hybrid Implementation [checkpoint: f755a4b]
 - [x] Task: Create Onboarding Org Selector Component (4461b7b)
     - [x] Create `src/app/onboarding/_components/org-selector.tsx`
     - [x] Props: `organizations: Organization[]`, `onSwitchToForm: () => void`
@@ -30,4 +30,4 @@
     - [x] Create tests to verify page behavior under different database states (0 orgs vs >0 orgs)
     - [x] Verify that page correctly switches between selector and creation form via `onSwitchToForm`
     - [x] Verify org selection calls `setActiveOrganization` and redirects
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
