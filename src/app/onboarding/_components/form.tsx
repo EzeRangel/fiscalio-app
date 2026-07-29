@@ -55,12 +55,10 @@ export function OnboardingForm({ regimes }: Props) {
       onSuccess: () => {
         router.replace("/");
       },
-    }
+    },
   );
 
   const handleSubmit = (values: FormValues) => {
-    console.log(values);
-
     executeAsync(values);
   };
 
