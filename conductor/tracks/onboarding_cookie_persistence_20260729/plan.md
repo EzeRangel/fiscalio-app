@@ -1,6 +1,6 @@
 # Plan: Onboarding Cookie Persistence & Org Selection
 
-## Phase 1: Cookie Persistence & Test Coverage
+## Phase 1: Cookie Persistence & Test Coverage [checkpoint: 8adecd7]
 - [x] Task: Pre-existing session server action unit tests
     - [x] `src/actions/session.test.ts` already exists with a test expecting `maxAge: 60 * 60 * 24 * 365`
     - [x] Test currently fails (Red Phase already complete) — confirm by running `CI=true npx jest src/actions/session.test.ts --no-coverage`
