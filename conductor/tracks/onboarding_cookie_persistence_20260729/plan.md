@@ -10,13 +10,13 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Onboarding Page Hybrid Implementation
-- [ ] Task: Create Onboarding Org Selector Component
-    - [ ] Create `src/app/onboarding/_components/org-selector.tsx`
-    - [ ] Props: `organizations: Organization[]`, `onSwitchToForm: () => void`
-    - [ ] Design a grid/list of cards representing each organization
-    - [ ] Display business name and RFC (applying `PrivacyBlur` to RFC) for each organization
-    - [ ] Make each card clickable, calling `setActiveOrganization` via `useAction`. On success, redirect with `router.replace("/")` — **do NOT use `window.location.reload()`** (unlike the sidebar `OrganizationSwitcher` which needs it; the proxy will re-evaluate the cookie on next navigation)
-    - [ ] Include a prominent card/button "Crear nueva organización". Clicking it calls `onSwitchToForm()` (local state toggle managed in the parent page, not a redirect)
+- [x] Task: Create Onboarding Org Selector Component (4461b7b)
+    - [x] Create `src/app/onboarding/_components/org-selector.tsx`
+    - [x] Props: `organizations: Organization[]`, `onSwitchToForm: () => void`
+    - [x] Design a grid/list of cards representing each organization
+    - [x] Display business name and RFC (applying `PrivacyBlur` to RFC) for each organization
+    - [x] Make each card clickable, calling `setActiveOrganization` via `useAction`. On success, redirect with `router.replace("/")` — **do NOT use `window.location.reload()`** (unlike the sidebar `OrganizationSwitcher` which needs it; the proxy will re-evaluate the cookie on next navigation)
+    - [x] Include a prominent card/button "Crear nueva organización". Clicking it calls `onSwitchToForm()` (local state toggle managed in the parent page, not a redirect)
 - [ ] Task: Update Onboarding Page logic
     - [ ] Update `src/app/onboarding/page.tsx`:
         - [ ] Fetch `getOrganizations()` alongside `getTaxRegimes()`
