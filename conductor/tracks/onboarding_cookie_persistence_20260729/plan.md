@@ -17,17 +17,17 @@
     - [x] Display business name and RFC (applying `PrivacyBlur` to RFC) for each organization
     - [x] Make each card clickable, calling `setActiveOrganization` via `useAction`. On success, redirect with `router.replace("/")` — **do NOT use `window.location.reload()`** (unlike the sidebar `OrganizationSwitcher` which needs it; the proxy will re-evaluate the cookie on next navigation)
     - [x] Include a prominent card/button "Crear nueva organización". Clicking it calls `onSwitchToForm()` (local state toggle managed in the parent page, not a redirect)
-- [ ] Task: Update Onboarding Page logic
-    - [ ] Update `src/app/onboarding/page.tsx`:
-        - [ ] Fetch `getOrganizations()` alongside `getTaxRegimes()`
-        - [ ] Pass `organizations` and `regimes` as props to client components
-    - [ ] If organizations exist, render `OrgSelector` with `onSwitchToForm` callback
-    - [ ] If no organizations exist, render the existing `OnboardingForm`
-    - [ ] The `OnboardingForm` is already a client component; it needs no changes
-    - [ ] **Toggle mechanism**: the page uses a client wrapper with local `useState` (`showForm: boolean`). Initial state: `false` (show selector). `onSwitchToForm` sets it to `true` to reveal `OnboardingForm`. On successful org creation (`onSuccess` of `createOnboardingOrganization`), `router.replace("/")` closes the loop
-- [ ] Task: Write Onboarding page and component tests
-    - [ ] Follow existing patterns (e.g., `src/app/tax-declarations/__tests__/page.test.tsx`) for testing server components with PGLite
-    - [ ] Create tests to verify page behavior under different database states (0 orgs vs >0 orgs)
-    - [ ] Verify that page correctly switches between selector and creation form via `onSwitchToForm`
-    - [ ] Verify org selection calls `setActiveOrganization` and redirects
+- [x] Task: Update Onboarding Page logic (eabe1aa)
+    - [x] Update `src/app/onboarding/page.tsx`:
+        - [x] Fetch `getOrganizations()` alongside `getTaxRegimes()`
+        - [x] Pass `organizations` and `regimes` as props to client components
+    - [x] If organizations exist, render `OrgSelector` with `onSwitchToForm` callback
+    - [x] If no organizations exist, render the existing `OnboardingForm`
+    - [x] The `OnboardingForm` is already a client component; it needs no changes
+    - [x] **Toggle mechanism**: the page uses a client wrapper with local `useState` (`showForm: boolean`). Initial state: `false` (show selector). `onSwitchToForm` sets it to `true` to reveal `OnboardingForm`. On successful org creation (`onSuccess` of `createOnboardingOrganization`), `router.replace("/")` closes the loop
+- [x] Task: Write Onboarding page and component tests (eabe1aa)
+    - [x] Follow existing patterns (e.g., `src/app/tax-declarations/__tests__/page.test.tsx`) for testing server components with PGLite
+    - [x] Create tests to verify page behavior under different database states (0 orgs vs >0 orgs)
+    - [x] Verify that page correctly switches between selector and creation form via `onSwitchToForm`
+    - [x] Verify org selection calls `setActiveOrganization` and redirects
 - [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
