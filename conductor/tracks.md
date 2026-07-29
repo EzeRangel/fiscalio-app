@@ -21,3 +21,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Implement expandable rows for payment complements in the invoices list**
       _Archive: [./archive/payment_complements_ui_20260724/](./archive/payment_complements_ui_20260724/)_
+
+---
+
+- [ ] **Track: Onboarding Cookie Persistence & Org Selection**
+  _Link: [./tracks/onboarding_cookie_persistence_20260729/](./tracks/onboarding_cookie_persistence_20260729/)_
+
