@@ -24,6 +24,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Onboarding Cookie Persistence & Org Selection**
+- [x] **Track: Onboarding Cookie Persistence & Org Selection**
   _Link: [./tracks/onboarding_cookie_persistence_20260729/](./tracks/onboarding_cookie_persistence_20260729/)_
 
