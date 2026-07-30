@@ -24,8 +24,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CFDI Assistant",
-  description: "Gestión inteligente de comprobantes fiscales digitales",
+  title: "Fiscalio - Control fiscal claro para RESICO",
+  description: "Control fiscal claro para RESICO",
 };
 
 export default async function RootLayout({

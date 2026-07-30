@@ -96,7 +96,6 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
 
-  const totalPaid = calculateInvoicePaid(invoice);
   const paymentStatus = getPaymentStatus(invoice.paymentStatus || "pending");
   const validationErrors = invoice.validationErrors || [];
 
@@ -269,14 +268,6 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
             {/* Actions */}
             <div className="space-y-3">
               <Button className="w-full gap-2" size="lg">
-                <Download className="h-4 w-4" />
-                Descargar PDF
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full gap-2 bg-transparent"
-                size="lg"
-              >
                 <FileText className="h-4 w-4" />
                 Descargar XML
               </Button>
