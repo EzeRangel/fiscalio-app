@@ -33,14 +33,6 @@ jest.mock("@/app/invoices/_components/edit-payment-dialog", () => ({
   EditPaymentDialog: () => <div data-testid="edit-payment-dialog">Edit Payment</div>,
 }));
 
-jest.mock("@/app/invoices/_components/cancel-invoice-dialog", () => ({
-  CancelInvoiceDialog: () => <div data-testid="cancel-invoice-dialog">Cancel Invoice</div>,
-}));
-
-jest.mock("@/app/invoices/_components/register-refund-dialog", () => ({
-  RegisterRefundDialog: () => <div data-testid="register-refund-dialog">Register Refund</div>,
-}));
-
 jest.mock("@/app/invoices/_components/link-payment-complement-dialog", () => ({
   LinkPaymentComplementDialog: () => <div data-testid="link-payment-complement-dialog">Link Payment Complement</div>,
 }));
@@ -137,7 +129,6 @@ describe("InvoiceDetails Component Integration", () => {
 
     expect(screen.getByText("Factura Digital")).toBeInTheDocument();
     expect(screen.getByText("Pendiente")).toBeInTheDocument();
-    expect(screen.getByText("Cancelar Factura")).toBeInTheDocument();
   });
 
   it("should render cancelled badge when invoice is cancelled", () => {
@@ -156,14 +147,6 @@ describe("InvoiceDetails Component Integration", () => {
     expect(screen.getByText("Sustituida")).toBeInTheDocument();
     // Cancel button should not be rendered
     expect(screen.queryByText("Cancelar Factura")).not.toBeInTheDocument();
-  });
-
-  it("should render yellow warning banner when invoice is active and has paid amount", () => {
-    const paidInvoice = { ...mockInvoice, amountPaid: "200.00" };
-    render(<InvoiceDetails data={paidInvoice} relatedPayments={[]} />);
-
-    expect(screen.getByText("Esta factura tiene pagos activos.")).toBeInTheDocument();
-    expect(screen.getByText("Registrar Devolución")).toBeInTheDocument();
   });
 
   it("should render refund payments as 'Devolución' with Undo icon", () => {

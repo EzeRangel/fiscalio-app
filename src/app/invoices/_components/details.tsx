@@ -38,8 +38,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { EditPaymentDialog } from "./edit-payment-dialog";
-import { CancelInvoiceDialog } from "./cancel-invoice-dialog";
-import { RegisterRefundDialog } from "./register-refund-dialog";
 import { LinkPaymentComplementDialog } from "./link-payment-complement-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { INVOICE_TYPE, INVOICE_TYPE_COLOR } from "@/lib/constants";
@@ -92,8 +90,6 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
   const isPaymentComplement = invoice.cfdiType === "P";
   const [editingPayment, setEditingPayment] =
     useState<PaymentAllocation | null>(null);
-  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
 
   const paymentStatus = getPaymentStatus(invoice.paymentStatus || "pending");
@@ -284,42 +280,7 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
                 </Button>
               )}
 
-              {(invoice.cfdiType === "I" || invoice.cfdiType === "E") &&
-                invoice.status === "active" && (
-                  <div className="pt-3 border-t border-border/50 space-y-3">
-                    {Number(invoice.amountPaid) > 0 && (
-                      <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 text-yellow-800 dark:text-yellow-300 rounded-lg text-xs space-y-2">
-                        <p className="font-semibold">
-                          Esta factura tiene pagos activos.
-                        </p>
-                        <p>
-                          Para poder cancelarla con motivo 03, primero debe
-                          registrar una devolución (refund).
-                        </p>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full text-xs h-8 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-800 dark:text-yellow-300 bg-transparent"
-                          onClick={() => setRefundDialogOpen(true)}
-                        >
-                          Registrar Devolución
-                        </Button>
-                      </div>
-                    )}
 
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      className="w-full gap-2"
-                      size="lg"
-                      onClick={() => setCancelDialogOpen(true)}
-                    >
-                      <X className="h-4 w-4" />
-                      Cancelar Factura
-                    </Button>
-                  </div>
-                )}
             </div>
           </div>
         </div>
@@ -697,23 +658,6 @@ export function InvoiceDetails({ data: invoice, relatedPayments = [] }: Props) {
           invoiceDate={new Date(invoice.invoiceDate)}
           open={!!editingPayment}
           onOpenChange={(open) => !open && setEditingPayment(null)}
-        />
-      )}
-
-      {cancelDialogOpen && (
-        <CancelInvoiceDialog
-          invoiceId={invoice.id}
-          open={cancelDialogOpen}
-          onOpenChange={setCancelDialogOpen}
-        />
-      )}
-
-      {refundDialogOpen && (
-        <RegisterRefundDialog
-          invoiceId={invoice.id}
-          amountPaid={invoice.amountPaid || "0.00"}
-          open={refundDialogOpen}
-          onOpenChange={setRefundDialogOpen}
         />
       )}
 
