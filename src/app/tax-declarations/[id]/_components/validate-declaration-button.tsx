@@ -34,8 +34,8 @@ export function ValidateDeclarationButton({
     <Button
       onClick={() => execute({ declarationId })}
       disabled={isExecuting}
-      size="lg"
-      className="w-full"
+      size="sm"
+      className="font-mono text-xs tracking-wide h-8 uppercase"
     >
       {isExecuting ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

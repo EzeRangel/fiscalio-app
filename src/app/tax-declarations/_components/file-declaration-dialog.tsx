@@ -43,7 +43,10 @@ export function FileDeclarationDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="lg" className="w-full gap-2 font-mono text-background">
+        <Button
+          size="sm"
+          className="font-mono text-xs tracking-wide h-8 uppercase"
+        >
           <Send className="h-4 w-4" />
           Registrar Acuse SAT
         </Button>

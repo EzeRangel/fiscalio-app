@@ -1,16 +1,15 @@
 import { notFound } from "next/navigation";
 import { getTaxDeclarationById } from "@/data/tax-declarations";
 import { getActiveOrganizationId } from "@/lib/session";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   AlertCircle,
-  CheckCircle2,
-  ChevronRightIcon,
+  ArrowLeftIcon,
   FileDown,
+  PrinterIcon,
   XCircle,
 } from "lucide-react";
 import { ValidateDeclarationButton } from "./_components/validate-declaration-button";
@@ -19,9 +18,8 @@ import { formatPeriod } from "../_utils/formatPeriod";
 import { formatCurrency } from "@/lib/utils";
 import { getDeclarationInvoicesById } from "@/data/declaration-invoices";
 import { FileDeclarationDialog } from "../_components/file-declaration-dialog";
-import { InvoiceItem } from "../_components/invoice-item";
-import { PrivacyBlur } from "@/components/privacy-blur";
 import { EntityAuditLog } from "@/components/EntityAuditLog";
+import Link from "next/link";
 
 interface PageProps {
   params: Promise<{
@@ -101,397 +99,468 @@ export default async function TaxDeclarationReviewPage({
   const declarationType =
     declaration.declarationType === "monthly" ? "mensual" : "anual";
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Technical Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex items-start justify-between">
-            <div className="space-y-3">
-              <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
-                Declaración {formatPeriod(declaration.fiscalPeriod)}
-                <span className="block text-muted-foreground text-2xl mt-2">
-                  {`Resumen informativo de apoyo para tu declaración ${declarationType}`}
-                </span>
-              </h1>
-              <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
-                Los importes mostrados son estimaciones basadas en la
-                información registrada por el usuario.
-              </p>
-            </div>
+  const totalToPay =
+    Number.parseFloat(declaration.isrBalance || "0") +
+    Number.parseFloat(declaration.ivaBalance || "0");
 
-            <div
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg border font-mono text-sm",
-                statusInfo.className,
-              )}
+  return (
+    <div className="min-h-screen bg-background print:bg-white">
+      {/* Report Navigation Bar */}
+      <header className="border-b border-stone-200 print:hidden">
+        <div className="px-8 py-4 flex items-center justify-between">
+          <Link
+            href="/tax-declarations"
+            className="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors font-mono text-xs tracking-wide"
+          >
+            <ArrowLeftIcon className="h-3.5 w-3.5" />
+            DECLARACIONES
+          </Link>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-mono text-xs tracking-wide h-8 border-stone-300 bg-white hover:bg-stone-50"
             >
-              {statusInfo.icon}
-              {statusInfo.text}
-            </div>
+              <PrinterIcon className="h-3.5 w-3.5 mr-2" />
+              IMPRIMIR
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-mono text-xs tracking-wide h-8 border-stone-300 bg-white hover:bg-stone-50"
+            >
+              <FileDown className="h-3.5 w-3.5 mr-2" />
+              EXPORTAR PDF
+            </Button>
+            {isDraft && (
+              <ValidateDeclarationButton declarationId={declarationId} />
+            )}
+            {isValidated && (
+              <FileDeclarationDialog declarationId={declarationId} />
+            )}
           </div>
         </div>
       </header>
 
-      <section className="container mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* ISR Section */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-light tracking-tight">
-                    Impuesto Sobre la Renta (ISR)
-                  </CardTitle>
-                  <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                    Impuesto sobre ingresos
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Income */}
-                <div className="flex items-center justify-between py-3 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground font-mono">
-                    Ingresos Totales
-                  </span>
-                  <span className="text-lg font-mono font-medium text-chart-4">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.totalIncome)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-
-                {/* Expenses */}
-                <div className="flex items-center justify-between py-3 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground font-mono">
-                    (-) Gastos Deducibles
-                  </span>
-                  <span className="text-lg font-mono font-medium text-chart-3">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.deductibleExpenses)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-
-                {/* Base */}
-                <div className="flex items-center justify-between py-4 bg-muted/30 rounded-lg px-4 border border-border/50">
-                  <span className="text-sm font-medium font-mono">
-                    Base Gravable ISR
-                  </span>
-                  <span className="text-xl font-mono font-semibold text-primary">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.isrBase || 0)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-
-                {/* ISR Calculation */}
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-muted-foreground font-mono">
-                      ISR estimado (tasa orientativa{" "}
-                      {(
-                        Number.parseFloat(declaration.isrRate || "0") * 100
-                      ).toFixed(2)}
-                      %)
-                    </span>
-                    <span className="text-lg font-mono font-medium">
-                      <PrivacyBlur>
-                        {formatCurrency(declaration.isrCalculated || 0)}
-                      </PrivacyBlur>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-muted-foreground font-mono">
-                      (-) Retenciones
-                    </span>
-                    <span className="text-lg font-mono font-medium">
-                      <PrivacyBlur>
-                        {formatCurrency(declaration.isrWithheld || 0)}
-                      </PrivacyBlur>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-muted-foreground font-mono">
-                      (-) Pagos Provisionales
-                    </span>
-                    <span className="text-lg font-mono font-medium">
-                      <PrivacyBlur>
-                        {formatCurrency(declaration.isrProvisional || 0)}
-                      </PrivacyBlur>
-                    </span>
-                  </div>
-                </div>
-
-                {/* ISR Balance */}
-                <div className="flex items-center justify-between py-4 bg-chart-3/5 border border-chart-3/20 rounded-lg px-4 mt-4">
-                  <span className="text-sm font-semibold font-mono">
-                    ISR estimado a pagar
-                  </span>
-                  <span className="text-2xl font-mono font-bold text-chart-3">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.isrBalance || 0)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-                <span className="text-xs font-mono block text-center text-muted-foreground">
-                  Monto orientativo para validación del usuario antes de
-                  presentar su declaración en el SAT.
-                </span>
-              </CardContent>
-            </Card>
-
-            {/* IVA Section */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-light tracking-tight">
-                    Impuesto al Valor Agregado (IVA)
-                  </CardTitle>
-                  <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                    Impuesto de IVA
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* IVA Charged */}
-                <div className="flex items-center justify-between py-3 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground font-mono">
-                    IVA Cobrado
-                  </span>
-                  <span className="text-lg font-mono font-medium text-chart-4">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.ivaCharged || 0)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-
-                {/* IVA Creditable */}
-                <div className="flex items-center justify-between py-3 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground font-mono">
-                    (-) IVA Acreditable
-                  </span>
-                  <span className="text-lg font-mono font-medium text-chart-3">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.ivaCreditable || 0)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-
-                {/* IVA Balance */}
-                <div className="flex items-center justify-between py-4 bg-chart-3/5 border border-chart-3/20 rounded-lg px-4 mt-4">
-                  <span className="text-sm font-semibold font-mono">
-                    IVA a Pagar
-                  </span>
-                  <span className="text-2xl font-mono font-bold text-chart-3">
-                    <PrivacyBlur>
-                      {formatCurrency(declaration.ivaBalance || 0)}
-                    </PrivacyBlur>
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Invoices Section */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="gap-3">
-                    <CardTitle className="text-lg font-light tracking-tight">
-                      Facturas Incluidas
-                    </CardTitle>
-                    <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                      {declarationInvoices.length} facturas
-                    </p>
-                  </div>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="rounded-lg bg-primary/10 border border-primary/20"
-                  >
-                    <ChevronRightIcon className="h-4 w-4 text-primary" />
-                  </Button>
-                  {/* <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center"></div> */}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="max-h-150 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-                  {declarationInvoices.map((item) => (
-                    <InvoiceItem key={item.id} data={item} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <p className="text-xs font-mono text-muted-foreground text-center">
-              La inclusión de facturas en este resumen no determina su
-              tratamiento fiscal definitivo ante el SAT.
-            </p>
+      <section className="mx-auto py-8 px-4 print:py-0 print:px-0">
+        {/* Report Header */}
+        <header className="px-12 py-8 border-b border-stone-900">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.2em] text-stone-400 uppercase mb-1">
+                Declaración Fiscal Provisional
+              </p>
+              <h1 className="font-mono text-2xl tracking-tight text-stone-900 capitalize">
+                {formatPeriod(declaration.fiscalPeriod)}
+              </h1>
+            </div>
+            <div className="text-right">
+              <div
+                className={cn(
+                  "inline-flex items-center gap-2 px-3 py-1.5 border font-mono text-[10px] tracking-wider uppercase",
+                  statusInfo.className,
+                )}
+              >
+                {statusInfo.icon}
+                {statusInfo.text}
+              </div>
+              <p className="font-mono text-[10px] text-stone-400 mt-3">
+                REF: DEC-{declaration.id.toString().padStart(6, "0")}
+              </p>
+            </div>
           </div>
 
-          {/* Sidebar */}
-          <aside className="lg:col-span-1 space-y-6">
-            {/* Validations Card */}
-            {/* {declaration.aiValidations &&
-              declaration.aiValidations.length > 0 && (
-                <Card className="border-chart-2/30 bg-card/50 backdrop-blur">
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-chart-2/10 border border-chart-2/20 flex items-center justify-center">
-                        <AlertTriangle className="h-4 w-4 text-chart-2" />
-                      </div>
-                      <CardTitle className="text-base font-light tracking-tight">
-                        Validaciones
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {declaration.aiValidations.map((v: any, i: number) => (
-                        <ValidationItem
-                          key={i}
-                          severity={v.severity}
-                          message={v.message}
-                        />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )} */}
+          {/* Meta Information Row */}
+          <div className="mt-8 pt-6 border-t border-stone-200 grid grid-cols-4 gap-8">
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.15em] text-stone-400 uppercase">
+                Régimen Fiscal
+              </p>
+              <p className="font-mono text-sm text-stone-900 mt-1">
+                {declaration.taxRegime}
+              </p>
+            </div>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.15em] text-stone-400 uppercase">
+                Tipo
+              </p>
+              <p className="font-mono text-sm text-stone-900 mt-1 capitalize">
+                {declarationType}
+              </p>
+            </div>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.15em] text-stone-400 uppercase">
+                Fecha Generación
+              </p>
+              <p className="font-mono text-sm text-stone-900 mt-1">
+                {format(declaration.createdAt!, "dd/MM/yyyy", { locale: es })}
+              </p>
+            </div>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.15em] text-stone-400 uppercase">
+                Facturas Incluidas
+              </p>
+              <p className="font-mono text-sm text-stone-900 mt-1">
+                {declarationInvoices.length}
+              </p>
+            </div>
+          </div>
+        </header>
 
-            {/* Summary Card */}
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="text-base font-light tracking-tight">
-                  Resumen
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
-                      ISR
+        {/* Main Report Content */}
+        <div className="px-12 py-10 space-y-10">
+          {/* ISR Section */}
+          <section>
+            <div className="flex items-baseline justify-between border-b-2 border-stone-900 pb-2 mb-6">
+              <h2 className="font-mono text-xs tracking-[0.2em] text-stone-900 uppercase">
+                Impuesto Sobre la Renta
+              </h2>
+              <span className="font-mono text-[10px] text-stone-400 tracking-wider">
+                ISR
+              </span>
+            </div>
+
+            <table className="w-full font-mono text-sm">
+              <tbody>
+                {/* Income */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500 w-8">01</td>
+                  <td className="py-3 text-stone-700">
+                    Ingresos Totales del Período
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-stone-900 font-medium">
+                    {formatCurrency(declaration.totalIncome)}
+                  </td>
+                </tr>
+
+                {/* Deductible Expenses */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500">02</td>
+                  <td className="py-3 text-stone-700">
+                    <span className="text-stone-400 mr-1">(−)</span>
+                    Gastos Deducibles Autorizados
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-red-700">
+                    {formatCurrency(declaration.deductibleExpenses)}
+                  </td>
+                </tr>
+
+                {/* ISR Base - highlighted */}
+                <tr className="bg-stone-50 border-y border-stone-200">
+                  <td className="py-4 text-stone-500 font-medium">03</td>
+                  <td className="py-4 text-stone-900 font-medium">
+                    Base Gravable para ISR
+                  </td>
+                  <td className="py-4 text-right tabular-nums text-stone-900 font-semibold text-base">
+                    {formatCurrency(declaration.isrBase || 0)}
+                  </td>
+                </tr>
+
+                {/* ISR Calculation */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500">04</td>
+                  <td className="py-3 text-stone-700">
+                    ISR Determinado
+                    <span className="text-stone-400 ml-2 text-xs">
+                      (
+                      {(
+                        Number.parseFloat(declaration.isrRate || "0") * 100
+                      ).toFixed(0)}
+                      %)
                     </span>
-                    <span className="text-sm font-mono font-medium">
-                      <PrivacyBlur>
-                        {formatCurrency(declaration.isrBalance || 0)}
-                      </PrivacyBlur>
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-stone-900">
+                    {formatCurrency(declaration.isrCalculated || 0)}
+                  </td>
+                </tr>
+
+                {/* Withholdings */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500">05</td>
+                  <td className="py-3 text-stone-700">
+                    <span className="text-stone-400 mr-1">(−)</span>
+                    ISR Retenido por Terceros
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-red-700">
+                    {formatCurrency(declaration.isrWithheld || 0)}
+                  </td>
+                </tr>
+
+                {/* Provisional Payments */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500">06</td>
+                  <td className="py-3 text-stone-700">
+                    <span className="text-stone-400 mr-1">(−)</span>
+                    Pagos Provisionales Anteriores
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-red-700">
+                    {formatCurrency(declaration.isrProvisional || 0)}
+                  </td>
+                </tr>
+
+                {/* ISR Balance */}
+                <tr className="bg-stone-900 text-stone-50">
+                  <td
+                    className="py-4 font-medium tracking-wide pl-3"
+                    colSpan={2}
+                  >
+                    ISR A PAGAR
+                  </td>
+                  <td className="py-4 pr-3 text-right tabular-nums font-bold text-lg">
+                    {formatCurrency(declaration.isrBalance || 0)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          {/* IVA Section */}
+          <section>
+            <div className="flex items-baseline justify-between border-b-2 border-stone-900 pb-2 mb-6">
+              <h2 className="font-mono text-xs tracking-[0.2em] text-stone-900 uppercase">
+                Impuesto al Valor Agregado
+              </h2>
+              <span className="font-mono text-[10px] text-stone-400 tracking-wider">
+                IVA
+              </span>
+            </div>
+
+            <table className="w-full font-mono text-sm">
+              <tbody>
+                {/* IVA Charged */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500 w-8">07</td>
+                  <td className="py-3 text-stone-700">
+                    IVA Trasladado (Cobrado)
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-stone-900 font-medium">
+                    {formatCurrency(declaration.ivaCharged || 0)}
+                  </td>
+                </tr>
+
+                {/* IVA Creditable */}
+                <tr className="border-b border-stone-100">
+                  <td className="py-3 text-stone-500">08</td>
+                  <td className="py-3 text-stone-700">
+                    <span className="text-stone-400 mr-1">(−)</span>
+                    IVA Acreditable
+                  </td>
+                  <td className="py-3 text-right tabular-nums text-red-700">
+                    {formatCurrency(declaration.ivaCreditable || 0)}
+                  </td>
+                </tr>
+
+                {/* IVA Balance */}
+                <tr className="bg-stone-900 text-stone-50">
+                  <td
+                    className="py-4 font-medium tracking-wide pl-3"
+                    colSpan={2}
+                  >
+                    IVA A PAGAR
+                  </td>
+                  <td className="py-4 pr-3 text-right tabular-nums font-bold text-lg">
+                    {formatCurrency(declaration.ivaBalance || 0)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          {/* Grand Total */}
+          <section className="border-2 border-stone-900 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-mono text-[10px] tracking-[0.2em] text-stone-500 uppercase mb-1">
+                  Total de Contribuciones
+                </p>
+                <p className="font-mono text-xs text-stone-500">
+                  ISR {formatCurrency(declaration.isrBalance || 0)} + IVA{" "}
+                  {formatCurrency(declaration.ivaBalance || 0)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-mono text-3xl font-bold tracking-tight text-stone-900 tabular-nums">
+                  {formatCurrency(totalToPay)}
+                </p>
+                <p className="font-mono text-[10px] text-stone-400 uppercase tracking-wider mt-1">
+                  MXN
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Invoices Ledger */}
+          <section className="pt-4">
+            <div className="flex items-baseline justify-between border-b-2 border-stone-900 pb-2 mb-6">
+              <h2 className="font-mono text-xs tracking-[0.2em] text-stone-900 uppercase">
+                Relación de Comprobantes
+              </h2>
+              <span className="font-mono text-[10px] text-stone-400 tracking-wider">
+                {declarationInvoices.length} REGISTROS
+              </span>
+            </div>
+
+            {/* Ledger Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-xs">
+                <thead>
+                  <tr className="border-b-2 border-stone-300 text-left">
+                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium">
+                      Folio
+                    </th>
+                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium">
+                      Fecha
+                    </th>
+                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium">
+                      Proveedor
+                    </th>
+                    <th className="pb-3 pr-4 text-[10px] text-right tracking-[0.15em] text-stone-500 uppercase font-medium">
+                      Cuenta
+                    </th>
+                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium text-right">
+                      Subtotal
+                    </th>
+                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium text-right">
                       IVA
-                    </span>
-                    <span className="text-sm font-mono font-medium">
-                      <PrivacyBlur>
-                        {formatCurrency(declaration.ivaBalance || 0)}
-                      </PrivacyBlur>
-                    </span>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-sm font-semibold font-mono">
-                      Total estimado
-                    </span>
-                    <span className="text-xl font-mono font-bold text-chart-3">
-                      <PrivacyBlur>
-                        {formatCurrency(
-                          Number.parseFloat(declaration.isrBalance!) +
-                            Number.parseFloat(declaration.ivaBalance!),
-                        )}
-                      </PrivacyBlur>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-4 space-y-2 border-t border-border">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground font-mono">
-                      Régimen Fiscal
-                    </span>
-                    <span className="font-mono">{declaration.taxRegime}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground font-mono">
-                      Tipo
-                    </span>
-                    <span className="font-mono capitalize">
-                      {declaration.declarationType}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Filing Status and Actions */}
-            {isFiled && declaration.acknowledgmentNumber && (
-              <div className="pt-4 border-t border-border/50">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-chart-4 mb-2">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-xs font-mono uppercase tracking-wider">
-                      Declaración marcada como finalizada
-                    </span>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
-                    <p className="text-xs text-muted-foreground font-mono mb-1">
-                      Número de Acuse
-                    </p>
-                    <p className="text-sm font-mono font-medium break-all">
-                      {declaration.acknowledgmentNumber}
-                    </p>
-                  </div>
-                  {declaration.filedAt && (
-                    <p className="text-xs text-muted-foreground font-mono">
-                      {format(
-                        new Date(declaration.filedAt),
-                        "dd MMM yyyy, HH:mm",
-                        { locale: es },
+                    </th>
+                    <th className="pb-3 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium text-right">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {declarationInvoices.map((item: any, index: number) => (
+                    <tr
+                      key={item.id}
+                      className={cn(
+                        "group hover:bg-stone-50 transition-colors",
+                        item.wasManuallyAdjusted && "bg-amber-50/30",
                       )}
-                    </p>
-                  )}
-                </div>
+                    >
+                      <td className="py-3 pr-4">
+                        <Link
+                          href={`/invoice-details?id=${item.invoice.id}`}
+                          className="text-stone-900 hover:text-stone-600 transition-colors font-medium"
+                        >
+                          {item.invoice.folio}
+                          {item.wasManuallyAdjusted && (
+                            <span className="ml-1.5 text-amber-600">*</span>
+                          )}
+                        </Link>
+                      </td>
+                      <td className="py-3 pr-4 text-stone-600 tabular-nums">
+                        {format(item.invoice.invoiceDate, "dd/MM/yy")}
+                      </td>
+                      <td className="py-3 pr-4 text-stone-700 max-w-[200px] truncate">
+                        {item.invoice.businessPartner.businessName}
+                      </td>
+                      <td className="py-3 pr-4 text-right">
+                        <span className="text-stone-500">
+                          {item.appliedAccountCode}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-4 text-right tabular-nums text-stone-900">
+                        {formatCurrency(item.includedAmount)}
+                      </td>
+                      <td className="py-3 pr-4 text-right tabular-nums text-stone-600">
+                        {formatCurrency(item.ivaAmount)}
+                      </td>
+                      <td className="py-3 text-right tabular-nums text-stone-900 font-medium">
+                        {formatCurrency(item.invoice.total)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-stone-300 font-medium">
+                    <td
+                      colSpan={4}
+                      className="pt-4 pb-2 text-stone-500 text-[10px] uppercase tracking-wider"
+                    >
+                      Totales
+                    </td>
+                    <td className="pt-4 pb-2 text-right tabular-nums text-stone-900">
+                      {formatCurrency(
+                        declarationInvoices.reduce(
+                          (sum, i) => sum + parseFloat(i.includedAmount),
+                          0,
+                        ),
+                      )}
+                    </td>
+                    <td className="pt-4 pb-2 text-right tabular-nums text-stone-600">
+                      {formatCurrency(
+                        declarationInvoices.reduce(
+                          (sum, i) => sum + parseFloat(i.ivaAmount || "0"),
+                          0,
+                        ),
+                      )}
+                    </td>
+                    <td className="pt-4 pb-2 text-right tabular-nums text-stone-900 font-semibold">
+                      {formatCurrency(
+                        declarationInvoices.reduce(
+                          (sum, i) => sum + parseFloat(i.invoice.total),
+                          0,
+                        ),
+                      )}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Ledger footnote */}
+            {declarationInvoices.some((i) => i.wasManuallyAdjusted) && (
+              <p className="mt-4 font-mono text-[10px] text-stone-400">
+                * Comprobante con ajuste manual aplicado
+              </p>
+            )}
+          </section>
+        </div>
+
+        {/* Report Footer */}
+        <footer className="px-12 py-8 border-t border-stone-200 bg-stone-50/50">
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <p className="font-mono text-[10px] text-stone-400 uppercase tracking-wider">
+                Documento generado automáticamente
+              </p>
+              <p className="font-mono text-[10px] text-stone-400">
+                Última actualización:{" "}
+                {format(declaration.updatedAt!, "dd/MM/yyyy HH:mm", {
+                  locale: es,
+                })}
+              </p>
+            </div>
+
+            {isFiled && declaration.acknowledgmentNumber && (
+              <div className="text-right">
+                <p className="font-mono text-[10px] text-stone-400 uppercase tracking-wider mb-1">
+                  Acuse SAT
+                </p>
+                <p className="font-mono text-xs text-stone-700 font-medium">
+                  {declaration.acknowledgmentNumber}
+                </p>
+                {declaration.filedAt && (
+                  <p className="font-mono text-[10px] text-stone-400 mt-1">
+                    Presentada:{" "}
+                    {format(new Date(declaration.filedAt), "dd/MM/yyyy HH:mm", {
+                      locale: es,
+                    })}
+                  </p>
+                )}
               </div>
             )}
+          </div>
 
-            <Card className="border-border bg-card/50 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="text-base font-light tracking-tight">
-                  Acciones
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-xs text-muted-foreground font-mono leading-relaxed">
-                  Una vez verificada, la declaración no podrá ser modificada.
-                  Asegúrate de revisar todos los datos antes de continuar.
-                </p>
-
-                {isDraft && (
-                  <ValidateDeclarationButton declarationId={declarationId} />
-                )}
-
-                {isValidated && (
-                  <FileDeclarationDialog declarationId={declarationId} />
-                )}
-
-                {!isDraft && (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full gap-2 font-mono bg-transparent"
-                  >
-                    <FileDown className="h-4 w-4" />
-                    Exportar
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </aside>
-        </div>
+          {/* Page indicator for print */}
+          <div className="mt-8 pt-4 border-t border-stone-200 flex justify-center">
+            <p className="font-mono text-[10px] text-stone-300 tracking-widest">
+              — 1 / 1 —
+            </p>
+          </div>
+        </footer>
       </section>
+
       <EntityAuditLog entityType="tax_declaration" entityId={declarationId} />
     </div>
   );
