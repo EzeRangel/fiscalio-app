@@ -1,5 +1,13 @@
 # Agent skills
 
+### Issue tracker
+
+Work for this repo is tracked as GitHub Issues on `EzeRangel/fiscalio-app`. Use the `gh` CLI for all operations. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical roles with standard names (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
 ### Domain docs
 
 Single-context layout (`conductor/product.md` + `conductor/tracks/`). See `docs/agents/domain.md`.
@@ -67,6 +75,9 @@ src/
 
 ## Important hard-earned context
 
+- **PGLite is single-writer per data dir**: NEVER open `pglite/db` with a second `new PGlite(...)`/`PGlite.create(...)` while the dev server or any other process has it open. It trips the WASM `RuntimeError: Aborted()` and corrupts `pg_control` (PANIC "could not locate a valid checkpoint record" on next start). Always `pg` `ps aux | grep next|tsx` before opening; use `debug: 3` on `PGlite` to surface the real postgres error. See `docs/agents/pglite-recovery.md` for the full recovery runbook.
+- **PGLite 0.3.14 (installed) HAS dump APIs**: instance methods `db.dumpDataDir(compression?)` → `Blob` (t.gz of the whole data dir) and `db.dumpTar(dbname)`; there is no top-level `dump`/`dumpDataDir` export. `pg_dump` (system or Docker) cannot connect to PGLite (embedded/WASM, no TCP).
+- **Local DB recovery note (2026-08-06)**: the dev DB got a torn-checkpoint crash while experiments ran against the live dir; recovered with `pg_resetwal -f` (Postgres 17 via `docker run postgres:17`, since Homebrew has only PG 14) on a COPY, then `chown` back to the user. No data lost. Artifacts preserved in `pglite/backups/` (`recovered-20260806.tar.gz`, `broken-original-20260806.tar.gz`) and the pre-swap dir lives at `pglite/db-broken-20260806/`.
 - **Classification engine** lives in `src/lib/classification-engine.ts`. Two critical constants in `src/actions/classification-rules.ts`: `LEARNING_RATE` (confidence boost change per feedback) and `DOMINANT_EVIDENCE_THRESHOLD` (minimum match strength for penalization).
 - **`.env`** only contains `DATABASE_NAME=fdi_asistant`.
 - **No CI/CD workflows** found in repo.
