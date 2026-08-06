@@ -176,9 +176,14 @@ const config: Config = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  // bootstrap.test.ts needs --experimental-vm-modules (PGlite dynamic-imports node
+  // builtins on construction). That flag breaks @nodecfdi (ESM-only), so the test is
+  // isolated and run via `pnpm test:pglite` (see package.json).
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "\\.scratch/",
+    "/src/lib/bootstrap\\.test\\.ts",
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
