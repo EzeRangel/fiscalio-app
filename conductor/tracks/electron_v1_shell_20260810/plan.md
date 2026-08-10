@@ -2,8 +2,10 @@
 
 ## Phase 1: Environment, Jest Setup & Core Fixes
 - [ ] Task: Fix JSDOM test failures by adding global TextEncoder polyfill in Jest configuration
-- [ ] Task: Fix CFDI parser test asset UUID to conform to strict RFC 4122 validation
+- [ ] Task: Fix CFDI parser test asset UUID to conform to strict RFC 4122 validation (variant nibble: `8`/`9`/`a`/`b`)
+- [ ] Task: Fix the failing "should throw an error for invalid XML content" assertion in `cfdi-parser.test.ts` (expected `Error al procesar XML: The document is not a CFDI`, parser now throws `CFDI inválido: ...`; align parser or assertion deliberately)
 - [ ] Task: Verify all existing tests pass (`pnpm test`)
+- [ ] Task: Verify the isolated PGLite suite passes (`pnpm test:pglite`)
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment, Jest Setup & Core Fixes' (Protocol in workflow.md)
 
 ## Phase 2: Next.js Standalone Build & Asset Copying
@@ -13,30 +15,38 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Next.js Standalone Build & Asset Copying' (Protocol in workflow.md)
 
 ## Phase 3: Electron Main Process & IPC Server
+- [ ] Task: Add Electron toolchain devDependencies (`electron`, `electron-builder`, `electron-updater`)
 - [ ] Task: Setup Electron main process configuration and create the entrypoint file `src/electron/main.ts`
 - [ ] Task: Implement Next standalone server spawning using `utilityProcess.fork` or child process fork
-- [ ] Task: Implement dynamic port acquisition (port 3120 or ephemeral) and IPC handshake for `"server-listening"`
-- [ ] Task: Implement window lifecycles, native splash screen, and bounds state persistence
+- [ ] Task: Implement dynamic port acquisition (fixed `3120` or ephemeral fallback) bound to `127.0.0.1` loopback, and IPC handshake for `"server-listening"`
+- [ ] Task: Enforce `app.requestSingleInstanceLock()` — a second instance must focus the existing window instead of spawning a new child
+- [ ] Task: Implement window lifecycles, native splash screen, bounds state persistence, and 30s "server-listening" timeout
 - [ ] Task: Implement clean shutdown logic (handling OS exits and killing child process with SIGTERM/SIGKILL)
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Electron Main Process & IPC Server' (Protocol in workflow.md)
 
-## Phase 4: PGLite Database Relocation & Backup Engine
-- [ ] Task: Relocate the Next.js database storage to `app.getPath("userData")` by injecting `FISCALIO_DATA_DIR`
-- [ ] Task: Call `runBootstrap` on child process boot prior to starting the HTTP server
-- [ ] Task: Build the backup engine inside the child process to handle periodic PGLite backups (`dumpDataDir()` to tar.gz)
+## Phase 4: PGLite Database Relocation, Migration & Backup Engine
+- [ ] Task: Wire `FISCALIO_DATA_DIR` into the child spawn so the server DB points to `app.getPath("userData")` (`resolveDBPath` is already implemented and tested)
+- [ ] Task: Hook `runBootstrap` into the standalone child boot before the HTTP server starts listening (function already implemented)
+- [ ] Task: Implement legacy data migration from `pglite/db` → `userData` on first run (detect legacy source, migrate only if target is empty, idempotent; decision #20)
+- [ ] Task: Build the backup engine inside the child process: CHECKPOINT on clean close, periodic backups (`dumpDataDir()` → tar.gz) on a 15-min write timer and every 100 DB operations
 - [ ] Task: Implement backup FIFO rotation (7 days / 50 files limit)
-- [ ] Task: Add test coverage for database relocation, bootstrap execution, and backup triggers
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: PGLite Database Relocation & Backup Engine' (Protocol in workflow.md)
+- [ ] Task: Expose backup/checkpoint to the main process via IPC on demand, and force a backup right before applying an auto-update (Windows)
+- [ ] Task: Add test coverage for database relocation, bootstrap execution, legacy migration, and backup triggers
+- [ ] Task: Conductor - User Manual Verification 'Phase 4: PGLite Database Relocation, Migration & Backup Engine' (Protocol in workflow.md)
 
 ## Phase 5: Upgrade/Downgrade Schema Gate & UX Polish
-- [ ] Task: Implement database schema version comparison against build migrations on boot
-- [ ] Task: Build a generic error HTML screen and wire it to show database corruption, child crashes, or downgrade blocks
-- [ ] Task: Create minimal native menu structure
+- [ ] Task: Create `app_meta.schema_version` table via bootstrap (outside vanilla Drizzle migrations, to avoid a circular init dependency; decision #21)
+- [ ] Task: Emit `schema.json` (expected build migration count) as part of the Next.js standalone build
+- [ ] Task: Implement database schema version comparison (build migrations vs `app_meta.schema_version`) on boot; on downgrade block startup and redirect to GitHub Releases
+- [ ] Task: Build a generic error HTML screen and wire it to show database corruption, child crashes, or downgrade blocks; write main-process logs to `userData/logs`
+- [ ] Task: Create minimal native menu structure (macOS App/Edit/View/Window; Windows File/View/Window hideable with Alt)
 - [ ] Task: Write unit tests verifying the downgrade gate and error states
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: Upgrade/Downgrade Schema Gate & UX Polish' (Protocol in workflow.md)
 
 ## Phase 6: Packaging & Auto-Update Configuration
-- [ ] Task: Configure `electron-builder` targets for macOS and Windows, ensuring PGLite files are unpacked from ASAR
-- [ ] Task: Integrate `electron-updater` for Windows auto-check on boot and macOS in-app update notifications
+- [ ] Task: Configure `electron-builder` with identity `productName: "Fiscalio"`, ensuring PGLite files are unpacked from ASAR (`asarUnpack`)
+- [ ] Task: Configure build targets: Windows NSIS (`.exe` + `latest.yml` + `.blockmap`); macOS `.dmg` + `.zip` + `latest-mac.yml` (unsigned)
+- [ ] Task: Integrate `electron-updater` with `provider: github` for Windows auto-check on boot plus a manual button, and macOS in-app update notifications
+- [ ] Task: Bump version to `v1.0.0` in `package.json` and add `CHANGELOG.md` (Keep a Changelog); document the manual release process
 - [ ] Task: Execute test package builds and verify standalone executable functionality
 - [ ] Task: Conductor - User Manual Verification 'Phase 6: Packaging & Auto-Update Configuration' (Protocol in workflow.md)
