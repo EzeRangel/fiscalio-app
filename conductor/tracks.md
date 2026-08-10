@@ -9,15 +9,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Manual linking of Invoice to Payment Complement**
-      _Archive: [./archive/manual_linking_20260720/](./archive/manual_linking_20260720/)_
-
----
-
-- [x] **Track: Fix fiscal validation false positives for special CFDI types (P, T, N) and currency XXX**
-  _Link: [./tracks/fiscal_validation_fixes_20260723/](./tracks/fiscal_validation_fixes_20260723/)_
-
----
-
-- [x] **Track: Implement expandable rows for payment complements in the invoices list**
-      _Archive: [./archive/payment_complements_ui_20260724/](./archive/payment_complements_ui_20260724/)_
+- [ ] **Track: Build the Fiscalio Electron v1 shell**
+      _Link: [./tracks/electron_v1_shell_20260810/](./tracks/electron_v1_shell_20260810/)_
