@@ -1,10 +1,14 @@
 /**
  * @jest-environment jsdom
  */
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import TaxDeclarationReviewPage from './page';
+const TaxDeclarationReviewPage = require('./page').default;
 import { getTaxDeclarationById } from '@/data/tax-declarations';
 import { getDeclarationInvoicesById } from '@/data/declaration-invoices';
 import { getActiveOrganizationId } from '@/lib/session';

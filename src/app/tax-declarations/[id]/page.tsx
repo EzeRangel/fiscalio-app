@@ -9,7 +9,6 @@ import {
   AlertCircle,
   ArrowLeftIcon,
   FileDown,
-  PrinterIcon,
   XCircle,
 } from "lucide-react";
 import { ValidateDeclarationButton } from "./_components/validate-declaration-button";
@@ -20,6 +19,7 @@ import { getDeclarationInvoicesById } from "@/data/declaration-invoices";
 import { FileDeclarationDialog } from "../_components/file-declaration-dialog";
 import { EntityAuditLog } from "@/components/EntityAuditLog";
 import Link from "next/link";
+import { TAX_REGIMES } from "@/lib/constants";
 
 interface PageProps {
   params: Promise<{
@@ -96,12 +96,14 @@ export default async function TaxDeclarationReviewPage({
   const isValidated = declaration.status === "validated";
   const isFiled = declaration.status === "filed";
 
+  const regimeName = TAX_REGIMES.find(
+    (r) => r.code === declaration.taxRegime
+  )?.description || declaration.taxRegime;
+
   const declarationType =
     declaration.declarationType === "monthly" ? "mensual" : "anual";
 
-  const totalToPay =
-    Number.parseFloat(declaration.isrBalance || "0") +
-    Number.parseFloat(declaration.ivaBalance || "0");
+
 
   return (
     <div className="min-h-screen bg-background print:bg-white">
@@ -116,14 +118,6 @@ export default async function TaxDeclarationReviewPage({
             DECLARACIONES
           </Link>
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="font-mono text-xs tracking-wide h-8 border-stone-300 bg-white hover:bg-stone-50"
-            >
-              <PrinterIcon className="h-3.5 w-3.5 mr-2" />
-              IMPRIMIR
-            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -177,7 +171,7 @@ export default async function TaxDeclarationReviewPage({
                 Régimen Fiscal
               </p>
               <p className="font-mono text-sm text-stone-900 mt-1">
-                {declaration.taxRegime}
+                {regimeName}
               </p>
             </div>
             <div>
@@ -304,10 +298,10 @@ export default async function TaxDeclarationReviewPage({
                     className="py-4 font-medium tracking-wide pl-3"
                     colSpan={2}
                   >
-                    ISR A PAGAR
+                    {Number(declaration.isrBalance || 0) >= 0 ? "ISR A PAGAR" : "ISR A FAVOR"}
                   </td>
                   <td className="py-4 pr-3 text-right tabular-nums font-bold text-lg">
-                    {formatCurrency(declaration.isrBalance || 0)}
+                    {formatCurrency(Math.abs(Number(declaration.isrBalance || 0)))}
                   </td>
                 </tr>
               </tbody>
@@ -356,35 +350,59 @@ export default async function TaxDeclarationReviewPage({
                     className="py-4 font-medium tracking-wide pl-3"
                     colSpan={2}
                   >
-                    IVA A PAGAR
+                    {Number(declaration.ivaBalance || 0) >= 0 ? "IVA A PAGAR" : "IVA A FAVOR"}
                   </td>
                   <td className="py-4 pr-3 text-right tabular-nums font-bold text-lg">
-                    {formatCurrency(declaration.ivaBalance || 0)}
+                    {formatCurrency(Math.abs(Number(declaration.ivaBalance || 0)))}
                   </td>
                 </tr>
               </tbody>
             </table>
           </section>
-
-          {/* Grand Total */}
-          <section className="border-2 border-stone-900 p-6">
-            <div className="flex items-center justify-between">
+          {/* Summary of Taxes */}
+          <section className="border-2 border-stone-900 p-6 bg-stone-50/30">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.2em] text-stone-500 uppercase mb-1">
-                  Total de Contribuciones
+                  Resumen de Impuestos
                 </p>
                 <p className="font-mono text-xs text-stone-500">
-                  ISR {formatCurrency(declaration.isrBalance || 0)} + IVA{" "}
-                  {formatCurrency(declaration.ivaBalance || 0)}
+                  Impuestos determinados para el período fiscal.
                 </p>
               </div>
-              <div className="text-right">
-                <p className="font-mono text-3xl font-bold tracking-tight text-stone-900 tabular-nums">
-                  {formatCurrency(totalToPay)}
-                </p>
-                <p className="font-mono text-[10px] text-stone-400 uppercase tracking-wider mt-1">
-                  MXN
-                </p>
+
+              <div className="flex flex-wrap items-center gap-8 text-right sm:text-right w-full sm:w-auto justify-between sm:justify-end">
+                {/* ISR Balance */}
+                <div className="border-r border-stone-200 pr-8 last:border-0 last:pr-0">
+                  <p className="font-mono text-[9px] tracking-wider text-stone-400 uppercase">
+                    ISR {Number(declaration.isrBalance || 0) >= 0 ? "A Pagar" : "A Favor"}
+                  </p>
+                  <p className={cn(
+                    "font-mono text-2xl font-bold tracking-tight tabular-nums mt-0.5",
+                    Number(declaration.isrBalance || 0) < 0 ? "text-emerald-700" : "text-stone-900"
+                  )}>
+                    {formatCurrency(Math.abs(Number(declaration.isrBalance || 0)))}
+                  </p>
+                  <p className="font-mono text-[9px] text-stone-400 uppercase tracking-wider mt-0.5">
+                    MXN
+                  </p>
+                </div>
+
+                {/* IVA Balance */}
+                <div className="border-stone-200 pr-8 last:border-0 last:pr-0">
+                  <p className="font-mono text-[9px] tracking-wider text-stone-400 uppercase">
+                    IVA {Number(declaration.ivaBalance || 0) >= 0 ? "A Pagar" : "A Favor"}
+                  </p>
+                  <p className={cn(
+                    "font-mono text-2xl font-bold tracking-tight tabular-nums mt-0.5",
+                    Number(declaration.ivaBalance || 0) < 0 ? "text-emerald-700" : "text-stone-900"
+                  )}>
+                    {formatCurrency(Math.abs(Number(declaration.ivaBalance || 0)))}
+                  </p>
+                  <p className="font-mono text-[9px] text-stone-400 uppercase tracking-wider mt-0.5">
+                    MXN
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -406,7 +424,7 @@ export default async function TaxDeclarationReviewPage({
                 <thead>
                   <tr className="border-b-2 border-stone-300 text-left">
                     <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium">
-                      Folio
+                      Folio / ID
                     </th>
                     <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium">
                       Fecha
@@ -417,14 +435,11 @@ export default async function TaxDeclarationReviewPage({
                     <th className="pb-3 pr-4 text-[10px] text-right tracking-[0.15em] text-stone-500 uppercase font-medium">
                       Cuenta
                     </th>
-                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium text-right">
-                      Subtotal
-                    </th>
-                    <th className="pb-3 pr-4 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium text-right">
-                      IVA
+                    <th className="pb-3 pr-4 text-[10px] text-right tracking-[0.15em] text-stone-500 uppercase font-medium">
+                      Total Factura
                     </th>
                     <th className="pb-3 text-[10px] tracking-[0.15em] text-stone-500 uppercase font-medium text-right">
-                      Total
+                      Monto Considerado
                     </th>
                   </tr>
                 </thead>
@@ -438,15 +453,20 @@ export default async function TaxDeclarationReviewPage({
                       )}
                     >
                       <td className="py-3 pr-4">
-                        <Link
-                          href={`/invoice-details?id=${item.invoice.id}`}
-                          className="text-stone-900 hover:text-stone-600 transition-colors font-medium"
-                        >
-                          {item.invoice.folio}
-                          {item.wasManuallyAdjusted && (
-                            <span className="ml-1.5 text-amber-600">*</span>
-                          )}
-                        </Link>
+                        <div className="flex flex-col gap-0.5">
+                          <Link
+                            href={`/invoices/${item.invoice.id}`}
+                            className="text-stone-900 hover:text-stone-600 transition-colors font-medium"
+                          >
+                            {item.invoice.internalFolio || item.invoice.folioFiscal || item.invoice.id}
+                            {item.wasManuallyAdjusted && (
+                              <span className="ml-1.5 text-amber-600">*</span>
+                            )}
+                          </Link>
+                          <span className="text-[9px] font-mono text-stone-400 uppercase">
+                            {item.invoice.paymentMethod || "PUE"}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3 pr-4 text-stone-600 tabular-nums">
                         {format(item.invoice.invoiceDate, "dd/MM/yy")}
@@ -459,52 +479,15 @@ export default async function TaxDeclarationReviewPage({
                           {item.appliedAccountCode}
                         </span>
                       </td>
-                      <td className="py-3 pr-4 text-right tabular-nums text-stone-900">
-                        {formatCurrency(item.includedAmount)}
-                      </td>
-                      <td className="py-3 pr-4 text-right tabular-nums text-stone-600">
-                        {formatCurrency(item.ivaAmount)}
+                      <td className="py-3 pr-4 text-right tabular-nums text-stone-500">
+                        {formatCurrency(item.invoice.total)}
                       </td>
                       <td className="py-3 text-right tabular-nums text-stone-900 font-medium">
-                        {formatCurrency(item.invoice.total)}
+                        {formatCurrency(item.includedAmount)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-stone-300 font-medium">
-                    <td
-                      colSpan={4}
-                      className="pt-4 pb-2 text-stone-500 text-[10px] uppercase tracking-wider"
-                    >
-                      Totales
-                    </td>
-                    <td className="pt-4 pb-2 text-right tabular-nums text-stone-900">
-                      {formatCurrency(
-                        declarationInvoices.reduce(
-                          (sum, i) => sum + parseFloat(i.includedAmount),
-                          0,
-                        ),
-                      )}
-                    </td>
-                    <td className="pt-4 pb-2 text-right tabular-nums text-stone-600">
-                      {formatCurrency(
-                        declarationInvoices.reduce(
-                          (sum, i) => sum + parseFloat(i.ivaAmount || "0"),
-                          0,
-                        ),
-                      )}
-                    </td>
-                    <td className="pt-4 pb-2 text-right tabular-nums text-stone-900 font-semibold">
-                      {formatCurrency(
-                        declarationInvoices.reduce(
-                          (sum, i) => sum + parseFloat(i.invoice.total),
-                          0,
-                        ),
-                      )}
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
 
