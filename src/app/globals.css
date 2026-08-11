@@ -130,3 +130,30 @@
     @apply blur-[6px] transition-all duration-300;
   }
 }
+
+@media print {
+  /* Hide global top header, sidebar menu, and layout footer on print */
+  div[class*="sticky"],
+  aside,
+  [data-sidebar],
+  .sidebar-inset > footer,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Reset layout constraints so the report prints cleanly as a single page */
+  body,
+  main,
+  .sidebar-inset,
+  .sidebar-provider {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+  }
+}

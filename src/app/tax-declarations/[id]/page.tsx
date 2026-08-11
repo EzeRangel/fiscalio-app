@@ -8,10 +8,10 @@ import { es } from "date-fns/locale";
 import {
   AlertCircle,
   ArrowLeftIcon,
-  FileDown,
   XCircle,
 } from "lucide-react";
 import { ValidateDeclarationButton } from "./_components/validate-declaration-button";
+import { ExportPdfButton } from "./_components/export-pdf-button";
 import { getStatusInfo } from "../_utils/getStatusInfo";
 import { formatPeriod } from "../_utils/formatPeriod";
 import { formatCurrency } from "@/lib/utils";
@@ -118,14 +118,7 @@ export default async function TaxDeclarationReviewPage({
             DECLARACIONES
           </Link>
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="font-mono text-xs tracking-wide h-8 border-stone-300 bg-white hover:bg-stone-50"
-            >
-              <FileDown className="h-3.5 w-3.5 mr-2" />
-              EXPORTAR PDF
-            </Button>
+            <ExportPdfButton />
             {isDraft && (
               <ValidateDeclarationButton declarationId={declarationId} />
             )}
