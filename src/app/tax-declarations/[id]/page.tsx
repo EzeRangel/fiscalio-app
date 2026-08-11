@@ -537,7 +537,9 @@ export default async function TaxDeclarationReviewPage({
         </footer>
       </section>
 
-      <EntityAuditLog entityType="tax_declaration" entityId={declarationId} />
+      <div className="print:hidden">
+        <EntityAuditLog entityType="tax_declaration" entityId={declarationId} />
+      </div>
     </div>
   );
 }
