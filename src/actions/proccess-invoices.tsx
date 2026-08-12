@@ -14,6 +14,7 @@ import {
   generateFileHash,
 } from "@/lib/data-integrity";
 import { revalidatePath } from "next/cache";
+import { QueryInvalidator } from "@/components/query-invalidator";
 
 async function parseXML(cfdi: File) {
   const xmlContent = await cfdi.text();
@@ -76,9 +77,12 @@ export async function processInvoices(formData: FormData) {
               : `Procesando ${successful + failed + 1} de ${files.length}`}
           </h2>
           {isDone && (
-            <p className="text-sm text-muted-foreground">
-              {successful} facturas procesadas, {failed} con errores.
-            </p>
+            <>
+              <p className="text-sm text-muted-foreground">
+                {successful} facturas procesadas, {failed} con errores.
+              </p>
+              <QueryInvalidator />
+            </>
           )}
           <div className="mt-2 divide-y">
             {invoiceList.map((invoice) => (
