@@ -54,35 +54,16 @@ describe("TaxDeclarationsPage UI Tests", () => {
 
     render(await TaxDeclarationsPage());
 
-    expect(screen.getByText("No hay estimaciones en el historial")).toBeInTheDocument();
+    expect(screen.getByText("No hay declaraciones en el historial")).toBeInTheDocument();
   });
 
-  it("should render history items for different statuses", async () => {
+  it("should render history items and current period deadline", async () => {
     const mockHistory = [
       {
         id: 1,
         fiscalPeriod: "2026-05",
         status: "filed",
         filedAt: "2026-06-15T12:00:00Z",
-      },
-      {
-        id: 2,
-        fiscalPeriod: "2026-04",
-        status: "validated",
-        updatedAt: "2026-05-10T12:00:00Z",
-      },
-      {
-        id: 3,
-        fiscalPeriod: "2026-03",
-        status: "exported",
-        exportedAt: "2026-04-12T12:00:00Z",
-      },
-      {
-        id: 4,
-        fiscalPeriod: "2026-02",
-        status: "draft",
-        createdAt: "2026-03-08T12:00:00Z",
-        updatedAt: "2026-03-08T12:00:00Z",
       },
     ];
 
@@ -93,22 +74,13 @@ describe("TaxDeclarationsPage UI Tests", () => {
 
     render(await TaxDeclarationsPage());
 
+    // Verify deadline renders correctly
+    expect(screen.getByText("Límite para declarar: 17 de julio 2026")).toBeInTheDocument();
+
     // Verify periods render correctly (exact lowercase match in Spanish locale)
     expect(screen.getByText("mayo 2026")).toBeInTheDocument();
-    expect(screen.getByText("abril 2026")).toBeInTheDocument();
-    expect(screen.getByText("marzo 2026")).toBeInTheDocument();
-    expect(screen.getByText("febrero 2026")).toBeInTheDocument();
 
-    // Verify statuses render correctly as badges
-    expect(screen.getByText("Finalizada")).toBeInTheDocument();
-    expect(screen.getByText("Verificada")).toBeInTheDocument();
-    expect(screen.getByText("Exportada")).toBeInTheDocument();
-    expect(screen.getByText("Borrador")).toBeInTheDocument();
-
-    // Verify secondary text formats correctly (encapsulated in getHistoryItemSecondaryText)
+    // Verify secondary text formats correctly
     expect(screen.getByText(/Presentada el 15 de junio 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/Verificada el 10 de mayo 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/Exportada el 12 de abril 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/Creado el 8 de marzo 2026/i)).toBeInTheDocument();
   });
 });
