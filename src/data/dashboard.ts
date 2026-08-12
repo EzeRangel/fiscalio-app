@@ -90,13 +90,9 @@ export async function getDashboardMetrics(
     .orderBy(desc(taxDeclarations.id))
     .limit(1);
 
-  if (lastDeclaration.status !== "filed") {
-    const declaration = parse(
-      lastDeclaration.fiscalPeriod,
-      "yyyy-MM",
-      new Date(),
-    );
-    nextDeclarationDate = declaration;
+  if (lastDeclaration && lastDeclaration.status !== "filed") {
+    const [decYear, decMonth] = lastDeclaration.fiscalPeriod.split("-");
+    nextDeclarationDate = new Date(parseInt(decYear), parseInt(decMonth), 17);
   }
 
   return {

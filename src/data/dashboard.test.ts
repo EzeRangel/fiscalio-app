@@ -71,4 +71,25 @@ describe("getDashboardMetrics", () => {
     // Verify joins
     expect(mockDb.innerJoin).toHaveBeenCalledTimes(4); // 2 joins per query, 2 queries
   });
+
+  it("should return the 17th of the following month for a pending declaration", async () => {
+    const mockDb = {
+      select: jest.fn().mockReturnThis(),
+      from: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
+      where: jest.fn()
+        .mockResolvedValueOnce([{ total: "1000.50" }]) // Income
+        .mockResolvedValueOnce([{ total: "500.25" }]) // Expenses
+        .mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue([{ id: 1, status: "draft", fiscalPeriod: "2024-05" }]),
+    };
+    (getDB as jest.Mock).mockResolvedValue({ db: mockDb });
+
+    const result = await getDashboardMetrics(1, { month: 0, year: 2024 });
+
+    // Last declaration is 2024-05 and status is draft (not filed)
+    // Next declaration date should be June 17, 2024
+    expect(result.nextDeclarationDate).toEqual(new Date(2024, 5, 17));
+  });
 });
