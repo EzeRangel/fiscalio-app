@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, ArrowLeftIcon, XCircle, CheckCircle, FileText, Download, Play, CheckSquare } from "lucide-react";
+import { AlertCircle, ArrowLeftIcon, XCircle, CheckCircle, FileText, FileDown, ShieldCheck, Send } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -15,27 +15,27 @@ const mockDeclarations: Record<number, any> = {
     id: 101,
     fiscalPeriod: "2026-06",
     status: "filed",
-    taxRegime: "601",
+    taxRegime: "626",
     declarationType: "monthly",
     createdAt: new Date("2026-07-02T09:00:00Z"),
     updatedAt: new Date("2026-07-15T10:30:00Z"),
     filedAt: new Date("2026-07-15T10:30:00Z"),
     acknowledgmentNumber: "SAT-ACK-982347910283",
     totalIncome: 65430.50,
-    deductibleExpenses: 21900.00,
-    isrBase: 43530.50,
-    isrRate: "0.03",
-    isrCalculated: 1305.91,
+    deductibleExpenses: 0.00,
+    isrBase: 65430.50,
+    isrRate: "0.015",
+    isrCalculated: 981.46,
     isrWithheld: 200.00,
     isrProvisional: 0.00,
-    isrBalance: 1105.91,
+    isrBalance: 781.46,
     ivaCharged: 10468.88,
     ivaCreditable: 3504.00,
     ivaBalance: 6964.88,
     invoices: [
-      { id: 1, invoice: { id: "inv-1", internalFolio: "SERVI-001", invoiceDate: new Date("2026-06-10"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 34800, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 30000 },
-      { id: 2, invoice: { id: "inv-2", internalFolio: "SERVI-002", invoiceDate: new Date("2026-06-25"), businessPartner: { businessName: "Comercializadora Tech S. de R.L." }, total: 30630.5, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 26408.88 },
-      { id: 3, invoice: { id: "inv-3", internalFolio: "PAPEL-001", invoiceDate: new Date("2026-06-12"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 11600, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 10000 }
+      { id: 1, invoice: { id: "inv-1", internalFolio: "SERVI-001", invoiceDate: new Date("2026-06-10"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 40600, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 35000 },
+      { id: 2, invoice: { id: "inv-2", internalFolio: "SERVI-002", invoiceDate: new Date("2026-06-25"), businessPartner: { businessName: "Comercializadora Tech S. de R.L." }, total: 35300, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 30430.5 },
+      { id: 3, invoice: { id: "inv-3", internalFolio: "PAPEL-001", invoiceDate: new Date("2026-06-12"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 25404, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 21900 }
     ],
     auditLogs: [
       { id: 1, action: "create", user: "Admin", timestamp: "2026-07-02T09:00:00Z", details: "Borrador de declaración generado automáticamente." },
@@ -47,27 +47,27 @@ const mockDeclarations: Record<number, any> = {
     id: 102,
     fiscalPeriod: "2026-05",
     status: "draft",
-    taxRegime: "601",
+    taxRegime: "626",
     declarationType: "monthly",
     createdAt: new Date("2026-06-03T11:00:00Z"),
     updatedAt: new Date("2026-06-12T15:20:00Z"),
     filedAt: null,
     acknowledgmentNumber: null,
     totalIncome: 45000.00,
-    deductibleExpenses: 15000.00,
-    isrBase: 30000.00,
-    isrRate: "0.03",
-    isrCalculated: 900.00,
+    deductibleExpenses: 0.00,
+    isrBase: 45000.00,
+    isrRate: "0.011",
+    isrCalculated: 495.00,
     isrWithheld: 150.00,
     isrProvisional: 0.00,
-    isrBalance: 750.00,
+    isrBalance: 345.00,
     ivaCharged: 7200.00,
     ivaCreditable: 2400.00,
     ivaBalance: 4800.00,
     invoices: [
-      { id: 1, invoice: { id: "inv-4", internalFolio: "SERVI-003", invoiceDate: new Date("2026-05-15"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 23200, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 20000 },
-      { id: 2, invoice: { id: "inv-5", internalFolio: "SERVI-004", invoiceDate: new Date("2026-05-22"), businessPartner: { businessName: "Comercializadora Tech S. de R.L." }, total: 21800, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 18793.10 },
-      { id: 3, invoice: { id: "inv-6", internalFolio: "PAPEL-002", invoiceDate: new Date("2026-05-18"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 5800, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 5000 }
+      { id: 1, invoice: { id: "inv-4", internalFolio: "SERVI-003", invoiceDate: new Date("2026-05-15"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 29000, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 25000 },
+      { id: 2, invoice: { id: "inv-5", internalFolio: "SERVI-004", invoiceDate: new Date("2026-05-22"), businessPartner: { businessName: "Comercializadora Tech S. de R.L." }, total: 23200, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 20000 },
+      { id: 3, invoice: { id: "inv-6", internalFolio: "PAPEL-002", invoiceDate: new Date("2026-05-18"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 17400, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 15000 }
     ],
     auditLogs: [
       { id: 1, action: "create", user: "Admin", timestamp: "2026-06-03T11:00:00Z", details: "Borrador de declaración generado automáticamente." }
@@ -77,30 +77,61 @@ const mockDeclarations: Record<number, any> = {
     id: 103,
     fiscalPeriod: "2026-04",
     status: "validated",
-    taxRegime: "601",
+    taxRegime: "626",
     declarationType: "monthly",
     createdAt: new Date("2026-05-02T10:00:00Z"),
     updatedAt: new Date("2026-05-14T17:45:00Z"),
     filedAt: null,
     acknowledgmentNumber: null,
     totalIncome: 50000.00,
-    deductibleExpenses: 18000.00,
-    isrBase: 32000.00,
-    isrRate: "0.03",
-    isrCalculated: 960.00,
+    deductibleExpenses: 0.00,
+    isrBase: 50000.00,
+    isrRate: "0.011",
+    isrCalculated: 550.00,
     isrWithheld: 100.00,
     isrProvisional: 0.00,
-    isrBalance: 860.00,
+    isrBalance: 450.00,
     ivaCharged: 8000.00,
     ivaCreditable: 2880.00,
     ivaBalance: 5120.00,
     invoices: [
-      { id: 1, invoice: { id: "inv-7", internalFolio: "SERVI-005", invoiceDate: new Date("2026-04-10"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 29000, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 25000 },
-      { id: 2, invoice: { id: "inv-8", internalFolio: "PAPEL-003", invoiceDate: new Date("2026-04-12"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 11600, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 10000 }
+      { id: 1, invoice: { id: "inv-7", internalFolio: "SERVI-005", invoiceDate: new Date("2026-04-10"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 58000, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 50000 },
+      { id: 2, invoice: { id: "inv-8", internalFolio: "PAPEL-003", invoiceDate: new Date("2026-04-12"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 20880, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 18000 }
     ],
     auditLogs: [
       { id: 1, action: "create", user: "Admin", timestamp: "2026-05-02T10:00:00Z", details: "Borrador de declaración generado automáticamente." },
       { id: 2, action: "validate", user: "Admin", timestamp: "2026-05-14T17:45:00Z", details: "Declaración verificada con éxito." }
+    ]
+  },
+  104: {
+    id: 104,
+    fiscalPeriod: "2026-03",
+    status: "filed",
+    taxRegime: "626",
+    declarationType: "monthly",
+    createdAt: new Date("2026-04-03T09:30:00Z"),
+    updatedAt: new Date("2026-04-17T11:15:00Z"),
+    filedAt: new Date("2026-04-17T11:15:00Z"),
+    acknowledgmentNumber: "SAT-ACK-982347910280",
+    totalIncome: 40000.00,
+    deductibleExpenses: 0.00,
+    isrBase: 40000.00,
+    isrRate: "0.011",
+    isrCalculated: 440.00,
+    isrWithheld: 100.00,
+    isrProvisional: 0.00,
+    isrBalance: 340.00,
+    ivaCharged: 6400.00,
+    ivaCreditable: 1920.00,
+    ivaBalance: 4480.00,
+    invoices: [
+      { id: 1, invoice: { id: "inv-9", internalFolio: "SERVI-006", invoiceDate: new Date("2026-03-15"), businessPartner: { businessName: "Servicios Profesionales S.A." }, total: 46400, paymentMethod: "PUE" }, appliedAccountCode: "401.01", includedAmount: 40000 },
+      { id: 2, invoice: { id: "inv-10", internalFolio: "PAPEL-004", invoiceDate: new Date("2026-03-18"), businessPartner: { businessName: "Papelería del Centro S.A." }, total: 13920, paymentMethod: "PUE" }, appliedAccountCode: "601.12", includedAmount: 12000 }
+    ],
+    auditLogs: [
+      { id: 1, action: "create", user: "Admin", timestamp: "2026-04-03T09:30:00Z", details: "Borrador de declaración generado automáticamente." },
+      { id: 2, action: "validate", user: "Admin", timestamp: "2026-04-10T12:00:00Z", details: "Declaración verificada con éxito." },
+      { id: 3, action: "file", user: "Admin", timestamp: "2026-04-17T11:15:00Z", details: "Declaración presentada ante el SAT con folio SAT-ACK-982347910280." }
     ]
   }
 };
@@ -139,20 +170,31 @@ export function DeclarationDetailDemo({
             DECLARACIONES
           </button>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="gap-1.5 font-mono text-xs">
-              <Download className="h-3.5 w-3.5" />
-              PDF
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-mono text-xs tracking-wide h-8 border-stone-300 bg-white hover:bg-stone-50"
+              onClick={() => window.print()}
+            >
+              <FileDown className="h-3.5 w-3.5 mr-2" />
+              EXPORTAR PDF
             </Button>
             {isDraft && (
-              <Button size="sm" className="gap-1.5 font-mono text-xs bg-chart-1 hover:bg-chart-1/90 text-white">
-                <Play className="h-3.5 w-3.5 fill-current" />
-                Verificar
+              <Button
+                size="sm"
+                className="font-mono text-xs tracking-wide h-8 uppercase"
+              >
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Verificar y Bloquear Declaración
               </Button>
             )}
             {isValidated && (
-              <Button size="sm" className="gap-1.5 font-mono text-xs bg-chart-4 hover:bg-chart-4/90 text-white">
-                <CheckSquare className="h-3.5 w-3.5" />
-                Presentar
+              <Button
+                size="sm"
+                className="font-mono text-xs tracking-wide h-8 uppercase"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Registrar Acuse SAT
               </Button>
             )}
           </div>
@@ -165,7 +207,7 @@ export function DeclarationDetailDemo({
           <div className="flex justify-between items-start">
             <div>
               <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase mb-1">
-                Declaración Fiscal Provisional (DEMO)
+                Declaración Fiscal Provisional
               </p>
               <h1 className="font-mono text-2xl tracking-tight text-foreground capitalize">
                 {formatPeriod(declaration.fiscalPeriod)}
@@ -279,7 +321,7 @@ export function DeclarationDetailDemo({
                   <td className="py-3 text-foreground/90">
                     ISR Determinado
                     <span className="text-muted-foreground ml-2 text-xs">
-                      ({(Number.parseFloat(declaration.isrRate || "0") * 100).toFixed(0)}%)
+                      ({(Number.parseFloat(declaration.isrRate || "0") * 100).toFixed(2)}%)
                     </span>
                   </td>
                   <td className="py-3 text-right tabular-nums text-foreground">
@@ -500,7 +542,7 @@ export function DeclarationDetailDemo({
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-                Documento generado automáticamente (Vista Demo)
+                Documento generado automáticamente
               </p>
               <p className="font-mono text-[10px] text-muted-foreground">
                 Última actualización: {format(declaration.updatedAt, "dd/MM/yyyy HH:mm", { locale: es })}
@@ -526,10 +568,10 @@ export function DeclarationDetailDemo({
         </footer>
       </section>
 
-      {/* Simulated Audit Log */}
+      {/* Audit Log */}
       <section className="bg-muted/10 border-t border-border p-8">
         <h3 className="font-mono text-xs tracking-wider uppercase text-foreground mb-4">
-          Bitácora de Eventos (Simulada)
+          Historial de Auditoría
         </h3>
         <div className="space-y-4">
           {declaration.auditLogs.map((log: any) => (

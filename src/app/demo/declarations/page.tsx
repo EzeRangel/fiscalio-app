@@ -19,15 +19,19 @@ export default function DemoDeclarationsPage() {
       {view === "list" && (
         <div className="border-b border-border bg-linear-to-br from-muted/30 via-background to-background">
           <div className="container mx-auto px-6 py-12">
-            <div className="max-w-2xl space-y-4">
-              <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
-                Declaraciones Fiscales
-                <span className="block text-muted-foreground text-xl mt-2 font-mono tracking-widest uppercase">
-                  Vista Demo / Snapshot de Producto
-                </span>
-              </h1>
-              <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
-                Esta es una simulación interactiva con fines de demostración de la vista de Declaraciones Fiscales y su respectivo detalle.
+            <div className="flex items-end justify-between gap-6">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <h1 className="text-5xl font-light tracking-tight leading-[1.1]">
+                    Declaraciones Fiscales
+                    <span className="block text-muted-foreground text-2xl mt-2">
+                      Cálculos informativos
+                    </span>
+                  </h1>
+                </div>
+              </div>
+              <p className="text-xs font-mono text-muted-foreground">
+                4 declaraciones presentadas
               </p>
             </div>
           </div>

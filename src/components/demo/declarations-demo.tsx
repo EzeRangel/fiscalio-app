@@ -21,9 +21,9 @@ const mockCurrentPeriod = {
   totalExpenses: 28900.00,
   incomeInvoiceCount: 12,
   expenseInvoiceCount: 8,
-  netAmount: 46530.50,
-  estimatedTax: 1395.91,
-  ivaBalance: 7444.89,
+  netAmount: 75430.50, // En RESICO la base gravable de ISR es el total de ingresos cobrados
+  estimatedTax: 1131.46, // 75430.50 * 1.50% (tasa RESICO para rango de ingresos)
+  ivaBalance: 7444.88, // IVA Trasladado (75430.50 * 0.16) - IVA Acreditable (28900.00 * 0.16)
   declaration: null,
 };
 
@@ -135,7 +135,7 @@ export function DeclarationsDemo({ onSelectDeclaration }: { onSelectDeclaration:
           <LedgerRow
             index="04"
             label="ISR Estimado"
-            meta="Tasa del 3%"
+            meta="Tasa del 1.5%"
             amount={formatCurrency(currentPeriod.estimatedTax)}
             toneClassName="text-chart-2"
           />
@@ -174,7 +174,7 @@ export function DeclarationsDemo({ onSelectDeclaration }: { onSelectDeclaration:
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-light tracking-tight">
-              Historial de Declaraciones (Demo)
+              Historial de Declaraciones
             </h2>
             <p className="text-xs text-muted-foreground font-mono mt-0.5">
               Agrupado por ejercicio fiscal
@@ -232,7 +232,7 @@ export function DeclarationsDemo({ onSelectDeclaration }: { onSelectDeclaration:
                                         "d 'de' MMMM yyyy",
                                         { locale: es },
                                       )
-                                    : "Pendiente"}
+                                    : "-"}
                                 </div>
                               </div>
                             </div>
