@@ -11,7 +11,7 @@
 ## Phase 2: Next.js Standalone Build & Asset Copying
 - [x] Task: Update `next.config.ts` to output standalone and trace `@electric-sql/pglite` WASM assets 6db3af3
 - [x] Task: Write a Node/TS script to compile Next.js and copy `public` and `.next/static` assets into the standalone bundle 8ff91d1
-- [ ] Task: Validate that the standalone bundle runs independently with a test spawn
+- [x] Task: Validate that the standalone bundle runs independently with a test spawn f8bec05
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Next.js Standalone Build & Asset Copying' (Protocol in workflow.md)
 
 ## Phase 3: Electron Main Process & IPC Server
