@@ -4,19 +4,13 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "dist-electron",
-    "rootDir": "src",
+    "rootDir": "src/electron",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/electron/**/*",
-    "src/lib/migration-utils.ts",
-    "src/lib/db-path.ts"
+    "src/electron/**/*"
   ]
 }

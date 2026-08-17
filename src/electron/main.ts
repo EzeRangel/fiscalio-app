@@ -251,7 +251,7 @@ if (!gotTheLock) {
 
     try {
       logger?.info("Checking for legacy database migration...");
-      const { migrateLegacyDataIfNeeded } = await import("@/lib/migration-utils");
+      const { migrateLegacyDataIfNeeded } = await import("./migration-utils");
       const migrationRes = await migrateLegacyDataIfNeeded(dataDirPath);
       if (migrationRes.migrated) {
         logger?.info(`Migrated legacy database from ${migrationRes.source} to ${migrationRes.target}`);
