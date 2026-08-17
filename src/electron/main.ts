@@ -239,6 +239,13 @@ if (!gotTheLock) {
     splashWindow = createSplashWindow();
 
     try {
+      logger?.info("Checking for legacy database migration...");
+      const { migrateLegacyDataIfNeeded } = await import("@/lib/migration-utils");
+      const migrationRes = await migrateLegacyDataIfNeeded(dataDirPath);
+      if (migrationRes.migrated) {
+        logger?.info(`Migrated legacy database from ${migrationRes.source} to ${migrationRes.target}`);
+      }
+
       if (!serverManager) throw new Error("Server manager uninitialized");
       const { url } = await serverManager.start();
       mainWindow = await createMainWindow(url);

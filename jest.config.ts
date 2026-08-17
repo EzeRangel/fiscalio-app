@@ -33,10 +33,13 @@ const config: Config = {
   // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
 
-  // An array of regexp pattern strings used to skip coverage collection
-  // coveragePathIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "<rootDir>/dist-electron/",
+  ],
+  modulePathIgnorePatterns: [
+    "<rootDir>/dist-electron/",
+  ],
 
   // Indicates which provider should be used to find information about your tests
   coverageProvider: "v8",
@@ -85,18 +88,13 @@ const config: Config = {
 
 
 
-  // An array of file extensions your modules use
   moduleFileExtensions: [
-    "js",
-    // "mjs",
-    // "cjs",
-    // "jsx",
     "ts",
-    // "mts",
-    // "cts",
     "tsx",
+    "js",
+    "jsx",
     "json",
-    // "node"
+    "mjs",
   ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
