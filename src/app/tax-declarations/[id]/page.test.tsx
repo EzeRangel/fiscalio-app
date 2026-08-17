@@ -13,9 +13,9 @@ import { getTaxDeclarationById } from '@/data/tax-declarations';
 import { getDeclarationInvoicesById } from '@/data/declaration-invoices';
 import { getActiveOrganizationId } from '@/lib/session';
 
-// Mock the AuditLogPane component
-jest.mock('@/components/audit-log-pane', () => ({
-  AuditLogPane: jest.fn(() => <div data-testid="audit-log-pane"></div>),
+// Mock the EntityAuditLog component
+jest.mock('@/components/EntityAuditLog', () => ({
+  EntityAuditLog: jest.fn(() => <div data-testid="audit-log-pane"></div>),
 }));
 
 // Mock data fetching functions
@@ -29,16 +29,20 @@ jest.mock('@/lib/session', () => ({
   getActiveOrganizationId: jest.fn(),
 }));
 
-// Mock next/navigation notFound
+// Mock next/navigation
 jest.mock('next/navigation', () => ({
   notFound: jest.fn(),
+  useRouter: jest.fn(() => ({
+    refresh: jest.fn(),
+    push: jest.fn(),
+  })),
 }));
 
 describe('TaxDeclarationReviewPage', () => {
   const mockDeclaration = {
     id: 1,
     organizationId: 1,
-    fiscalPeriod: new Date(),
+    fiscalPeriod: '2024-01',
     declarationType: 'monthly',
     totalIncome: '1000.00',
     deductibleExpenses: '200.00',
@@ -62,14 +66,22 @@ describe('TaxDeclarationReviewPage', () => {
   const mockInvoices = [
     {
       id: 1,
-      uuid: 'uuid1',
-      invoiceSeries: 'A',
-      invoiceNumber: '1',
-      issuerName: 'Issuer 1',
-      receiverName: 'Receiver 1',
-      total: '100.00',
-      date: new Date().toISOString(),
-      type: 'income',
+      declarationId: 1,
+      invoiceId: 1,
+      appliedAccountCode: "601.01",
+      includedAmount: "100.00",
+      wasManuallyAdjusted: false,
+      invoice: {
+        id: 1,
+        internalFolio: "A-1",
+        folioFiscal: "uuid1",
+        invoiceDate: new Date().toISOString(),
+        paymentMethod: "PUE",
+        total: "100.00",
+        businessPartner: {
+          businessName: "Issuer 1",
+        },
+      },
       auditLogs: [],
       organizationId: 1,
       createdAt: new Date().toISOString(),

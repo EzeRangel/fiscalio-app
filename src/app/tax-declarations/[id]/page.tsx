@@ -36,6 +36,7 @@ async function getData(declarationId: number) {
 
   if (!declaration) {
     notFound();
+    return { declaration: null as any, invoices: [] };
   }
 
   const invoices = await getDeclarationInvoicesById(declarationId);
@@ -82,10 +83,15 @@ export default async function TaxDeclarationReviewPage({
   const declarationId = parseInt(params.id, 10);
   if (isNaN(declarationId)) {
     notFound();
+    return null;
   }
 
   const { declaration, invoices: declarationInvoices } =
     await getData(declarationId);
+
+  if (!declaration) {
+    return null;
+  }
 
   const statusInfo =
     declaration.status === null
@@ -447,25 +453,38 @@ export default async function TaxDeclarationReviewPage({
                     >
                       <td className="py-3 pr-4">
                         <div className="flex flex-col gap-0.5">
-                          <Link
-                            href={`/invoices/${item.invoice.id}`}
-                            className="text-stone-900 hover:text-stone-600 transition-colors font-medium"
-                          >
-                            {item.invoice.internalFolio || item.invoice.folioFiscal || item.invoice.id}
-                            {item.wasManuallyAdjusted && (
-                              <span className="ml-1.5 text-amber-600">*</span>
-                            )}
-                          </Link>
-                          <span className="text-[9px] font-mono text-stone-400 uppercase">
-                            {item.invoice.paymentMethod || "PUE"}
-                          </span>
+                          {item.invoice?.id ? (
+                            <Link
+                              href={`/invoices/${item.invoice.id}`}
+                              className="text-stone-900 hover:text-stone-600 transition-colors font-medium"
+                            >
+                              {item.invoice.internalFolio || item.invoice.folioFiscal || item.invoice.id}
+                              {item.wasManuallyAdjusted && (
+                                <span className="ml-1.5 text-amber-600">*</span>
+                              )}
+                            </Link>
+                          ) : (
+                            <span className="text-stone-900 font-medium">
+                              {item.invoice?.internalFolio || item.invoice?.folioFiscal || "-"}
+                              {item.wasManuallyAdjusted && (
+                                <span className="ml-1.5 text-amber-600">*</span>
+                              )}
+                            </span>
+                          )}
+                          {item.invoice?.paymentMethod ? (
+                            <span className="text-[9px] font-mono text-stone-400 uppercase">
+                              {item.invoice.paymentMethod}
+                            </span>
+                          ) : null}
                         </div>
                       </td>
                       <td className="py-3 pr-4 text-stone-600 tabular-nums">
-                        {format(item.invoice.invoiceDate, "dd/MM/yy")}
+                        {item.invoice?.invoiceDate
+                          ? format(item.invoice.invoiceDate, "dd/MM/yy")
+                          : "-"}
                       </td>
                       <td className="py-3 pr-4 text-stone-700 max-w-[200px] truncate">
-                        {item.invoice.businessPartner.businessName}
+                        {item.invoice?.businessPartner?.businessName || "-"}
                       </td>
                       <td className="py-3 pr-4 text-right">
                         <span className="text-stone-500">
@@ -473,7 +492,9 @@ export default async function TaxDeclarationReviewPage({
                         </span>
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums text-stone-500">
-                        {formatCurrency(item.invoice.total)}
+                        {item.invoice?.total
+                          ? formatCurrency(item.invoice.total)
+                          : "-"}
                       </td>
                       <td className="py-3 text-right tabular-nums text-stone-900 font-medium">
                         {formatCurrency(item.includedAmount)}
