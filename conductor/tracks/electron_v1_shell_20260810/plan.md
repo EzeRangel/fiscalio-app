@@ -3,7 +3,7 @@
 ## Phase 1: Environment, Jest Setup & Core Fixes
 - [x] Task: Fix JSDOM test failures by adding global TextEncoder polyfill in Jest configuration a1fc88f
 - [x] Task: Fix CFDI parser test asset UUID to conform to strict RFC 4122 validation (variant nibble: `8`/`9`/`a`/`b`) edfe522
-- [ ] Task: Fix the failing "should throw an error for invalid XML content" assertion in `cfdi-parser.test.ts` (expected `Error al procesar XML: The document is not a CFDI`, parser now throws `CFDI inválido: ...`; align parser or assertion deliberately)
+- [x] Task: Fix the failing "should throw an error for invalid XML content" assertion in `cfdi-parser.test.ts` (expected `Error al procesar XML: The document is not a CFDI`, parser now throws `CFDI inválido: ...`; align parser or assertion deliberately) 8e43b76
 - [ ] Task: Verify all existing tests pass (`pnpm test`)
 - [ ] Task: Verify the isolated PGLite suite passes (`pnpm test:pglite`)
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment, Jest Setup & Core Fixes' (Protocol in workflow.md)
