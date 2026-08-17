@@ -91,17 +91,18 @@ export const cancelInvoiceAction = actionClient
       }
 
       // Log audit trail
-      await logAction(
+      await logAction({
         tx,
-        "cancelled",
-        "invoice",
-        String(invoiceId),
-        {
+        organizationId,
+        action: "cancelled",
+        entityType: "invoice",
+        entityId: invoiceId,
+        metadata: {
           reasonCode,
           cancellationReason,
           substituteInvoiceUuid,
-        }
-      );
+        },
+      });
 
       revalidatePath(`/invoices/${invoiceId}`);
       if (substituteInvoiceId) {
@@ -138,6 +139,12 @@ export const registerRefundAction = actionClient
       throw new Error(`El monto del reembolso no puede exceder el total pagado (${invoice.amountPaid}).`);
     }
 
+    if (!invoice.partnerId) {
+      throw new Error("La factura no tiene un socio de negocio asociado");
+    }
+
+    const partnerId = invoice.partnerId;
+
     // 3. Register payment and create tax adjustment in transaction
     return await db.transaction(async (tx) => {
       const inserted = await tx
@@ -154,7 +161,7 @@ export const registerRefundAction = actionClient
           paymentType: "refund", // key mapping to 'Reembolso'
           isRefund: true,
           refundedInvoiceId: invoiceId,
-          partnerId: invoice.partnerId,
+          partnerId,
           exchangeRate: invoice.exchangeRate || "1.0",
         })
         .returning();
@@ -192,16 +199,17 @@ export const registerRefundAction = actionClient
         });
 
       // Log audit
-      await logAction(
+      await logAction({
         tx,
-        "refunded",
-        "payment",
-        String(newPayment.id),
-        {
+        organizationId,
+        action: "refunded",
+        entityType: "payment",
+        entityId: newPayment.id,
+        metadata: {
           invoiceId,
           amount,
-        }
-      );
+        },
+      });
 
       revalidatePath(`/invoices/${invoiceId}`);
 

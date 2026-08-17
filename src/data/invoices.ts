@@ -527,6 +527,11 @@ export const getInvoiceById = async (id: number) => {
       account: true,
       businessPartner: true,
       refundPayments: true,
+      linkedPayments: {
+        with: {
+          allocations: true,
+        },
+      },
       items: {
         with: {
           taxes: true,

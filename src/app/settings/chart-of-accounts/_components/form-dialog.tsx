@@ -59,7 +59,7 @@ export function AccountFormDialog({ accounts = [] }: Props) {
   });
 
   const form = useForm<AccountFormValues>({
-    resolver: zodResolver(AccountFormSchema),
+    resolver: zodResolver(AccountFormSchema) as any,
     defaultValues: {
       accountCode: "",
       accountName: "",

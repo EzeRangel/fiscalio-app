@@ -262,9 +262,9 @@ function InvoiceRow({ invoice, allInvoices }: InvoiceRowProps) {
                       }, 0) || 0;
 
                       // Find installment number
-                      const installmentNum = comp.linkedPayments?.reduce((num, p) => {
+                      const installmentNum = comp.linkedPayments?.reduce((num: number, p) => {
                         const match = p.allocations?.find((a) => a.invoiceId === invoice.id);
-                        return match ? match.installmentNumber : num;
+                        return match && match.installmentNumber != null ? match.installmentNumber : num;
                       }, 1);
 
                       return (

@@ -271,7 +271,7 @@ export const linkPaymentAction = actionClient
           entityId: newPayment.id,
           action: "created",
           metadata: {
-            source: "manual_link",
+            source: "manual",
             reason: "Pago creado al vincular complemento manualmente",
             cfdiUuid: paymentInvoice.folioFiscal,
           },

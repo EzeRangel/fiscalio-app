@@ -4,7 +4,7 @@ import path from "node:path";
 const nextConfig: NextConfig = {
   output: "standalone",
   turbopack: {
-    root: path.join("./"),
+    root: path.resolve("./"),
   },
   serverExternalPackages: ["@electric-sql/pglite"],
   outputFileTracingIncludes: {
