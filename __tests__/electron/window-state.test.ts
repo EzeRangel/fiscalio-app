@@ -48,9 +48,12 @@ describe("Window State Persistence", () => {
   });
 
   it("should handle corrupted state files gracefully by falling back to defaults", () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
     fs.writeFileSync(stateFilePath, "invalid-json{");
     const state = loadWindowState(stateFilePath);
     expect(state.width).toBe(1200);
     expect(state.height).toBe(800);
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
   });
 });
