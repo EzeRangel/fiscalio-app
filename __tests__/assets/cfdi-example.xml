@@ -17,6 +17,6 @@
     </cfdi:Traslados>
   </cfdi:Impuestos>
   <cfdi:Complemento>
-    <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="1.1" UUID="12345678-1234-1234-1234-123456789012" FechaTimbrado="2024-07-18T12:01:00" RfcProvCertif="SAT970701NN3" SelloCFD="ABC...XYZ" NoCertificadoSAT="123...SAT" SelloSAT="ABC...SAT"/>
+    <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="1.1" UUID="12345678-1234-4234-a234-123456789012" FechaTimbrado="2024-07-18T12:01:00" RfcProvCertif="SAT970701NN3" SelloCFD="ABC...XYZ" NoCertificadoSAT="123...SAT" SelloSAT="ABC...SAT"/>
   </cfdi:Complemento>
 </cfdi:Comprobante>

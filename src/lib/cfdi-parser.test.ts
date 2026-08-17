@@ -33,7 +33,7 @@ describe("CFDIParser", () => {
     const essentials = CFDIParser.extractEssentials(cfdi);
 
     expect(essentials).toBeDefined();
-    expect(essentials.uuid).toBe("12345678-1234-1234-1234-123456789012");
+    expect(essentials.uuid).toBe("12345678-1234-4234-a234-123456789012");
     expect(essentials.emisorRfc).toBe("EKU9003173C9");
     expect(essentials.emisorNombre).toBe("Empresa Emisora S.A. de C.V.");
     expect(essentials.receptorRfc).toBe("XEXX010101000");
