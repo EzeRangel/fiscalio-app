@@ -1,11 +1,13 @@
 {
   "name": "fdi-assistant",
   "version": "0.1.0",
-  "private": true,
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "build:standalone": "tsx src/scripts/build-standalone.ts",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "electron:start": "electron .",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
