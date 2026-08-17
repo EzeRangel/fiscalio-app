@@ -181,6 +181,7 @@ const config: Config = {
     "/node_modules/",
     "\\.scratch/",
     "/src/lib/bootstrap\\.test\\.ts",
+    "/__tests__/db/init-db\\.test\\.ts",
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
