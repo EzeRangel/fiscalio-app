@@ -1,7 +1,7 @@
 # Implementation Plan: Electron v1 Shell
 
 ## Phase 1: Environment, Jest Setup & Core Fixes
-- [ ] Task: Fix JSDOM test failures by adding global TextEncoder polyfill in Jest configuration
+- [x] Task: Fix JSDOM test failures by adding global TextEncoder polyfill in Jest configuration a1fc88f
 - [ ] Task: Fix CFDI parser test asset UUID to conform to strict RFC 4122 validation (variant nibble: `8`/`9`/`a`/`b`)
 - [ ] Task: Fix the failing "should throw an error for invalid XML content" assertion in `cfdi-parser.test.ts` (expected `Error al procesar XML: The document is not a CFDI`, parser now throws `CFDI inválido: ...`; align parser or assertion deliberately)
 - [ ] Task: Verify all existing tests pass (`pnpm test`)
