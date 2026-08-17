@@ -260,6 +260,9 @@ if (!gotTheLock) {
       if (!serverManager) throw new Error("Server manager uninitialized");
       const { url } = await serverManager.start();
       mainWindow = await createMainWindow(url);
+
+      const { initAutoUpdater } = await import("./updater");
+      initAutoUpdater(logger ?? undefined);
     } catch (err: unknown) {
       const error = err as Error;
       logger?.error("Startup failure:", error);

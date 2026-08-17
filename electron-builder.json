@@ -1,0 +1,44 @@
+{
+  "appId": "com.fiscalio.app",
+  "productName": "Fiscalio",
+  "directories": {
+    "output": "dist"
+  },
+  "asar": true,
+  "asarUnpack": [
+    "**/node_modules/@electric-sql/pglite/**/*",
+    "**/.next/standalone/node_modules/@electric-sql/pglite/**/*"
+  ],
+  "files": [
+    "dist-electron/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": ".next/standalone",
+      "to": ".next/standalone",
+      "filter": ["**/*"]
+    }
+  ],
+  "publish": {
+    "provider": "github",
+    "owner": "EzeRangel",
+    "repo": "fiscalio-app"
+  },
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app-category.finance",
+    "hardenedRuntime": false,
+    "gatekeeperAssess": false
+  },
+  "win": {
+    "target": ["nsis"]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Fiscalio"
+  }
+}

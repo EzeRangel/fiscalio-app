@@ -87,6 +87,14 @@ export function setupApplicationMenu(userDataDir: string): void {
       label: "Ayuda",
       submenu: [
         {
+          label: "Buscar actualizaciones...",
+          click: async () => {
+            const { checkForUpdatesManual } = await import("./updater");
+            await checkForUpdatesManual();
+          },
+        },
+        { type: "separator" as const },
+        {
           label: "Documentación de Fiscalio",
           click: () => {
             shell.openExternal("https://github.com/EzeRangel/fiscalio-app");
