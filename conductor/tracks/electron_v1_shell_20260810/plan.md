@@ -14,15 +14,15 @@
 - [x] Task: Validate that the standalone bundle runs independently with a test spawn f8bec05
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Next.js Standalone Build & Asset Copying' (Protocol in workflow.md) ff7744e
 
-## Phase 3: Electron Main Process & IPC Server
+## Phase 3: Electron Main Process & IPC Server [checkpoint: d54de87]
 - [x] Task: Add Electron toolchain devDependencies (`electron`, `electron-builder`, `electron-updater`) a85bec4
-- [ ] Task: Setup Electron main process configuration and create the entrypoint file `src/electron/main.ts`
-- [ ] Task: Implement Next standalone server spawning using `utilityProcess.fork` or child process fork
-- [ ] Task: Implement dynamic port acquisition (fixed `3120` or ephemeral fallback) bound to `127.0.0.1` loopback, and IPC handshake for `"server-listening"`
-- [ ] Task: Enforce `app.requestSingleInstanceLock()` — a second instance must focus the existing window instead of spawning a new child
-- [ ] Task: Implement window lifecycles, native splash screen, bounds state persistence, and 30s "server-listening" timeout
-- [ ] Task: Implement clean shutdown logic (handling OS exits and killing child process with SIGTERM/SIGKILL)
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Electron Main Process & IPC Server' (Protocol in workflow.md)
+- [x] Task: Setup Electron main process configuration and create the entrypoint file `src/electron/main.ts` b323732
+- [x] Task: Implement Next standalone server spawning using `utilityProcess.fork` or child process fork b323732
+- [x] Task: Implement dynamic port acquisition (fixed `3120` or ephemeral fallback) bound to `127.0.0.1` loopback, and IPC handshake for `"server-listening"` b323732
+- [x] Task: Enforce `app.requestSingleInstanceLock()` — a second instance must focus the existing window instead of spawning a new child b323732
+- [x] Task: Implement window lifecycles, native splash screen, bounds state persistence, and 30s "server-listening" timeout b323732
+- [x] Task: Implement clean shutdown logic (handling OS exits and killing child process with SIGTERM/SIGKILL) b323732
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Electron Main Process & IPC Server' (Protocol in workflow.md) d54de87
 
 ## Phase 4: PGLite Database Relocation, Migration & Backup Engine
 - [ ] Task: Wire `FISCALIO_DATA_DIR` into the child spawn so the server DB points to `app.getPath("userData")` (`resolveDBPath` is already implemented and tested)
