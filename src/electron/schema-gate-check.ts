@@ -9,9 +9,15 @@ export function readExpectedSchemaInfo(): { expectedMigrationCount: number; vers
   let expectedMigrationCount = 20;
   let version = "1.0.0";
 
+  const resourcesPath =
+    typeof process !== "undefined" ? (process as { resourcesPath?: string }).resourcesPath : undefined;
+
   const candidateJsonPaths = [
     path.resolve(process.cwd(), "schema.json"),
     path.resolve(process.cwd(), ".next", "standalone", "schema.json"),
+    ...(resourcesPath
+      ? [path.resolve(resourcesPath, ".next", "standalone", "schema.json")]
+      : []),
     path.resolve(__dirname, "../../schema.json"),
     path.resolve(__dirname, "../.next/standalone/schema.json"),
   ];

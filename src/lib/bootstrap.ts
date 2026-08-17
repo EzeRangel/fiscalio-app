@@ -17,6 +17,7 @@ import type { MatchCriteria } from "@/types/classification-rules";
 
 import fs from "fs";
 import { checkSchemaCompatibility } from "@/lib/schema-gate";
+import { resolveAppVersion } from "@/lib/app-version";
 
 export interface BootstrapResult {
   taxRegimesCount: number;
@@ -63,7 +64,7 @@ export async function runBootstrapOnPG(pg: PGlite): Promise<BootstrapResult> {
   }
 
   // 1. Schema compatibility and downgrade protection
-  await checkSchemaCompatibility(pg, expectedMigrationCount, "1.0.0");
+  await checkSchemaCompatibility(pg, expectedMigrationCount, resolveAppVersion());
 
   const db = drizzle(pg);
 

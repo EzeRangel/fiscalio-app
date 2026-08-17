@@ -22,7 +22,8 @@
     "db:seed:rules": "npx drizzle-kit generate && tsx src/scripts/seed-classification-rules.ts",
     "db:seed:accounts": "tsx src/scripts/backfill-chart-of-accounts.ts",
     "db:seed:test-data": "tsx src/scripts/seed-test-data.ts",
-    "db:backfill:pue": "tsx src/scripts/backfill-pue-payments.ts"
+    "db:backfill:pue": "tsx src/scripts/backfill-pue-payments.ts",
+    "smoke:shutdown-backup": "tsx src/scripts/smoke-shutdown-backup.ts"
   },
   "dependencies": {
     "@ai-sdk/rsc": "^2.0.3",
@@ -51,6 +52,7 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.0",
     "drizzle-zod": "^0.8.3",
+    "electron-updater": "^6.8.9",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.556.0",
     "next": "16.0.10",
@@ -63,6 +65,7 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
+    "tar": "^7.5.22",
     "uuid": "^13.0.0",
     "zod": "^4.2.1",
     "zod-form-data": "^3.0.1"
@@ -81,7 +84,6 @@
     "drizzle-kit": "^0.31.8",
     "electron": "^43.4.0",
     "electron-builder": "^26.15.3",
-    "electron-updater": "^6.8.9",
     "eslint": "^9",
     "eslint-config-next": "16.0.8",
     "jest": "^30.2.0",

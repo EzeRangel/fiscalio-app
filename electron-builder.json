@@ -17,7 +17,7 @@
     {
       "from": ".next/standalone",
       "to": ".next/standalone",
-      "filter": ["**/*"]
+      "filter": ["**/*", "!pglite", "!**/pglite/**"]
     }
   ],
   "publish": {

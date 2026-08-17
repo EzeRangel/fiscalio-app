@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { PGlite } from "@electric-sql/pglite";
+import { resolveAppVersion } from "./app-version";
 
 export const BACKUP_MAX_DAYS = 7;
 export const BACKUP_MAX_FILES = 50;
@@ -71,7 +72,7 @@ export class BackupEngine {
   private writeOpsCount: number = 0;
   private timer: NodeJS.Timeout | null = null;
 
-  constructor(userDataPath: string, appVersion = "1.0.0") {
+  constructor(userDataPath: string, appVersion: string = resolveAppVersion()) {
     this.baseDir = userDataPath;
     this.backupsDir = path.join(userDataPath, "backups");
     this.appVersion = appVersion;
@@ -119,6 +120,8 @@ export class BackupEngine {
 
     // Reset write ops counter after successful backup
     this.writeOpsCount = 0;
+
+    console.info(`[backup] ${reason}: ${filename} (${buffer.length} bytes)`);
 
     return {
       backupPath: targetPath,

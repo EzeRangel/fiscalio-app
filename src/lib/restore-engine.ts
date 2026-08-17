@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
+import { createReadStream } from "node:fs";
+import { pipeline } from "node:stream/promises";
+import { x as extractTar } from "tar";
 
 export interface BackupValidationResult {
   isValid: boolean;
@@ -56,6 +59,16 @@ export async function validateBackupArchive(
 }
 
 /**
+ * Checks that an extracted directory looks like a PGLite data dir.
+ */
+function looksLikePgliteDataDir(dir: string): boolean {
+  return (
+    fs.existsSync(path.join(dir, "PG_VERSION")) ||
+    fs.existsSync(path.join(dir, "global", "pg_control"))
+  );
+}
+
+/**
  * Restores the database directory from a verified backup archive.
  * Note: Database server must be stopped before calling restore.
  */
@@ -68,16 +81,31 @@ export async function restoreBackupFromArchive(
     return { success: false, error: validation.error };
   }
 
+  // Stage in a temporary restore directory first
+  const tempRestoreDir = path.join(
+    path.dirname(targetDataDir),
+    `.restore-staging-${Date.now()}`
+  );
+
+  fs.mkdirSync(tempRestoreDir, { recursive: true });
+
   try {
-    // Stage in a temporary restore directory first
-    const tempRestoreDir = path.join(
-      path.dirname(targetDataDir),
-      `.restore-staging-${Date.now()}`
+    // Full extract: gunzip + untar into the staging dir. `tar` auto-detects
+    // gzip by magic bytes; PGLite dumpDataDir tars the data dir contents at
+    // the root, so no top-level folder is expected.
+    await pipeline(
+      createReadStream(archivePath),
+      extractTar({ cwd: tempRestoreDir, strict: true })
     );
 
-    fs.mkdirSync(tempRestoreDir, { recursive: true });
+    if (!looksLikePgliteDataDir(tempRestoreDir)) {
+      return {
+        success: false,
+        error:
+          "El backup no contiene un data directory de PGLite válido (falta PG_VERSION).",
+      };
+    }
 
-    // Note: In a full Tar extract, we pipe gunzip through tar parser
     // For safety, preserve existing data dir with a timestamped backup before replace
     if (fs.existsSync(targetDataDir)) {
       const backupDir = `${targetDataDir}.pre-restore-${Date.now()}`;
@@ -89,6 +117,7 @@ export async function restoreBackupFromArchive(
 
     return { success: true };
   } catch (err: unknown) {
+    fs.rmSync(tempRestoreDir, { recursive: true, force: true });
     const error = err as Error;
     return { success: false, error: error.message };
   }

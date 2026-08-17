@@ -116,6 +116,10 @@ export class ServerManager {
         FISCALIO_DATA_DIR: this.userDataDir,
         NODE_ENV: "production",
         ELECTRON_RUN_AS_NODE: "1",
+        // Disable Next's built-in SIGTERM/SIGINT handlers (which exit the
+        // process immediately) so the child owns shutdown and can run the
+        // PGLite checkpoint + backup before exiting.
+        NEXT_MANUAL_SIG_HANDLE: "1",
       },
       stdio: ["ignore", "pipe", "pipe", "ipc"],
     });
@@ -203,7 +207,9 @@ export class ServerManager {
     this.logger?.info("Stopping server process with SIGTERM...");
     child.kill("SIGTERM");
 
-    // Wait up to 3 seconds for graceful exit, then force SIGKILL
+    // Wait up to 20 seconds for graceful exit (the child runs a PGLite
+    // checkpoint + full data-dir dump on shutdown, which can take several
+    // seconds), then force SIGKILL.
     await new Promise<void>((resolve) => {
       let resolved = false;
 
@@ -211,14 +217,14 @@ export class ServerManager {
         if (!resolved) {
           resolved = true;
           try {
-            this.logger?.warn("Server process did not exit in 3s, sending SIGKILL...");
+            this.logger?.warn("Server process did not exit in 20s, sending SIGKILL...");
             child.kill("SIGKILL");
           } catch {
             // ignore
           }
           resolve();
         }
-      }, 3000);
+      }, 20000);
 
       child.once("exit", () => {
         if (!resolved) {

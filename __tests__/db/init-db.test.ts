@@ -34,4 +34,18 @@ describe("initDB Bootstrap Integration", () => {
       await pg.close();
     }
   });
+
+  it("should keep a single app_meta.schema_version row across repeated boots", async () => {
+    const pg = new PGlite(tempDir);
+    try {
+      await runBootstrapOnPG(pg);
+      await runBootstrapOnPG(pg);
+      await runBootstrapOnPG(pg);
+
+      const schemaCheck = await pg.query("SELECT * FROM app_meta.schema_version;");
+      expect(schemaCheck.rows.length).toBe(1);
+    } finally {
+      await pg.close();
+    }
+  });
 });

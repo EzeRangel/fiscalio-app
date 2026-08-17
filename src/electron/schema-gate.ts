@@ -58,11 +58,21 @@ export async function checkSchemaCompatibility(
     });
   }
 
-  // Record/update current version if valid
-  await pg.query(
-    `INSERT INTO app_meta.schema_version (version, migration_count) VALUES ($1, $2);`,
-    [currentVersion, expectedMigrationCount]
+  // Record/update the current version, keeping a single row per database
+  const existing = await pg.query<{ id: number }>(
+    `SELECT id FROM app_meta.schema_version ORDER BY id DESC LIMIT 1;`
   );
+  if (existing.rows.length > 0) {
+    await pg.query(
+      `UPDATE app_meta.schema_version SET version = $1, migration_count = $2, updated_at = now() WHERE id = $3;`,
+      [currentVersion, expectedMigrationCount, existing.rows[0].id]
+    );
+  } else {
+    await pg.query(
+      `INSERT INTO app_meta.schema_version (version, migration_count) VALUES ($1, $2);`,
+      [currentVersion, expectedMigrationCount]
+    );
+  }
 
   return {
     allowed: true,

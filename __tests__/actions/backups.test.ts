@@ -1,11 +1,12 @@
 import { listBackupsAction, createManualBackupAction } from "@/actions/backups";
-import { getDB } from "@/db";
+import { getDB, getActiveBackupEngine } from "@/db";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 jest.mock("@/db", () => ({
   getDB: jest.fn(),
+  getActiveBackupEngine: jest.fn(),
 }));
 
 describe("Backup Server Actions", () => {
