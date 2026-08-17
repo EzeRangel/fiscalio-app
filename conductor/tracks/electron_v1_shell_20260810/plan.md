@@ -15,7 +15,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Next.js Standalone Build & Asset Copying' (Protocol in workflow.md) ff7744e
 
 ## Phase 3: Electron Main Process & IPC Server
-- [ ] Task: Add Electron toolchain devDependencies (`electron`, `electron-builder`, `electron-updater`)
+- [x] Task: Add Electron toolchain devDependencies (`electron`, `electron-builder`, `electron-updater`) a85bec4
 - [ ] Task: Setup Electron main process configuration and create the entrypoint file `src/electron/main.ts`
 - [ ] Task: Implement Next standalone server spawning using `utilityProcess.fork` or child process fork
 - [ ] Task: Implement dynamic port acquisition (fixed `3120` or ephemeral fallback) bound to `127.0.0.1` loopback, and IPC handshake for `"server-listening"`
