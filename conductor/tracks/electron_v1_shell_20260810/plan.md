@@ -24,15 +24,15 @@
 - [x] Task: Implement clean shutdown logic (handling OS exits and killing child process with SIGTERM/SIGKILL) b323732
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Electron Main Process & IPC Server' (Protocol in workflow.md) d54de87
 
-## Phase 4: PGLite Database Relocation, Migration & Backup Engine
-- [ ] Task: Wire `FISCALIO_DATA_DIR` into the child spawn so the server DB points to `app.getPath("userData")` (`resolveDBPath` is already implemented and tested)
-- [ ] Task: Hook `runBootstrap` into the standalone child boot before the HTTP server starts listening (function already implemented)
-- [ ] Task: Implement legacy data migration from `pglite/db` → `userData` on first run (detect legacy source, migrate only if target is empty, idempotent; decision #20)
-- [ ] Task: Build the backup engine inside the child process: CHECKPOINT on clean close, periodic backups (`dumpDataDir()` → tar.gz) on a 15-min write timer and every 100 DB operations
-- [ ] Task: Implement backup FIFO rotation (7 days / 50 files limit)
-- [ ] Task: Expose backup/checkpoint to the main process via IPC on demand, and force a backup right before applying an auto-update (Windows)
-- [ ] Task: Add test coverage for database relocation, bootstrap execution, legacy migration, and backup triggers
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: PGLite Database Relocation, Migration & Backup Engine' (Protocol in workflow.md)
+## Phase 4: PGLite Database Relocation, Migration & Backup Engine [checkpoint: aa7f65e]
+- [x] Task: Wire `FISCALIO_DATA_DIR` into the child spawn so the server DB points to `app.getPath("userData")` (`resolveDBPath` is already implemented and tested) 6d940cb
+- [x] Task: Hook `runBootstrap` into the standalone child boot before the HTTP server starts listening (function already implemented) 6d940cb
+- [x] Task: Implement legacy data migration from `pglite/db` → `userData` on first run (detect legacy source, migrate only if target is empty, idempotent; decision #20) 6d940cb
+- [x] Task: Build the backup engine inside the child process: CHECKPOINT on clean close, periodic backups (`dumpDataDir()` → tar.gz) on a 15-min write timer and every 100 DB operations 6d940cb
+- [x] Task: Implement backup FIFO rotation (7 days / 50 files limit) 6d940cb
+- [x] Task: Expose backup/checkpoint to the main process via IPC on demand, and force a backup right before applying an auto-update (Windows) 6d940cb
+- [x] Task: Add test coverage for database relocation, bootstrap execution, legacy migration, and backup triggers 6d940cb
+- [x] Task: Conductor - User Manual Verification 'Phase 4: PGLite Database Relocation, Migration & Backup Engine' (Protocol in workflow.md) aa7f65e
 
 ## Phase 5: Upgrade/Downgrade Schema Gate & UX Polish
 - [ ] Task: Create `app_meta.schema_version` table via bootstrap (outside vanilla Drizzle migrations, to avoid a circular init dependency; decision #21)
