@@ -8,11 +8,11 @@
 - [x] Task: Verify the isolated PGLite suite passes (`pnpm test:pglite`)
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Environment, Jest Setup & Core Fixes' (Protocol in workflow.md) e9b067d
 
-## Phase 2: Next.js Standalone Build & Asset Copying
+## Phase 2: Next.js Standalone Build & Asset Copying [checkpoint: ff7744e]
 - [x] Task: Update `next.config.ts` to output standalone and trace `@electric-sql/pglite` WASM assets 6db3af3
 - [x] Task: Write a Node/TS script to compile Next.js and copy `public` and `.next/static` assets into the standalone bundle 8ff91d1
 - [x] Task: Validate that the standalone bundle runs independently with a test spawn f8bec05
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Next.js Standalone Build & Asset Copying' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Next.js Standalone Build & Asset Copying' (Protocol in workflow.md) ff7744e
 
 ## Phase 3: Electron Main Process & IPC Server
 - [ ] Task: Add Electron toolchain devDependencies (`electron`, `electron-builder`, `electron-updater`)
