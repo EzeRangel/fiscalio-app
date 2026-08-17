@@ -110,11 +110,12 @@ describe("Cancellation Server Actions", () => {
         })
       );
       expect(logAction).toHaveBeenCalledWith(
-        expect.any(Object),
-        "cancelled",
-        "invoice",
-        "1",
-        expect.any(Object)
+        expect.objectContaining({
+          action: "cancelled",
+          entityType: "invoice",
+          entityId: 1,
+          organizationId: 10,
+        })
       );
     });
 
@@ -183,6 +184,7 @@ describe("Cancellation Server Actions", () => {
       const mockInvoice = {
         id: 1,
         organizationId: 10,
+        partnerId: 5,
         subtotal: "100.00",
         total: "116.00",
         amountPaid: "116.00",
@@ -214,11 +216,12 @@ describe("Cancellation Server Actions", () => {
         })
       );
       expect(logAction).toHaveBeenCalledWith(
-        expect.any(Object),
-        "refunded",
-        "payment",
-        "50",
-        expect.any(Object)
+        expect.objectContaining({
+          action: "refunded",
+          entityType: "payment",
+          entityId: 50,
+          organizationId: 10,
+        })
       );
     });
 
@@ -226,6 +229,7 @@ describe("Cancellation Server Actions", () => {
       const mockInvoice = {
         id: 1,
         organizationId: 10,
+        partnerId: 5,
         subtotal: "100.00",
         total: "116.00",
         amountPaid: "50.00",
