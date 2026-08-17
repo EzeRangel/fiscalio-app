@@ -27,22 +27,21 @@ describe("Backup Server Actions", () => {
 
   it("should list empty backups when none exist", async () => {
     const result = await listBackupsAction();
-    expect(result.data).toEqual({
-      daily: [],
-      monthly: [],
-      manual: [],
-    });
+    expect(result.data).toEqual([]);
   });
 
   it("should create a manual backup using PGlite dumpDataDir", async () => {
     const mockPg = {
-      dumpDataDir: jest.fn().mockResolvedValue(new Blob(["test-backup-content"])),
+      exec: jest.fn().mockResolvedValue(undefined),
+      dumpDataDir: jest.fn().mockResolvedValue({
+        arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+      }),
     };
     (getDB as jest.Mock).mockResolvedValue({ pg: mockPg });
 
     const result = await createManualBackupAction();
     expect(result.data?.success).toBe(true);
-    expect(result.data?.filename).toMatch(/^backup-.*\.tar\.gz$/);
+    expect(result.data?.filename).toMatch(/^Fiscalio-.*\.tar\.gz$/);
     expect(fs.existsSync(result.data!.backupPath)).toBe(true);
   });
 });

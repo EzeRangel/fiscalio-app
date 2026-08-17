@@ -2,13 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import {
-  pruneOldBackups,
-  createDailyBackupFilename,
-  createMonthlyBackupFilename,
+  pruneBackupsFifo,
+  createBackupFilename,
   BackupEngine,
+  BACKUP_MAX_DAYS,
+  BACKUP_MAX_FILES,
 } from "@/lib/backup-engine";
 
-describe("Backup Engine & Pruning", () => {
+describe("Backup Engine & FIFO Pruning (Issue #22)", () => {
   let tempBaseDir: string;
   let backupsDir: string;
 
@@ -21,49 +22,91 @@ describe("Backup Engine & Pruning", () => {
     fs.rmSync(tempBaseDir, { recursive: true, force: true });
   });
 
-  it("should generate proper daily and monthly filenames", () => {
-    const date = new Date("2026-08-17T15:30:00Z");
-    const dailyName = createDailyBackupFilename(date);
-    expect(dailyName).toMatch(/^backup-20260817-\d{6}\.tar\.gz$/);
-
-    const monthlyName = createMonthlyBackupFilename(date);
-    expect(monthlyName).toBe("backup-202608.tar.gz");
+  it("should generate proper Fiscalio-<appVersion>-<timestamp>.tar.gz filename", () => {
+    const date = new Date("2026-08-17T15:30:00.000Z");
+    const name = createBackupFilename("1.0.0", date);
+    expect(name).toBe("Fiscalio-1.0.0-2026-08-17T15-30-00-000Z.tar.gz");
   });
 
-  it("should prune old backups keeping only the specified max count", () => {
-    const dailyDir = path.join(backupsDir, "daily");
-    fs.mkdirSync(dailyDir, { recursive: true });
+  it("should prune old backups using FIFO rotation by count (50 files limit)", () => {
+    fs.mkdirSync(backupsDir, { recursive: true });
 
-    // Create 10 dummy backup files
-    for (let i = 1; i <= 10; i++) {
-      const fileName = `backup-202608${String(i).padStart(2, "0")}-120000.tar.gz`;
-      fs.writeFileSync(path.join(dailyDir, fileName), "dummy content");
+    const now = Date.now();
+    // Create 60 backup files with different mtimes
+    for (let i = 1; i <= 60; i++) {
+      const fileName = `Fiscalio-1.0.0-20260817-${String(i).padStart(3, "0")}.tar.gz`;
+      const filePath = path.join(backupsDir, fileName);
+      fs.writeFileSync(filePath, "dummy backup data");
+      // Set utimes so file 1 is oldest and file 60 is newest
+      const fileTime = (now - (60 - i) * 60 * 1000) / 1000;
+      fs.utimesSync(filePath, fileTime, fileTime);
     }
 
-    expect(fs.readdirSync(dailyDir).length).toBe(10);
+    expect(fs.readdirSync(backupsDir).length).toBe(60);
 
-    const removed = pruneOldBackups(dailyDir, 7);
-    expect(removed.length).toBe(3);
+    const removed = pruneBackupsFifo(backupsDir, 7, 50, now);
+    expect(removed.length).toBe(10);
 
-    const remaining = fs.readdirSync(dailyDir);
-    expect(remaining.length).toBe(7);
-    // Oldest ones (01, 02, 03) should have been pruned
-    expect(remaining).not.toContain("backup-20260801-120000.tar.gz");
-    expect(remaining).not.toContain("backup-20260802-120000.tar.gz");
-    expect(remaining).not.toContain("backup-20260803-120000.tar.gz");
-    expect(remaining).toContain("backup-20260810-120000.tar.gz");
+    const remaining = fs.readdirSync(backupsDir);
+    expect(remaining.length).toBe(50);
+    // Oldest 10 files should have been removed
+    expect(remaining).not.toContain("Fiscalio-1.0.0-20260817-001.tar.gz");
+    expect(remaining).not.toContain("Fiscalio-1.0.0-20260817-010.tar.gz");
+    // Newest files must be preserved
+    expect(remaining).toContain("Fiscalio-1.0.0-20260817-060.tar.gz");
   });
 
-  it("should handle empty or non-existent directories gracefully during pruning", () => {
-    const nonExistent = path.join(backupsDir, "nonexistent");
-    const removed = pruneOldBackups(nonExistent, 7);
-    expect(removed).toEqual([]);
+  it("should prune backups older than 7 days", () => {
+    fs.mkdirSync(backupsDir, { recursive: true });
+
+    const now = Date.now();
+    const tenDaysAgo = (now - 10 * 24 * 60 * 60 * 1000) / 1000;
+    const twoDaysAgo = (now - 2 * 24 * 60 * 60 * 1000) / 1000;
+
+    const oldFile = path.join(backupsDir, "Fiscalio-1.0.0-old.tar.gz");
+    const freshFile = path.join(backupsDir, "Fiscalio-1.0.0-fresh.tar.gz");
+
+    fs.writeFileSync(oldFile, "old backup");
+    fs.utimesSync(oldFile, tenDaysAgo, tenDaysAgo);
+
+    fs.writeFileSync(freshFile, "fresh backup");
+    fs.utimesSync(freshFile, twoDaysAgo, twoDaysAgo);
+
+    const removed = pruneBackupsFifo(backupsDir, 7, 50, now);
+    expect(removed).toContain("Fiscalio-1.0.0-old.tar.gz");
+    expect(fs.readdirSync(backupsDir)).toEqual(["Fiscalio-1.0.0-fresh.tar.gz"]);
   });
 
-  it("should initialize BackupEngine with base backup directory", () => {
-    const engine = new BackupEngine(tempBaseDir);
-    expect(engine.getBackupsDir()).toBe(path.join(tempBaseDir, "backups"));
-    expect(engine.getDailyDir()).toBe(path.join(tempBaseDir, "backups", "daily"));
-    expect(engine.getMonthlyDir()).toBe(path.join(tempBaseDir, "backups", "monthly"));
+  it("should handle CHECKPOINT, 100-ops threshold, and clean shutdown on BackupEngine", async () => {
+    const engine = new BackupEngine(tempBaseDir, "1.0.0");
+    const mockPg = {
+      exec: jest.fn().mockResolvedValue(undefined),
+      dumpDataDir: jest.fn().mockResolvedValue({
+        arrayBuffer: async () => new Uint8Array([1, 2, 3, 4]).buffer,
+      }),
+    };
+
+    // Perform checkpoint
+    await engine.performCheckpoint(mockPg as any);
+    expect(mockPg.exec).toHaveBeenCalledWith("CHECKPOINT;");
+
+    // Perform backup
+    const result = await engine.performBackup(mockPg as any, "test_reason");
+    expect(result.filename).toMatch(/^Fiscalio-1\.0\.0-.*\.tar\.gz$/);
+    expect(fs.existsSync(result.backupPath)).toBe(true);
+
+    // Record write ops up to 100
+    for (let i = 0; i < 99; i++) {
+      await engine.recordWriteOp(mockPg as any);
+    }
+    expect(engine.getWriteOpsCount()).toBe(99);
+
+    // 100th op triggers backup
+    await engine.recordWriteOp(mockPg as any);
+    expect(engine.getWriteOpsCount()).toBe(0); // reset
+
+    // Clean shutdown
+    await engine.handleCleanShutdown(mockPg as any);
+    expect(engine.listBackups().length).toBeGreaterThan(0);
   });
 });
