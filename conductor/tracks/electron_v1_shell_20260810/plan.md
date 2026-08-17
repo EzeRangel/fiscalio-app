@@ -44,9 +44,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 5: Upgrade/Downgrade Schema Gate & UX Polish' (Protocol in workflow.md) 10ea795
 
 ## Phase 6: Packaging & Auto-Update Configuration
-- [ ] Task: Configure `electron-builder` with identity `productName: "Fiscalio"`, ensuring PGLite files are unpacked from ASAR (`asarUnpack`)
-- [ ] Task: Configure build targets: Windows NSIS (`.exe` + `latest.yml` + `.blockmap`); macOS `.dmg` + `.zip` + `latest-mac.yml` (unsigned)
-- [ ] Task: Integrate `electron-updater` with `provider: github` for Windows auto-check on boot plus a manual button, and macOS in-app update notifications
-- [ ] Task: Bump version to `v1.0.0` in `package.json` and add `CHANGELOG.md` (Keep a Changelog); document the manual release process
-- [ ] Task: Execute test package builds and verify standalone executable functionality
-- [ ] Task: Conductor - User Manual Verification 'Phase 6: Packaging & Auto-Update Configuration' (Protocol in workflow.md)
+- [x] Task: Configure `electron-builder` with identity `productName: "Fiscalio"`, ensuring PGLite files are unpacked from ASAR (`asarUnpack`) f700c0a
+- [x] Task: Configure build targets: Windows NSIS (`.exe` + `latest.yml` + `.blockmap`); macOS `.dmg` + `.zip` + `latest-mac.yml` (unsigned) f700c0a
+- [x] Task: Integrate `electron-updater` with `provider: github` for Windows auto-check on boot plus a manual button, and macOS in-app update notifications f700c0a
+- [x] Task: Bump version to `v1.0.0` in `package.json` and add `CHANGELOG.md` (Keep a Changelog); document the manual release process f700c0a
+- [x] Task: Execute test package builds and verify standalone executable functionality f700c0a
+- [~] Task: Conductor - User Manual Verification 'Phase 6: Packaging & Auto-Update Configuration' (Protocol in workflow.md)
