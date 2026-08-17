@@ -257,6 +257,10 @@ if (!gotTheLock) {
         logger?.info(`Migrated legacy database from ${migrationRes.source} to ${migrationRes.target}`);
       }
 
+      logger?.info("Checking schema version compatibility (downgrade gate)...");
+      const { checkSchemaGateForDataDir } = await import("./schema-gate-check");
+      await checkSchemaGateForDataDir(dataDirPath);
+
       if (!serverManager) throw new Error("Server manager uninitialized");
       const { url } = await serverManager.start();
       mainWindow = await createMainWindow(url);
@@ -266,7 +270,13 @@ if (!gotTheLock) {
     } catch (err: unknown) {
       const error = err as Error;
       logger?.error("Startup failure:", error);
-      showErrorScreen("Error al iniciar el servidor interno", error.message);
+      const isDowngrade =
+        error.name === "DowngradeDetectedError" ||
+        error.message.includes("degradar la versión");
+      const errorTitle = isDowngrade
+        ? "Versión de base de datos no compatible"
+        : "Error al iniciar el servidor interno";
+      showErrorScreen(errorTitle, error.message);
     }
   });
 
