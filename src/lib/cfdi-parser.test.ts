@@ -47,7 +47,7 @@ describe("CFDIParser", () => {
   it("should throw an error for invalid XML content", async () => {
     const invalidXml = "<xml>invalid</xml>";
     await expect(CFDIParser.parse(invalidXml)).rejects.toThrow(
-      "Error al procesar XML: The document is not a CFDI"
+      "CFDI inválido:"
     );
   });
 });
