@@ -15,6 +15,9 @@ import {
 } from "@/lib/constants";
 import type { MatchCriteria } from "@/types/classification-rules";
 
+import fs from "fs";
+import { checkSchemaCompatibility } from "@/lib/schema-gate";
+
 export interface BootstrapResult {
   taxRegimesCount: number;
   classificationRulesSeededFor: number[];
@@ -31,8 +34,25 @@ export interface BootstrapResult {
  */
 export async function runBootstrap(dataDir: string): Promise<BootstrapResult> {
   const migrationsFolder = path.resolve(process.cwd(), "src/db/migrations");
+  const journalPath = path.resolve(migrationsFolder, "meta/_journal.json");
+  let expectedMigrationCount = 20;
+
+  if (fs.existsSync(journalPath)) {
+    try {
+      const journal = JSON.parse(fs.readFileSync(journalPath, "utf-8"));
+      if (Array.isArray(journal.entries)) {
+        expectedMigrationCount = journal.entries.length;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   const pg = new PGlite(dataDir);
   try {
+    // 1. Schema compatibility and downgrade protection
+    await checkSchemaCompatibility(pg, expectedMigrationCount, "0.1.0");
+
     const db = drizzle(pg);
 
     await migrate(db, { migrationsFolder });

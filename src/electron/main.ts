@@ -152,9 +152,13 @@ if (!gotTheLock) {
             }
             h2 { color: #ef4444; margin-top: 0; }
             p { color: #d4d4d8; font-size: 14px; line-height: 1.5; }
+            .btn-group {
+              margin-top: 20px;
+              display: flex;
+              gap: 12px;
+            }
             .btn {
               display: inline-block;
-              margin-top: 16px;
               padding: 8px 16px;
               background: #2563eb;
               color: white;
@@ -163,12 +167,19 @@ if (!gotTheLock) {
               font-size: 13px;
               cursor: pointer;
             }
+            .btn-secondary {
+              background: #27272a;
+              color: #e4e4e7;
+            }
           </style>
         </head>
         <body>
           <h2>${title}</h2>
           <p>${message}</p>
           <p>Revisa el archivo de registro en <code>${logger?.getLogFilePath()}</code> para más detalles.</p>
+          <div class="btn-group">
+            <a class="btn" href="https://github.com/EzeRangel/fiscalio-app/releases" target="_blank">Descargar versión reciente</a>
+          </div>
         </body>
       </html>
     `;
