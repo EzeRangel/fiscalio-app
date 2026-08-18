@@ -49,4 +49,9 @@
 - [x] Task: Integrate `electron-updater` with `provider: github` for Windows auto-check on boot plus a manual button, and macOS in-app update notifications f700c0a
 - [x] Task: Bump version to `v1.0.0` in `package.json` and add `CHANGELOG.md` (Keep a Changelog); document the manual release process f700c0a
 - [x] Task: Execute test package builds and verify standalone executable functionality f700c0a
-- [~] Task: Conductor - User Manual Verification 'Phase 6: Packaging & Auto-Update Configuration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 6: Packaging & Auto-Update Configuration' (Protocol in workflow.md)
+
+> **Nota de cierre (2026-08-17):** implementado el fixes-plan (`fixes-plan.md`, commit `e23ab6c`)
+> y verificados: `pnpm test` 331/331, smoke `pnpm smoke:shutdown-backup` → PASS (backup de cierre
+> en SIGTERM), `pnpm package` con `electron-updater@6.8.9` en asar y sin `pglite/` en el bundle.
+> Falta la verificación manual final con `pnpm electron:start` (checkout completo de la app).

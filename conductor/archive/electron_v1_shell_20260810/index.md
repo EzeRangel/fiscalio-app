@@ -2,4 +2,5 @@
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)
+- [Fixes Plan (post-revisión)](./fixes-plan.md)
 - [Metadata](./metadata.json)
